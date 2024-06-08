@@ -14,3 +14,24 @@ a {
 * {
   box-sizing: border-box;
 }
+.react-resizable-handle-e {
+  width: 10px;
+  min-width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
+  z-index: 99;
+  position: absolute;
+  right: -10px;
+}
+
+.react-resizable-handle-s {
+  height: 10px;
+  min-height: 10px;
+  width: 100%;
+  cursor: row-resize;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
+  z-index: 99;
+  position: absolute;
+  bottom: -10px;
+}
