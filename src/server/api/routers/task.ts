@@ -64,9 +64,9 @@ getAll: protectedProcedure
       name: z.string().optional(),
       description: z.string().optional(),
       status: z.boolean().optional(),
-      groupId: z.string().cuid().optional(),
-      startDate: z.date().optional(),
-      endDate: z.date().optional(),
+      groupId: z.string().cuid().nullable().optional(),
+      startDate: z.date().nullable().optional(),
+      endDate: z.date().nullable().optional(),
       isAllDay: z.boolean().optional(),
     }))
     .mutation(async ({ ctx, input }) => {

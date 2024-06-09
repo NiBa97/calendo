@@ -2,21 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useTasks } from "../_contexts/task-context";
+import { type Task } from "@prisma/client";
 
-const TempTask = () => {
-  const { tasks, updateTask } = useTasks();
-  const taskId = "clx77yjig0001100dakrexfwc";
-
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState(false);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [isAllDay, setIsAllDay] = useState(false);
+const TempTask = ({ task }: { task: Task }) => {
+  const { updateTask } = useTasks();
+  const [name, setName] = useState(task?.name ?? "");
+  const [description, setDescription] = useState(task?.description ?? "");
+  const [status, setStatus] = useState(task?.status ?? false);
+  const [startDate, setStartDate] = useState(task?.startDate ? new Date(task.startDate) : null);
+  const [endDate, setEndDate] = useState(task?.endDate ? new Date(task.endDate) : null);
+  const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
 
   useEffect(() => {
-    if (tasks === undefined || tasks.length == 0) return;
-    const task = tasks.find((t) => t?.id === taskId);
     if (task) {
       setName(task.name);
       setDescription(task.description ?? "");
@@ -25,17 +22,17 @@ const TempTask = () => {
       setEndDate(task.endDate ? new Date(task.endDate) : null);
       setIsAllDay(task.isAllDay);
     }
-  }, [tasks]);
+  }, [task]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await updateTask(taskId, { name, description, status, startDate, endDate, isAllDay });
+    await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
   };
 
   return (
     <div>
-      <h2>Edit Task</h2>
+      <h2>Edit Task {task.id}</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>

@@ -43,17 +43,15 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const updateTask = async (taskId: string, updatedData: Partial<Task>) => {
     const dataWithDefaults = updatedData as {
       name: string;
-      startDate?: Date | undefined;
-      endDate?: Date | undefined;
+      startDate?: Date | undefined | null;
+      endDate?: Date | undefined | null;
       isAllDay?: boolean | undefined;
       status?: boolean | undefined;
       description?: string | undefined;
-      groupId?: string | undefined;
+      groupId?: string | undefined | null;
     };
     const updatedTask = await updateMutation({ id: taskId, ...dataWithDefaults });
     setTasks((prevTasks) => prevTasks.map((task) => (task.id === taskId ? updatedTask : task)));
-    console.log("updated task", updatedTask);
-    console.log("new list", tasks);
   };
 
   const deleteTask = async (taskId: string) => {
