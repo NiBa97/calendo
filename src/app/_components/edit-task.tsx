@@ -3,6 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { useTasks } from "../_contexts/task-context";
 import { type Task } from "@prisma/client";
+import {
+  InputGroup,
+  InputLeftElement,
+  Input,
+  FormControl,
+  Checkbox,
+  Textarea,
+  Box,
+  Flex,
+  HStack,
+  Button,
+  InputRightElement,
+  Icon,
+  Link,
+} from "@chakra-ui/react";
+import { FaPlus, FaXmark } from "react-icons/fa6";
+import { IconType } from "react-icons/lib";
 
 const TempTask = ({ task }: { task: Task }) => {
   const { updateTask } = useTasks();
@@ -14,6 +31,7 @@ const TempTask = ({ task }: { task: Task }) => {
   const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
 
   useEffect(() => {
+    console.log("Task status", task.status, status);
     if (task) {
       setName(task.name);
       setDescription(task.description ?? "");
@@ -24,34 +42,46 @@ const TempTask = ({ task }: { task: Task }) => {
     }
   }, [task]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    updateTask(task.id, { status: status });
+  }, [status]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
     await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
   };
 
   return (
-    <div>
-      <h2>Edit Task {task.id}</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Name:
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-        </div>
-        <div>
-          <label>
-            Description:
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </label>
-        </div>
-        <div>
-          <label>
-            Status:
-            <input type="checkbox" checked={status} onChange={(e) => setStatus(e.target.checked)} />
-          </label>
-        </div>
+    <Flex direction="column" width="100%" height="100%">
+      <InputGroup size="md" width={"100%"}>
+        <InputLeftElement bg={"gray.800"}>
+          <Checkbox isChecked={status} onChange={() => setStatus(!status)}></Checkbox>
+        </InputLeftElement>
+        <Input
+          placeholder="Add new unscheduled task"
+          bg={"gray.800"}
+          border={"none"}
+          type="text"
+          value={name}
+          _focus={{ border: "none", outline: "none", boxShadow: "none" }}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <InputRightElement bg={"gray.800"}>
+          <Link href="/webapp/">
+            <Icon size={20} as={FaXmark as IconType}></Icon>
+          </Link>
+        </InputRightElement>
+      </InputGroup>
+      <Textarea
+        outline={"none"}
+        flex="1"
+        border={"none"}
+        borderRadius={0}
+        _focus={{ border: "none", outline: "none", boxShadow: "none" }}
+        bg={"gray.800"}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+      <Flex justifyContent={"space-between"} alignItems={"center"} px={4}>
         <div>
           <label>
             Start Date:
@@ -78,11 +108,11 @@ const TempTask = ({ task }: { task: Task }) => {
             <input type="checkbox" checked={isAllDay} onChange={(e) => setIsAllDay(e.target.checked)} />
           </label>
         </div>
-        <div>
-          <button type="submit">Save</button>
-        </div>
-      </form>
-    </div>
+        <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"} color={"gray.300"}>
+          Save
+        </Button>
+      </Flex>
+    </Flex>
   );
 };
 export default TempTask;
