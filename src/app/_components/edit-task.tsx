@@ -20,8 +20,14 @@ import {
 } from "@chakra-ui/react";
 import { FaPlus, FaXmark } from "react-icons/fa6";
 import { IconType } from "react-icons/lib";
+import dynamic from "next/dynamic";
+import { ForwardRefEditor } from "./bypass-editor";
+import { MDXEditorMethods } from "@mdxeditor/editor";
+
+const Editor = dynamic(() => import("./editor"), { ssr: false });
 
 const TempTask = ({ task }: { task: Task }) => {
+  const ref = React.useRef<MDXEditorMethods>(null);
   const { updateTask } = useTasks();
   const [name, setName] = useState(task?.name ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
@@ -39,6 +45,7 @@ const TempTask = ({ task }: { task: Task }) => {
       setStartDate(task.startDate ? new Date(task.startDate) : null);
       setEndDate(task.endDate ? new Date(task.endDate) : null);
       setIsAllDay(task.isAllDay);
+      ref.current?.setMarkdown(task.description!);
     }
   }, [task]);
 
@@ -71,6 +78,7 @@ const TempTask = ({ task }: { task: Task }) => {
           </Link>
         </InputRightElement>
       </InputGroup>
+      <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
       <Textarea
         outline={"none"}
         flex="1"
