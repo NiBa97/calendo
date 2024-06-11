@@ -1,5 +1,5 @@
 "use client";
-import { Box } from "@chakra-ui/react";
+import { type Task } from "@prisma/client";
 import TempTask from "~/app/_components/edit-task";
 import { useTasks } from "~/app/_contexts/task-context";
 export default function Home({ params: { id: taskId } }: { params: { id: string } }) {

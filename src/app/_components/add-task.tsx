@@ -1,17 +1,5 @@
 import { useState } from "react";
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  InputLeftElement,
-  InputRightAddon,
-  Stack,
-  useToast,
-} from "@chakra-ui/react";
+import { Button, FormControl, HStack, Input, InputGroup, InputLeftElement, Stack, useToast } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa6";
 
 import { useTasks } from "../_contexts/task-context";
@@ -20,13 +8,12 @@ const AddTask = () => {
   const { createTask } = useTasks();
   const toast = useToast();
 
-  const handleCreateTask = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleCreateTask = () => {
     if (!taskName.trim()) {
       throw new Error("Task name cannot be empty");
     }
 
-    await createTask({ name: taskName.trim() })
+    createTask({ name: taskName.trim() })
       .then(() => {
         setTaskName("");
         toast({
@@ -50,7 +37,12 @@ const AddTask = () => {
 
   return (
     <Stack spacing={4}>
-      <form onSubmit={handleCreateTask}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCreateTask();
+        }}
+      >
         <HStack gap={2} p={2}>
           <FormControl id="taskName">
             <InputGroup size="md">

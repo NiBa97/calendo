@@ -7,24 +7,18 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
-  FormControl,
   Checkbox,
   Textarea,
-  Box,
   Flex,
-  HStack,
   Button,
   InputRightElement,
   Icon,
   Link,
+  useToast,
 } from "@chakra-ui/react";
-import { FaPlus, FaXmark } from "react-icons/fa6";
-import { IconType } from "react-icons/lib";
-import dynamic from "next/dynamic";
+import { FaXmark } from "react-icons/fa6";
 import { ForwardRefEditor } from "./bypass-editor";
-import { MDXEditorMethods } from "@mdxeditor/editor";
-
-const Editor = dynamic(() => import("./editor"), { ssr: false });
+import { type MDXEditorMethods } from "@mdxeditor/editor";
 
 const TempTask = ({ task }: { task: Task }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
@@ -35,9 +29,8 @@ const TempTask = ({ task }: { task: Task }) => {
   const [startDate, setStartDate] = useState(task?.startDate ? new Date(task.startDate) : null);
   const [endDate, setEndDate] = useState(task?.endDate ? new Date(task.endDate) : null);
   const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
-
+  const toast = useToast();
   useEffect(() => {
-    console.log("Task status", task.status, status);
     if (task) {
       setName(task.name);
       setDescription(task.description ?? "");
@@ -50,10 +43,31 @@ const TempTask = ({ task }: { task: Task }) => {
   }, [task]);
 
   useEffect(() => {
-    updateTask(task.id, { status: status });
-  }, [status]);
+    if (task.status !== status) {
+      task.status = status;
+      updateTask(task.id, { status: status })
+        .then(() => {
+          toast({
+            title: "Task created",
+            description: status ? "Task marked as completed" : "Task marked as open",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        })
+        .catch((error: Error) => {
+          toast({
+            title: "Error",
+            description: error.message || "An error occurred completing the task.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        });
+    }
+  }, [status, task, toast, updateTask]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (_e: React.FormEvent) => {
     await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
   };
 
@@ -74,7 +88,7 @@ const TempTask = ({ task }: { task: Task }) => {
         />
         <InputRightElement bg={"gray.800"}>
           <Link href="/webapp/">
-            <Icon size={20} as={FaXmark as IconType}></Icon>
+            <Icon size={20} as={FaXmark}></Icon>
           </Link>
         </InputRightElement>
       </InputGroup>

@@ -8,8 +8,8 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar.css";
 import { useTasks } from "~/app/_contexts/task-context";
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
-import { Task } from "@prisma/client";
+import { type SyntheticEvent, useEffect, useRef, useState } from "react";
+import { type Task } from "@prisma/client";
 import TempTask from "~/app/_components/edit-task";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
@@ -20,9 +20,9 @@ export default function Home() {
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const toast = useToast();
 
-  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    const title = window.prompt("New Event name");
-  };
+  // const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+  //   const title = window.prompt("New Event name");
+  // };
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
     if (selectedEvent?.id === (event as Task).id) return setSelectedEvent(null);
 
@@ -94,7 +94,7 @@ export default function Home() {
         onEventDrop={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
-        onSelectSlot={handleSelectSlot}
+        // onSelectSlot={handleSelectSlot}
       />
       {selectedEvent && (
         <CustomPopup

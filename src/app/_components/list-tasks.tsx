@@ -1,6 +1,5 @@
-import { Box, Checkbox, HStack, Text, VStack } from "@chakra-ui/react";
+import { Checkbox, HStack, Text, VStack } from "@chakra-ui/react";
 import { useTasks } from "../_contexts/task-context";
-import { type Task } from "@prisma/client";
 
 import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
@@ -10,24 +9,16 @@ const ListTasks: React.FC = () => {
   const [stateTasks, setStateTasks] = useState(tasks);
 
   useEffect(() => {
-    console.log("tasks update");
-    console.log(tasks);
     setStateTasks(tasks);
   }, [tasks]);
 
   return (
     <VStack width={"100%"}>
       {stateTasks.map((task) => (
-        <HStack width={"100%"} p={2} bg={"gray.400"}>
-          <Checkbox isChecked={task.status} onChange={(e) => updateTask(task.id, { status: !task.status })}></Checkbox>
+        <HStack width={"100%"} p={2} bg={"gray.400"} key={task.id}>
+          <Checkbox isChecked={task.status} onChange={(_e) => updateTask(task.id, { status: !task.status })}></Checkbox>
 
-          <Link
-            key={task.id}
-            href={"/webapp/id/" + task.id}
-            cursor="pointer"
-            width={"100%"}
-            _hover={{ cursor: "pointer" }}
-          >
+          <Link href={"/webapp/id/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
             {/* <Box
             key={task.id}
             w={"100%"}

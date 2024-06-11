@@ -1,13 +1,11 @@
 "use client";
 import {
-  AdmonitionDirectiveDescriptor,
   KitchenSinkToolbar,
   MDXEditor,
-  MDXEditorMethods,
+  type MDXEditorMethods,
   codeBlockPlugin,
   codeMirrorPlugin,
   diffSourcePlugin,
-  directivesPlugin,
   frontmatterPlugin,
   headingsPlugin,
   imagePlugin,
@@ -16,13 +14,12 @@ import {
   listsPlugin,
   markdownShortcutPlugin,
   quotePlugin,
-  sandpackPlugin,
   tablePlugin,
   thematicBreakPlugin,
   toolbarPlugin,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-import { FC } from "react";
+import { type FC } from "react";
 interface EditorProps {
   markdown: string;
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
