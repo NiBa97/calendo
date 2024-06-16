@@ -20,6 +20,12 @@ import {
   linkPlugin,
   tablePlugin,
   toolbarPlugin,
+  UndoRedo,
+  BoldItalicUnderlineToggles,
+  ListsToggle,
+  CreateLink,
+  Separator,
+  BlockTypeSelect,
 } from "@mdxeditor/editor";
 
 // Only import this to the next file
@@ -31,7 +37,21 @@ export default function InitializedMDXEditor({
     <MDXEditor
       plugins={[
         // Example Plugin Usage
-        toolbarPlugin({ toolbarContents: () => <KitchenSinkToolbar /> }),
+        toolbarPlugin({
+          toolbarContents: () => (
+            <>
+              {/* <UndoRedo />
+              <Separator /> */}
+              <BoldItalicUnderlineToggles />
+              <CreateLink />
+              <Separator />
+              <ListsToggle />
+
+              <Separator />
+              <BlockTypeSelect />
+            </>
+          ),
+        }),
 
         listsPlugin(),
         quotePlugin(),

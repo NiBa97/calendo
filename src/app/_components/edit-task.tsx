@@ -72,7 +72,7 @@ const TempTask = ({ task }: { task: Task }) => {
   };
 
   return (
-    <Flex direction="column" width="100%" height="100%">
+    <Flex direction="column" width="100%" height="100%" bg={"gray.800"}>
       <InputGroup size="md" width={"100%"}>
         <InputLeftElement bg={"gray.800"}>
           <Checkbox isChecked={status} onChange={() => setStatus(!status)}></Checkbox>
@@ -92,18 +92,11 @@ const TempTask = ({ task }: { task: Task }) => {
           </Link>
         </InputRightElement>
       </InputGroup>
-      <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
-      <Textarea
-        outline={"none"}
-        flex="1"
-        border={"none"}
-        borderRadius={0}
-        _focus={{ border: "none", outline: "none", boxShadow: "none" }}
-        bg={"gray.800"}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <Flex justifyContent={"space-between"} alignItems={"center"} px={4}>
+      <Flex grow={"1"} width={"100%"} flexDirection={"column"}>
+        <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
+      </Flex>
+
+      <Flex justifyContent={"space-between"} alignItems={"center"} px={4} bg={"gray.900"} bottom={0}>
         <div>
           <label>
             Start Date:

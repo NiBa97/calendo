@@ -3,3 +3,17 @@
     height:auto;
     width: 100%;
 }
+.mdxeditor-diff-source-wrapper h1{
+    font-size: 22px;
+    font-weight: bold;
+}
+.mdxeditor-diff-source-wrapper span,.mdxeditor-diff-source-wrapper p, .mdxeditor-diff-source-wrapper li {
+    color:white !important;
+}
+.mdxeditor .mdxeditor-rich-text-editor ul li{
+    margin-left:0px;
+}
+
+.mdxeditor .mdxeditor-rich-text-editor ul li::before, .mdxeditor .mdxeditor-rich-text-editor ul li::after{
+    margin-top:3px;
+}
