@@ -1,6 +1,6 @@
 "use client";
 import { Box, Flex, useToast } from "@chakra-ui/react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
+import { Calendar, View, Views, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
@@ -8,7 +8,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar.css";
 import { useTasks } from "~/app/_contexts/task-context";
-import { type SyntheticEvent, useEffect, useRef, useState } from "react";
+import { type SyntheticEvent, useEffect, useRef, useState, useCallback } from "react";
 import { type Task } from "@prisma/client";
 import TempTask from "~/app/_components/edit-task";
 const localizer = momentLocalizer(moment);
@@ -19,7 +19,19 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const toast = useToast();
+  const [view, setView] = useState<View>(Views.WEEK);
 
+  const handleOnChangeView = (selectedView: View) => {
+    setView(selectedView);
+  };
+
+  const [date, setDate] = useState(new Date());
+  const onNavigate = useCallback(
+    (newDate: Date) => {
+      return setDate(newDate);
+    },
+    [setDate]
+  );
   // const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
   //   const title = window.prompt("New Event name");
   // };
@@ -72,10 +84,13 @@ export default function Home() {
         });
       });
   };
+
   return (
-    <Flex maxHeight={"100%"} grow={"1"} mt={8}>
+    <Flex maxHeight={"100%"} minHeight={"100%"} grow={"1"}>
       <DnDCalendar
-        defaultView="week"
+        view={view}
+        date={date}
+        views={["month", "day", "week"]}
         selectable
         events={tasks}
         startAccessor={(event) => {
@@ -90,7 +105,10 @@ export default function Home() {
         resourceIdAccessor={(event) => {
           return (event as Task).id;
         }}
+        showMultiDayTimes
         localizer={localizer}
+        onNavigate={onNavigate}
+        onView={handleOnChangeView}
         onEventDrop={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}

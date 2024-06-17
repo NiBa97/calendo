@@ -33,7 +33,7 @@ export default function Layout({
 
   return (
     <TaskProvider>
-      <Flex direction={"column"} height={"100%"} bg={"purple"} p={4} color={"#F7FAFC"}>
+      <Flex direction={"column"} height={"100%"} maxHeight={"100vh"} bg={"purple"} p={4} color={"#F7FAFC"}>
         <Resizable height={height} width={Infinity} onResize={onHeightResize} resizeHandles={["s"]}>
           <Box width={"100%"} height={height} bg={"green"} position={"relative"}>
             <HStack height={"100%"}>
@@ -50,7 +50,7 @@ export default function Layout({
           </Box>
         </Resizable>
 
-        <Center width={"100%"} height={`calc(100vh - ${height + 10}px)`} bg={"black"} color={"white"}>
+        <Center width={"100%"} height={`calc(100vh - ${height + 10}px)`} bg={"black"} color={"white"} pt={4}>
           {calendar}
         </Center>
       </Flex>
