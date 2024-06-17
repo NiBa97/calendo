@@ -18,7 +18,7 @@ const ListTasks: React.FC = () => {
         <HStack width={"100%"} p={2} bg={"gray.400"} key={task.id}>
           <Checkbox isChecked={task.status} onChange={(_e) => updateTask(task.id, { status: !task.status })}></Checkbox>
 
-          <Link href={"/webapp/id/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
+          <Link href={"/webapp/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
             {/* <Box
             key={task.id}
             w={"100%"}
