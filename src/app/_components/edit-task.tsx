@@ -15,10 +15,12 @@ import {
   Icon,
   Link,
   useToast,
+  Box,
 } from "@chakra-ui/react";
 import { FaXmark } from "react-icons/fa6";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
+import DateTimeRangeSelector from "./datetime-range-selector";
 
 const TempTask = ({ task }: { task: Task }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
@@ -95,28 +97,8 @@ const TempTask = ({ task }: { task: Task }) => {
       <Flex grow={"1"} width={"100%"} flexDirection={"column"}>
         <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
       </Flex>
-
-      <Flex justifyContent={"space-between"} alignItems={"center"} px={4} bg={"gray.900"} bottom={0}>
-        <div>
-          <label>
-            Start Date:
-            <input
-              type="date"
-              value={startDate ? startDate.toISOString().substring(0, 10) : ""}
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            End Date:
-            <input
-              type="date"
-              value={endDate ? endDate.toISOString().substring(0, 10) : ""}
-              onChange={(e) => setEndDate(new Date(e.target.value))}
-            />
-          </label>
-        </div>
+      <Flex justifyContent={"space-between"} alignItems={"center"} bg={"gray.900"} bottom={0}>
+        <DateTimeRangeSelector task={task} />
         <div>
           <label>
             All Day:
