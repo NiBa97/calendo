@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Button, FormControl, HStack, Input, InputGroup, InputLeftElement, Stack, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  FormControl,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Stack,
+  useToast,
+} from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa6";
 
 import { useTasks } from "../_contexts/task-context";
@@ -36,7 +46,7 @@ const AddTask = () => {
   };
 
   return (
-    <Stack spacing={4}>
+    <Box width={"100%"}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -64,7 +74,7 @@ const AddTask = () => {
           </Button>
         </HStack>
       </form>
-    </Stack>
+    </Box>
   );
 };
 
