@@ -74,37 +74,33 @@ const TempTask = ({ task }: { task: Task }) => {
   };
 
   return (
-    <Flex direction="column" width="100%" height="100%" bg={"gray.800"}>
+    <Flex direction="column" width="100%" height="100%" bg={"gray.800"} maxHeight={"100%"}>
       <InputGroup size="md" width={"100%"}>
         <InputLeftElement bg={"gray.800"}>
-          <Checkbox isChecked={status} onChange={() => setStatus(!status)}></Checkbox>
+          <Checkbox size={"lg"} isChecked={status} onChange={() => setStatus(!status)} top={1} left={1}></Checkbox>
         </InputLeftElement>
         <Input
           placeholder="Add new unscheduled task"
           bg={"gray.800"}
           border={"none"}
           type="text"
+          size={"lg"}
+          fontWeight={"600"}
           value={name}
           _focus={{ border: "none", outline: "none", boxShadow: "none" }}
           onChange={(e) => setName(e.target.value)}
         />
-        <InputRightElement bg={"gray.800"}>
+        {/* <InputRightElement bg={"gray.800"}>
           <Link href="/webapp/">
             <Icon size={20} as={FaXmark}></Icon>
           </Link>
-        </InputRightElement>
+        </InputRightElement> */}
       </InputGroup>
-      <Flex grow={"1"} width={"100%"} flexDirection={"column"}>
+      <Flex grow={"1"} width={"100%"} flexDirection={"column"} overflowX={"hidden"}>
         <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
       </Flex>
       <Flex justifyContent={"space-between"} alignItems={"center"} bg={"gray.900"} bottom={0}>
         <DateTimeRangeSelector task={task} />
-        <div>
-          <label>
-            All Day:
-            <input type="checkbox" checked={isAllDay} onChange={(e) => setIsAllDay(e.target.checked)} />
-          </label>
-        </div>
         <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"} color={"gray.300"}>
           Save
         </Button>

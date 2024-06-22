@@ -20,7 +20,7 @@ a {
   height: 100%;
   cursor: col-resize;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 99;
+  z-index: 9;
   position: absolute;
   right: -10px;
 }
@@ -31,7 +31,7 @@ a {
   width: 100%;
   cursor: row-resize;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 99;
+  z-index: 9;
   position: absolute;
   bottom: -10px;
 }

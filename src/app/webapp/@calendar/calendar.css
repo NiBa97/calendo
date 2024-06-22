@@ -6,11 +6,26 @@
 .mdxeditor-diff-source-wrapper h1{
     font-size: 22px;
     font-weight: bold;
+    width:100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.mdxeditor-diff-source-wrapper h2{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.mdxeditor-diff-source-wrapper h3{
+    font-size: 18px;
 }
 .mdxeditor-diff-source-wrapper span,.mdxeditor-diff-source-wrapper p, .mdxeditor-diff-source-wrapper li {
     color:white !important;
 }
-.mdxeditor .mdxeditor-rich-text-editor ul li{
+.mdxeditor .mdxeditor-rich-text-editor ul li, .mdxeditor .mdxeditor-rich-text-editor ol li{
+    margin-left:20px;
+}
+.mdxeditor .mdxeditor-rich-text-editor ul li[role="checkbox"]{
     margin-left:0px;
 }
 

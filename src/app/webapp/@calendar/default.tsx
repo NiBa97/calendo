@@ -105,6 +105,9 @@ export default function Home() {
         resourceIdAccessor={(event) => {
           return (event as Task).id;
         }}
+        allDayAccessor={(event) => {
+          return (event as Task).isAllDay;
+        }}
         showMultiDayTimes
         localizer={localizer}
         onNavigate={onNavigate}
