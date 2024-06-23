@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex, useToast } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { Calendar, View, Views, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -18,7 +18,6 @@ export default function Home() {
   const { tasks, updateTask } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
-  const toast = useToast();
   const [view, setView] = useState<View>(Views.WEEK);
 
   const handleOnChangeView = (selectedView: View) => {
@@ -65,24 +64,7 @@ export default function Home() {
   }) => {
     event.startDate = start;
     event.endDate = end;
-    updateTask(event.id, { startDate: start, endDate: end })
-      .then(() => {
-        toast({
-          title: "Task updated",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      })
-      .catch((error: Error) => {
-        toast({
-          title: "Error",
-          description: error.message || "An error occurred while updating the task.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      });
+    void updateTask(event.id, { startDate: start, endDate: end });
   };
 
   return (

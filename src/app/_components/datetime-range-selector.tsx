@@ -47,16 +47,22 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(
-      () =>
+    if (
+      isAllDay !== task.isAllDay ||
+      returnCompleteStartDate().getTime() !== task.startDate!.getTime() ||
+      returnCompleteEndDate().getTime() !== task.endDate!.getTime()
+    ) {
+      const timeoutId = setTimeout(
+        () => alert("calling updateTask"),
         void updateTask(task.id, {
           startDate: returnCompleteStartDate(),
           endDate: returnCompleteEndDate(),
           isAllDay: isAllDay,
         }),
-      1000
-    );
-    return () => clearTimeout(timeoutId);
+        1000
+      );
+      return () => clearTimeout(timeoutId);
+    }
   }, [startTime, endTime, startDate, endDate, isAllDay]);
 
   const handleStartDateChangeLocal = (value: string) => {

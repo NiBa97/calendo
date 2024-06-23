@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { type Task } from "@prisma/client";
 
 import { api } from "~/trpc/react";
+import { Toast, useToast } from "@chakra-ui/react";
 interface TaskContextType {
   tasks: Task[];
   createTask: (taskData: Partial<Task>) => Promise<void>;
@@ -19,7 +20,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const { mutateAsync: updateMutation } = api.task.update.useMutation();
   const { mutateAsync: createMutation } = api.task.create.useMutation();
   const { mutate: deleteMutation } = api.task.delete.useMutation();
-
+  const toast = useToast();
   useEffect(() => {
     if (fetched_tasks) {
       setTasks(fetched_tasks);
@@ -50,8 +51,26 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       description?: string | undefined;
       groupId?: string | undefined | null;
     };
-    const updatedTask = await updateMutation({ id: taskId, ...dataWithDefaults });
-    setTasks((prevTasks) => prevTasks.map((task) => (task.id === taskId ? updatedTask : task)));
+    await updateMutation({ id: taskId, ...dataWithDefaults })
+      .then((updatedTask: Task) => {
+        toast({
+          title: "Task updated",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        setTasks((prevTasks) => prevTasks.map((task) => (task.id === taskId ? updatedTask : task)));
+      })
+      .catch((error: Error) => {
+        toast({
+          title: "Error",
+          description: error.message || "An error occurred while updating the task.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return null;
+      });
   };
 
   const deleteTask = async (taskId: string) => {

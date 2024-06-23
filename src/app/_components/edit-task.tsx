@@ -3,21 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useTasks } from "../_contexts/task-context";
 import { type Task } from "@prisma/client";
-import {
-  InputGroup,
-  InputLeftElement,
-  Input,
-  Checkbox,
-  Textarea,
-  Flex,
-  Button,
-  InputRightElement,
-  Icon,
-  Link,
-  useToast,
-  Box,
-} from "@chakra-ui/react";
-import { FaXmark } from "react-icons/fa6";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
@@ -31,7 +17,6 @@ const TempTask = ({ task }: { task: Task }) => {
   const [startDate, setStartDate] = useState(task?.startDate ? new Date(task.startDate) : null);
   const [endDate, setEndDate] = useState(task?.endDate ? new Date(task.endDate) : null);
   const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
-  const toast = useToast();
   useEffect(() => {
     if (task) {
       setName(task.name);
@@ -47,27 +32,9 @@ const TempTask = ({ task }: { task: Task }) => {
   useEffect(() => {
     if (task.status !== status) {
       task.status = status;
-      updateTask(task.id, { status: status })
-        .then(() => {
-          toast({
-            title: "Task created",
-            description: status ? "Task marked as completed" : "Task marked as open",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        })
-        .catch((error: Error) => {
-          toast({
-            title: "Error",
-            description: error.message || "An error occurred completing the task.",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        });
+      void updateTask(task.id, { status: status });
     }
-  }, [status, task, toast, updateTask]);
+  }, [status]);
 
   const handleSubmit = async (_e: React.FormEvent) => {
     await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
