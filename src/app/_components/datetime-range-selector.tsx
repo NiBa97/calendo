@@ -30,6 +30,8 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   const [endDate, setEndDate] = useState(moment(task.endDate).format("YYYY-MM-DD"));
   const [endTime, setEndTime] = useState(moment(task.endDate).format("HH:mm"));
 
+  const isValidDate: boolean =
+    startTime.includes(":") && endTime.includes(":") && !isNaN(Date.parse(startDate)) && !isNaN(Date.parse(endDate));
   const returnCompleteStartDate = () => {
     const [hours, minutes] = startTime.split(":").map(Number);
     const newDate = new Date(startDate);
@@ -46,11 +48,25 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
     return newDate;
   };
 
+  //update all state variables when the task is updated
   useEffect(() => {
+    if (task.startDate) {
+      setStartDate(moment(task.startDate).format("YYYY-MM-DD"));
+      setStartTime(moment(task.startDate).format("HH:mm"));
+    }
+    if (task.endDate) {
+      setEndDate(moment(task.endDate).format("YYYY-MM-DD"));
+      setEndTime(moment(task.endDate).format("HH:mm"));
+    }
+  }, [task]);
+
+  useEffect(() => {
+    // Check if the start and end date are valid dates
     if (
-      isAllDay !== task.isAllDay ||
-      returnCompleteStartDate().getTime() !== task.startDate!.getTime() ||
-      returnCompleteEndDate().getTime() !== task.endDate!.getTime()
+      isValidDate &&
+      (isAllDay !== task.isAllDay ||
+        returnCompleteStartDate().getTime() !== task.startDate?.getTime() ||
+        returnCompleteEndDate().getTime() !== task.endDate?.getTime())
     ) {
       const timeoutId = setTimeout(
         () => alert("calling updateTask"),
@@ -95,13 +111,16 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
       <Popover autoFocus={false} placement="bottom" isOpen={isOpen}>
         <PopoverTrigger>
           <Button bg={"gray.800"} color={"white"} m={2} onClick={onToggle}>
-            <HStack>
+            <HStack hidden={!isValidDate}>
               <Icon as={FaCalendar} /> <Text>{moment(startDate).format("DD. MMM")} </Text>
               <Icon as={FaClock} display={isAllDay ? "none" : "block"} />
               <Text display={isAllDay ? "none" : "block"}>
                 {startTime} - {endTime}
               </Text>
             </HStack>
+            <Box hidden={isValidDate}>
+              <Text>Select date...</Text>
+            </Box>
           </Button>
         </PopoverTrigger>
 
