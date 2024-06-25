@@ -35,3 +35,37 @@ a {
   position: absolute;
   bottom: -10px;
 }
+.rbc-day-slot .rbc-time-slot{
+  border-top: 1px solid rgba(255, 255, 255, 0.2)!important; 
+}
+.rbc-day-slot .rbc-time-slot:nth-child(2){
+  border-top: 1px dashed rgba(255, 255, 255, 0.2)!important;
+}
+
+.rbc-today {
+  background-color: rgba(255, 255, 255, 0.2)!important;
+}
+
+.rbc-day-slot .rbc-events-container{
+  margin-right:0px!important;
+}
+
+.rbc-time-content > * + * > * {
+  border-left: 1px solid rgba(255, 255, 255, 0.3)!important;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2)!important;
+}
+
+.rbc-btn-group button{
+  color:white!important;
+}
+
+.rbc-btn-group .rbc-active, .rbc-btn-group button:hover{
+  color: gray !important;
+}
+
+.rbc-time-slot .rbc-label{
+  font-size: 12px!important;
+}

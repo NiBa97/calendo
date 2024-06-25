@@ -21,6 +21,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
+  const [slotHeight, setSlotHeight] = useState<number>(40); // default timeslot height
 
   const handleOnChangeView = (selectedView: string) => {
     setView(selectedView);
@@ -33,6 +34,32 @@ export default function Home() {
     },
     [setDate]
   );
+
+  const handleWheel = (event: WheelEvent) => {
+    if (event.ctrlKey) {
+      if (event.deltaY < 0) {
+        // Scrolling up
+        setSlotHeight((prevHeight) => Math.min(prevHeight + 5, 100));
+      } else {
+        // Scrolling down
+        setSlotHeight((prevHeight) => Math.max(prevHeight - 5, 20));
+      }
+      // Prevent default scroll behavior
+      event.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    const calendarElement = document.querySelector(".rbc-calendar");
+    if (calendarElement) {
+      calendarElement.addEventListener("wheel", handleWheel);
+    }
+    return () => {
+      if (calendarElement) {
+        calendarElement.removeEventListener("wheel", handleWheel);
+      }
+    };
+  }, []);
   // const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
   //   const title = window.prompt("New Event name");
   // };
@@ -45,7 +72,6 @@ export default function Home() {
     const inverted = screenHeight - top < 200;
     setSelectedEventPos({ inverted, top, left, width });
     setSelectedEvent(event as Task);
-    console.log(selectedEventPos);
   };
 
   type EventChangeArgs = {
@@ -82,6 +108,9 @@ export default function Home() {
   };
   return (
     <Flex maxHeight={"100%"} minHeight={"100%"} grow={"1"}>
+      <style>{`
+        .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
+      `}</style>
       <DnDCalendar
         view={view}
         date={date}

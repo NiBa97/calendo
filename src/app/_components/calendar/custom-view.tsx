@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import * as dates from "date-arithmetic";
-import { Navigate, DateLocalizer } from "react-big-calendar";
+import { Navigate, DateLocalizer, Calendar } from "react-big-calendar";
 import TimeGrid from "react-big-calendar/lib/TimeGrid";
 
 function CustomMultiDayView({
@@ -21,12 +21,11 @@ function CustomMultiDayView({
   return (
     <TimeGrid
       date={date}
-      eventOffset={15}
+      //eventOffset={15}
       localizer={localizer}
       max={max}
       min={min}
       range={currRange}
-      scrollToTime={scrollToTime}
       {...props}
     />
   );
@@ -41,8 +40,8 @@ CustomMultiDayView.propTypes = {
 };
 
 CustomMultiDayView.range = (date, localizer, numberOfDays) => {
-  const start = date;
-  const end = dates.add(start, numberOfDays - 1, "day");
+  const start = localizer.startOf(date, "day");
+  const end = localizer.endOf(dates.add(start, numberOfDays - 1, "day"), "day");
 
   let current = start;
   const range = [];
@@ -51,16 +50,14 @@ CustomMultiDayView.range = (date, localizer, numberOfDays) => {
     range.push(current);
     current = dates.add(current, 1, "day");
   }
-
   return range;
 };
-
 CustomMultiDayView.navigate = (date, action, { localizer }) => {
   switch (action) {
     case Navigate.PREVIOUS:
-      return dates.add(date, -3, "day");
+      return dates.add(date, -1, "day");
     case Navigate.NEXT:
-      return dates.add(date, 3, "day");
+      return dates.add(date, 1, "day");
     default:
       return date;
   }
