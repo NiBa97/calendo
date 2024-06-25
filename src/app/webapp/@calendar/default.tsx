@@ -11,16 +11,18 @@ import { useTasks } from "~/app/_contexts/task-context";
 import { type SyntheticEvent, useEffect, useRef, useState, useCallback } from "react";
 import { type Task } from "@prisma/client";
 import TempTask from "~/app/_components/edit-task";
+import { number } from "zod";
+import CustomMultiDayView from "~/app/_components/calendar/custom-view";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
-
+// Custom TimeSlotWrapper Component
 export default function Home() {
   const { tasks, updateTask } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
-  const [view, setView] = useState<View>(Views.WEEK);
+  const [view, setView] = useState<string>("customDayView");
 
-  const handleOnChangeView = (selectedView: View) => {
+  const handleOnChangeView = (selectedView: string) => {
     setView(selectedView);
   };
 
@@ -67,17 +69,30 @@ export default function Home() {
     void updateTask(event.id, { startDate: start, endDate: end });
   };
 
+  const numberOfDays = 3;
+  const views = {
+    day: true,
+    customDayView: CustomMultiDayView,
+    week: true,
+    month: true,
+  };
+
+  const messages = {
+    customDayView: numberOfDays + " Days",
+  };
   return (
     <Flex maxHeight={"100%"} minHeight={"100%"} grow={"1"}>
       <DnDCalendar
         view={view}
         date={date}
-        views={["month", "day", "week"]}
+        views={views}
+        numberOfDays={numberOfDays} // Pass the number of days as a prop
         selectable
         events={tasks}
         startAccessor={(event) => {
           return (event as Task).startDate!;
         }}
+        messages={messages}
         endAccessor={(event) => {
           return (event as Task).endDate!;
         }}
