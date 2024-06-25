@@ -8,11 +8,13 @@ import {
   AccordionPanel,
   Badge,
   AccordionIcon,
+  Box,
 } from "@chakra-ui/react";
 import { useTasks } from "../_contexts/task-context";
 import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { Task } from "@prisma/client";
 
 const ListTasks: React.FC = () => {
   const { tasks, updateTask } = useTasks();
@@ -70,16 +72,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {withoutAssignedDate.map((task) => (
-            <HStack width={"100%"} p={2} bg={"blue.400"} key={task.id}>
-              <Checkbox
-                isChecked={task.status}
-                onChange={() => void updateTask(task.id, { status: !task.status })}
-              ></Checkbox>
-
-              <Link href={"/webapp/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
-                <Text fontSize="lg">{task.name}</Text>
-              </Link>
-            </HStack>
+            <TaskItem task={task} key={task.id}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -91,16 +84,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {overdueTasks.map((task) => (
-            <HStack width={"100%"} p={2} bg={"gray.400"} key={task.id}>
-              <Checkbox
-                isChecked={task.status}
-                onChange={() => void updateTask(task.id, { status: !task.status })}
-              ></Checkbox>
-
-              <Link href={"/webapp/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
-                <Text fontSize="lg">{task.name}</Text>
-              </Link>
-            </HStack>
+            <TaskItem task={task} key={task.id}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -112,16 +96,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {todayTasks.map((task) => (
-            <HStack width={"100%"} p={2} bg={"gray.400"} key={task.id}>
-              <Checkbox
-                isChecked={task.status}
-                onChange={() => void updateTask(task.id, { status: !task.status })}
-              ></Checkbox>
-
-              <Link href={"/webapp/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
-                <Text fontSize="lg">{task.name}</Text>
-              </Link>
-            </HStack>
+            <TaskItem task={task} key={task.id}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -133,16 +108,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {completedToday.map((task) => (
-            <HStack width={"100%"} p={2} bg={"green.400"} key={task.id}>
-              <Checkbox
-                isChecked={task.status}
-                onChange={() => void updateTask(task.id, { status: !task.status })}
-              ></Checkbox>
-
-              <Link href={"/webapp/" + task.id} cursor="pointer" width={"100%"} _hover={{ cursor: "pointer" }}>
-                <Text fontSize="lg">{task.name}</Text>
-              </Link>
-            </HStack>
+            <TaskItem task={task} key={task.id}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -150,4 +116,32 @@ const ListTasks: React.FC = () => {
   );
 };
 
+const TaskItem = ({ task }: { task: Task }) => {
+  const { updateTask } = useTasks();
+  return (
+    <HStack width={"100%"} p={2} bg={"blue.400"}>
+      <Checkbox isChecked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
+
+      <Link
+        href={"/webapp/" + task.id}
+        cursor="pointer"
+        width={"100%"}
+        _hover={{ cursor: "pointer" }}
+        display={"flex"}
+        flexDirection={"row"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
+        <Text fontSize="lg">{task.name}</Text>
+        <Text fontSize="sm" color={"gray.300"}>
+          {task.isAllDay
+            ? "All Day"
+            : task.startDate && task.endDate
+            ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
+            : "No Date Assigned"}
+        </Text>
+      </Link>
+    </HStack>
+  );
+};
 export default ListTasks;
