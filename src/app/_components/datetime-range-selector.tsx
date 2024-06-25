@@ -26,9 +26,9 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   const { updateTask } = useTasks();
   const [isAllDay, setIsAllDay] = useState(task.isAllDay);
   const [startDate, setStartDate] = useState(moment(task.startDate).format("YYYY-MM-DD"));
-  const [startTime, setStartTime] = useState(moment(task.startDate).format("HH:mm"));
+  const [startTime, setStartTime] = useState(task.startDate ? moment(task.startDate).format("HH:mm") : "00:00");
   const [endDate, setEndDate] = useState(moment(task.endDate).format("YYYY-MM-DD"));
-  const [endTime, setEndTime] = useState(moment(task.endDate).format("HH:mm"));
+  const [endTime, setEndTime] = useState(task.endDate ? moment(task.endDate).format("HH:mm") : "00:00");
 
   const isValidDate: boolean =
     startTime.includes(":") && endTime.includes(":") && !isNaN(Date.parse(startDate)) && !isNaN(Date.parse(endDate));
