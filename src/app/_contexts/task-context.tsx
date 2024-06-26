@@ -9,12 +9,16 @@ interface TaskContextType {
   createTask: (taskData: Partial<Task>) => Promise<void>;
   updateTask: (taskId: string, updatedData: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
+  draggingTask: Task | null;
+  setDraggingTask: (task: Task | null) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [draggingTask, setDraggingTask] = useState<Task | null>(null);
+
   const { data: fetched_tasks } = api.task.getAll.useQuery();
 
   const { mutateAsync: updateMutation } = api.task.update.useMutation();
@@ -78,7 +82,11 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
 
-  return <TaskContext.Provider value={{ tasks, createTask, updateTask, deleteTask }}>{children}</TaskContext.Provider>;
+  return (
+    <TaskContext.Provider value={{ tasks, createTask, updateTask, deleteTask, draggingTask, setDraggingTask }}>
+      {children}
+    </TaskContext.Provider>
+  );
 };
 
 export const useTasks = () => {

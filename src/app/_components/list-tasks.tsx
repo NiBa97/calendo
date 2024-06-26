@@ -17,7 +17,7 @@ import moment from "moment";
 import { Task } from "@prisma/client";
 
 const ListTasks: React.FC = () => {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, setDraggingTask } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
 
   useEffect(() => {
@@ -55,6 +55,12 @@ const ListTasks: React.FC = () => {
 
   const withoutAssignedDate = stateTasks.filter((task) => (!task.startDate || !task.endDate) && !task.status);
 
+  const dragStart = (task: Task, event: React.DragEvent) => {
+    event.dataTransfer.setData("task", JSON.stringify(task));
+    event.dataTransfer.effectAllowed = "move";
+    setDraggingTask(task);
+  };
+
   return (
     <Accordion
       overflowY={"auto"}
@@ -72,7 +78,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {withoutAssignedDate.map((task) => (
-            <TaskItem task={task} key={task.id}></TaskItem>
+            <TaskItem task={task} key={task.id} onDragStart={dragStart}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -84,7 +90,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {overdueTasks.map((task) => (
-            <TaskItem task={task} key={task.id}></TaskItem>
+            <TaskItem task={task} key={task.id} onDragStart={dragStart}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -96,7 +102,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {todayTasks.map((task) => (
-            <TaskItem task={task} key={task.id}></TaskItem>
+            <TaskItem task={task} key={task.id} onDragStart={dragStart}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -108,7 +114,7 @@ const ListTasks: React.FC = () => {
         </AccordionButton>
         <AccordionPanel width="100%">
           {completedToday.map((task) => (
-            <TaskItem task={task} key={task.id}></TaskItem>
+            <TaskItem task={task} key={task.id} onDragStart={dragStart}></TaskItem>
           ))}
         </AccordionPanel>
       </AccordionItem>
@@ -116,12 +122,11 @@ const ListTasks: React.FC = () => {
   );
 };
 
-const TaskItem = ({ task }: { task: Task }) => {
+const TaskItem = ({ task, onDragStart }: { task: Task; onDragStart: (task: Task, event: React.DragEvent) => void }) => {
   const { updateTask } = useTasks();
   return (
-    <HStack width={"100%"} p={2} bg={"blue.400"}>
+    <HStack width={"100%"} p={2} bg={"blue.400"} draggable onDragStart={(event) => onDragStart(task, event)}>
       <Checkbox isChecked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
-
       <Link
         href={"/webapp/" + task.id}
         cursor="pointer"
@@ -144,4 +149,5 @@ const TaskItem = ({ task }: { task: Task }) => {
     </HStack>
   );
 };
+
 export default ListTasks;

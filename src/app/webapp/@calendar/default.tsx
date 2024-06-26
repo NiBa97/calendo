@@ -1,6 +1,6 @@
 "use client";
 import { Box, Flex } from "@chakra-ui/react";
-import { Calendar, View, Views, momentLocalizer } from "react-big-calendar";
+import { Calendar, View, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
@@ -8,43 +8,32 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar.css";
 import { useTasks } from "~/app/_contexts/task-context";
-import { type SyntheticEvent, useEffect, useRef, useState, useCallback } from "react";
+import { type SyntheticEvent, useEffect, useState, useCallback } from "react";
 import { type Task } from "@prisma/client";
-import TempTask from "~/app/_components/edit-task";
-import { number } from "zod";
 import CustomMultiDayView from "~/app/_components/calendar/custom-view";
+import CalendarPopup from "~/app/_components/calendar/popup";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
-// Custom TimeSlotWrapper Component
+
 export default function Home() {
-  const { tasks, updateTask } = useTasks();
+  const { tasks, updateTask, draggingTask, setDraggingTask } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
-  const [slotHeight, setSlotHeight] = useState<number>(40); // default timeslot height
+  const [slotHeight, setSlotHeight] = useState<number>(40);
 
-  const handleOnChangeView = (selectedView: string) => {
-    setView(selectedView);
-  };
+  const handleOnChangeView = (selectedView: string) => setView(selectedView);
 
   const [date, setDate] = useState(new Date());
-  const onNavigate = useCallback(
-    (newDate: Date) => {
-      return setDate(newDate);
-    },
-    [setDate]
-  );
+  const onNavigate = useCallback((newDate: Date) => setDate(newDate), [setDate]);
 
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
-        // Scrolling up
         setSlotHeight((prevHeight) => Math.min(prevHeight + 5, 100));
       } else {
-        // Scrolling down
         setSlotHeight((prevHeight) => Math.max(prevHeight - 5, 20));
       }
-      // Prevent default scroll behavior
       event.preventDefault();
     }
   };
@@ -60,9 +49,7 @@ export default function Home() {
       }
     };
   }, []);
-  // const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-  //   const title = window.prompt("New Event name");
-  // };
+
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
     if (selectedEvent?.id === (event as Task).id) return setSelectedEvent(null);
 
@@ -75,21 +62,12 @@ export default function Home() {
   };
 
   type EventChangeArgs = {
-    event: Task; // Assuming event is of type Task
+    event: Task;
     start: Date;
     end: Date;
   };
-  // const onEventDropOrResize = (start: Date, end: Date, event: Task) => {
-  // Assuming withDragAndDropProps is defined somewhere and it has the type for onEventDrop and onEventResize
-  const onEventDropOrResize = ({
-    start,
-    end,
-    event,
-  }: {
-    event: Task; // Assuming event is of type Task
-    start: Date;
-    end: Date;
-  }) => {
+
+  const onEventDropOrResize = ({ start, end, event }: { event: Task; start: Date; end: Date }) => {
     event.startDate = start;
     event.endDate = end;
     void updateTask(event.id, { startDate: start, endDate: end });
@@ -106,34 +84,42 @@ export default function Home() {
   const messages = {
     customDayView: numberOfDays + " Days",
   };
+
+  const handleExternalDrop = (args: { start: string | number | Date; end: string | number | Date }) => {
+    console.log("external drop", args);
+    if (draggingTask) {
+      const { start, end } = args;
+
+      const startDate = new Date(start);
+      let endDate = new Date(end);
+
+      if (endDate.getTime() - startDate.getTime() < 1000 * 60 * 60) {
+        endDate.setHours(startDate.getHours() + 1);
+        endDate.setMinutes(startDate.getMinutes());
+      }
+
+      void updateTask(draggingTask.id, { startDate: startDate, endDate: endDate });
+      setDraggingTask(null);
+    }
+  };
   return (
     <Flex maxHeight={"100%"} minHeight={"100%"} grow={"1"}>
       <style>{`
         .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
       `}</style>
       <DnDCalendar
-        view={view}
+        view={view as View}
         date={date}
         views={views}
-        numberOfDays={numberOfDays} // Pass the number of days as a prop
+        numberOfDays={numberOfDays}
         selectable
         events={tasks}
-        startAccessor={(event) => {
-          return (event as Task).startDate!;
-        }}
+        startAccessor={(event) => (event as Task).startDate ?? new Date()}
         messages={messages}
-        endAccessor={(event) => {
-          return (event as Task).endDate!;
-        }}
-        titleAccessor={(event) => {
-          return (event as Task).name;
-        }}
-        resourceIdAccessor={(event) => {
-          return (event as Task).id;
-        }}
-        allDayAccessor={(event) => {
-          return (event as Task).isAllDay;
-        }}
+        endAccessor={(event) => (event as Task).endDate ?? new Date()}
+        titleAccessor={(event) => (event as Task).name}
+        resourceIdAccessor={(event) => (event as Task).id}
+        allDayAccessor={(event) => (event as Task).isAllDay}
         showMultiDayTimes
         localizer={localizer}
         onNavigate={onNavigate}
@@ -141,10 +127,10 @@ export default function Home() {
         onEventDrop={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
-        // onSelectSlot={handleSelectSlot}
+        onDropFromOutside={handleExternalDrop}
       />
       {selectedEvent && (
-        <CustomPopup
+        <CalendarPopup
           onClose={() => setSelectedEvent(null)}
           position={{
             top: selectedEventPos.inverted ? selectedEventPos.top - 185 : selectedEventPos.top,
@@ -154,50 +140,5 @@ export default function Home() {
         />
       )}
     </Flex>
-  );
-}
-
-function CustomPopup({
-  onClose,
-  position,
-  task,
-}: {
-  onClose: () => void;
-  position: { top: number; left: number };
-  task: Task;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Close the popup if clicking outside of it
-  useEffect(() => {
-    function handleClickOutside(event: Event) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClose();
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [onClose]);
-
-  return (
-    <Box
-      ref={ref}
-      position="absolute"
-      top={position.top}
-      left={position.left}
-      bg="white"
-      boxShadow="md"
-      zIndex={1}
-      border="1px solid gray"
-      borderRadius="md"
-      width={400}
-      height={400}
-    >
-      <TempTask task={task}></TempTask>
-    </Box>
   );
 }
