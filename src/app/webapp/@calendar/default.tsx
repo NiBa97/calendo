@@ -1,17 +1,17 @@
 "use client";
 import { Box, Flex } from "@chakra-ui/react";
-import { Calendar, View, momentLocalizer } from "react-big-calendar";
+import { Calendar, Messages, View, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./calendar.css";
-import { useTasks } from "~/app/_contexts/task-context";
+import { useTasks } from "~/contexts/task-context";
 import { type SyntheticEvent, useEffect, useState, useCallback } from "react";
 import { type Task } from "@prisma/client";
-import CustomMultiDayView from "~/app/_components/calendar/custom-view";
-import CalendarPopup from "~/app/_components/calendar/popup";
+import CustomMultiDayView from "~/components/calendar/custom-view";
+import CalendarPopup from "~/components/calendar/popup";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -41,11 +41,11 @@ export default function Home() {
   useEffect(() => {
     const calendarElement = document.querySelector(".rbc-calendar");
     if (calendarElement) {
-      calendarElement.addEventListener("wheel", handleWheel);
+      (calendarElement as HTMLElement).addEventListener("wheel", handleWheel);
     }
     return () => {
       if (calendarElement) {
-        calendarElement.removeEventListener("wheel", handleWheel);
+        (calendarElement as HTMLElement).removeEventListener("wheel", handleWheel);
       }
     };
   }, []);
@@ -83,7 +83,7 @@ export default function Home() {
 
   const messages = {
     customDayView: numberOfDays + " Days",
-  };
+  } as Partial<Messages>;
 
   const handleExternalDrop = (args: { start: string | number | Date; end: string | number | Date }) => {
     console.log("external drop", args);
@@ -91,6 +91,7 @@ export default function Home() {
       const { start, end } = args;
 
       const startDate = new Date(start);
+      // eslint-disable-next-line prefer-const
       let endDate = new Date(end);
 
       if (endDate.getTime() - startDate.getTime() < 1000 * 60 * 60) {
@@ -111,7 +112,6 @@ export default function Home() {
         view={view as View}
         date={date}
         views={views}
-        numberOfDays={numberOfDays}
         selectable
         events={tasks}
         startAccessor={(event) => (event as Task).startDate ?? new Date()}

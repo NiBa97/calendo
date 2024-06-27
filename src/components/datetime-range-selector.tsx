@@ -17,7 +17,7 @@ import {
   useOutsideClick,
 } from "@chakra-ui/react";
 import { FaCalendar } from "react-icons/fa";
-import { useTasks } from "../_contexts/task-context";
+import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
 import moment from "moment";
 import { FaClock } from "react-icons/fa";

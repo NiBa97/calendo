@@ -9,7 +9,7 @@ import {
   Badge,
   AccordionIcon,
 } from "@chakra-ui/react";
-import { useTasks } from "../_contexts/task-context";
+import { useTasks } from "../contexts/task-context";
 import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";

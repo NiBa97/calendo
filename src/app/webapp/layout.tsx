@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Box, Center, Flex, HStack, VStack } from "@chakra-ui/react";
 import { Resizable, type ResizeCallbackData } from "react-resizable";
-import { TaskProvider } from "../_contexts/task-context";
+import { TaskProvider } from "../../contexts/task-context";
 
 export default function Layout({
   calendar,
@@ -13,36 +13,35 @@ export default function Layout({
   taskDetails: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const getInitialDimension = (dimension: string, percentage: number) => {
-    const savedDimension = localStorage.getItem(dimension);
-    return savedDimension
-      ? parseFloat(savedDimension) * (dimension === "height" ? window.innerHeight : window.innerWidth)
-      : (dimension === "height" ? window.innerHeight : window.innerWidth) * percentage;
-  };
+  const savedHeight = typeof window !== "undefined" ? localStorage.getItem("height") ?? "0.5" : "0.5";
+  const savedWidth = typeof window !== "undefined" ? localStorage.getItem("width") ?? "0.5" : "0.5";
 
-  const [height, setHeight] = useState(() => getInitialDimension("height", 0.5));
-  const [width, setWidth] = useState(() => getInitialDimension("width", 0.5));
+  const windowHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+  const windowWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+
+  const [height, setHeight] = useState<number>(Number(savedHeight) * windowHeight);
+  const [width, setWidth] = useState<number>(Number(savedWidth) * windowWidth);
 
   useEffect(() => {
     const handleResize = () => {
-      setHeight(window.innerHeight * parseFloat(localStorage.getItem("height") ?? "0.5"));
-      setWidth(window.innerWidth * parseFloat(localStorage.getItem("width") ?? "0.5"));
+      setHeight(windowHeight * parseFloat(savedHeight));
+      setWidth(windowWidth * parseFloat(savedWidth));
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const onHeightResize = (event: React.SyntheticEvent, { size }: ResizeCallbackData) => {
-    if (size.height > window.innerHeight * 0.25 && size.height < window.innerHeight * 0.75) {
+    if (size.height > windowHeight * 0.25 && size.height < windowHeight * 0.75) {
       setHeight(size.height);
-      localStorage.setItem("height", (size.height / window.innerHeight).toString());
+      localStorage.setItem("height", (size.height / windowHeight).toString());
     }
   };
 
   const onWidthResize = (event: React.SyntheticEvent, { size }: ResizeCallbackData) => {
-    if (size.width > window.innerWidth * 0.25 && size.width < window.innerWidth * 0.75) {
+    if (size.width > windowWidth * 0.25 && size.width < windowWidth * 0.75) {
       setWidth(size.width);
-      localStorage.setItem("width", (size.width / window.innerWidth).toString());
+      localStorage.setItem("width", (size.width / windowWidth).toString());
     }
   };
 

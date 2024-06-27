@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useTasks } from "../_contexts/task-context";
+import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
 import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";

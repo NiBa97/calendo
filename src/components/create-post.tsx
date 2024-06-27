@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { api } from "~/trpc/react";
-import styles from "../index.module.css";
+import styles from "../app/index.module.css";
 
 export function CreatePost() {
   const router = useRouter();
@@ -32,11 +32,7 @@ export function CreatePost() {
         onChange={(e) => setName(e.target.value)}
         className={styles.input}
       />
-      <button
-        type="submit"
-        className={styles.submitButton}
-        disabled={createPost.isPending}
-      >
+      <button type="submit" className={styles.submitButton} disabled={createPost.isPending}>
         {createPost.isPending ? "Submitting..." : "Submit"}
       </button>
     </form>
