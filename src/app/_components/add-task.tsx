@@ -1,15 +1,5 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  FormControl,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  useToast,
-} from "@chakra-ui/react";
+import { Box, Button, FormControl, HStack, Input, InputGroup, InputLeftElement, useToast } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa6";
 
 import { useTasks } from "../_contexts/task-context";

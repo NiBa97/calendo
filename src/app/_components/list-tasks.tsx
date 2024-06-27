@@ -8,16 +8,15 @@ import {
   AccordionPanel,
   Badge,
   AccordionIcon,
-  Box,
 } from "@chakra-ui/react";
 import { useTasks } from "../_contexts/task-context";
 import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";
-import { Task } from "@prisma/client";
+import { type Task } from "@prisma/client";
 
 const ListTasks: React.FC = () => {
-  const { tasks, updateTask, setDraggingTask } = useTasks();
+  const { tasks, setDraggingTask } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
 
   useEffect(() => {

@@ -34,6 +34,7 @@ const TempTask = ({ task }: { task: Task }) => {
       task.status = status;
       void updateTask(task.id, { status: status });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const handleSubmit = async (_e: React.FormEvent) => {

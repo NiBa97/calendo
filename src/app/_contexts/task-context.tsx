@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { type Task } from "@prisma/client";
 
 import { api } from "~/trpc/react";
-import { Toast, useToast } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 interface TaskContextType {
   tasks: Task[];
   createTask: (taskData: Partial<Task>) => Promise<void>;

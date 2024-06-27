@@ -79,6 +79,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
       );
       return () => clearTimeout(timeoutId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTime, startDate, endDate, isAllDay]);
 
   const handleStartDateChangeLocal = (value: string) => {
