@@ -20,7 +20,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
-  const [slotHeight, setSlotHeight] = useState<number>(40);
+  const [slotHeight, setSlotHeight] = useState<number>(0);
 
   const handleOnChangeView = (selectedView: string) => setView(selectedView);
 
@@ -42,6 +42,11 @@ export default function Home() {
     const calendarElement = document.querySelector(".rbc-calendar");
     if (calendarElement) {
       (calendarElement as HTMLElement).addEventListener("wheel", handleWheel);
+    }
+    const element = document.querySelector(`.rbc-timeslot-group`);
+    if (element) {
+      console.log("element", element.clientHeight);
+      setSlotHeight(element.clientHeight);
     }
     return () => {
       if (calendarElement) {
@@ -104,16 +109,19 @@ export default function Home() {
     }
   };
   return (
-    <Flex maxHeight={"100%"} minHeight={"100%"} grow={"1"}>
-      <style>{`
-        .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
-      `}</style>
+    <Box height={"100vh"} maxHeight={"100vh"} minHeight={"100vh"}>
+      {slotHeight > 0 && (
+        <style>{`
+          .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
+        `}</style>
+      )}{" "}
       <DnDCalendar
         view={view as View}
         date={date}
         views={views}
         selectable
-        events={tasks}
+        //only display events that have a start and end data
+        events={tasks.filter((task) => task.startDate && task.endDate)}
         startAccessor={(event) => (event as Task).startDate ?? new Date()}
         messages={messages}
         endAccessor={(event) => (event as Task).endDate ?? new Date()}
@@ -139,6 +147,6 @@ export default function Home() {
           task={selectedEvent}
         />
       )}
-    </Flex>
+    </Box>
   );
 }
