@@ -11,6 +11,8 @@ interface TaskContextType {
   deleteTask: (taskId: string) => Promise<void>;
   draggingTask: Task | null;
   setDraggingTask: (task: Task | null) => void;
+  contextInformation: { x: number; y: number; task: Task } | undefined;
+  setContextInformation: (contextInformation: { x: number; y: number; task: Task } | undefined) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -18,7 +20,9 @@ export const TaskContext = createContext<TaskContextType | undefined>(undefined)
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
-
+  const [contextInformation, setContextInformation] = useState<{ x: number; y: number; task: Task } | undefined>(
+    undefined
+  );
   const { data: fetched_tasks } = api.task.getAll.useQuery();
 
   const { mutateAsync: updateMutation } = api.task.update.useMutation();
@@ -83,7 +87,18 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, createTask, updateTask, deleteTask, draggingTask, setDraggingTask }}>
+    <TaskContext.Provider
+      value={{
+        tasks,
+        createTask,
+        updateTask,
+        deleteTask,
+        draggingTask,
+        setDraggingTask,
+        contextInformation,
+        setContextInformation,
+      }}
+    >
       {children}
     </TaskContext.Provider>
   );

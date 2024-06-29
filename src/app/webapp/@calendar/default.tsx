@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Calendar, Messages, View, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -12,12 +12,26 @@ import { type SyntheticEvent, useEffect, useState, useCallback } from "react";
 import { type Task } from "@prisma/client";
 import CustomMultiDayView from "~/components/calendar/custom-view";
 import CalendarPopup from "~/components/calendar/popup";
+import TempTask from "~/components/edit-task";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
 const EventComponent = ({ event }: { event: Task }) => {
+  const isOverdue = moment(event.endDate).isBefore(moment().startOf("day")) && !event.status;
+  const { setContextInformation } = useTasks();
+  const onContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextInformation({ x: e.clientX, y: e.clientY, task: event });
+  };
   return (
-    <Box width="100%" height="100%" color="white" p={2}>
+    <Box
+      width="100%"
+      height="100%"
+      color="white"
+      p={2}
+      borderLeft={isOverdue ? "4px solid red" : ""}
+      onContextMenu={onContextMenu}
+    >
       {event.name}
     </Box>
   );
@@ -153,7 +167,7 @@ export default function Home() {
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
         onDropFromOutside={handleExternalDrop}
-        components={{ event: EventComponent }}
+        components={{ event: EventComponent }} // https://jquense.github.io/react-big-calendar/examples/index.html?path=/docs/props--components
         eventPropGetter={EventPropGetter}
         formats={{ timeGutterFormat: "HH:mm" }}
       />
@@ -164,8 +178,9 @@ export default function Home() {
             top: selectedEventPos.inverted ? selectedEventPos.top - 185 : selectedEventPos.top,
             left: selectedEventPos.left + selectedEventPos.width,
           }}
-          task={selectedEvent}
-        />
+        >
+          <TempTask task={selectedEvent} height={400} width={400}></TempTask>
+        </CalendarPopup>
       )}
     </Box>
   );

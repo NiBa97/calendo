@@ -1,17 +1,15 @@
 import { Box } from "@chakra-ui/react";
 import { type Task } from "@prisma/client";
-import { useEffect, useRef } from "react";
-import TempTask from "../edit-task";
+import React from "react";
+import { useEffect, useRef, ReactNode } from "react";
 
-export default function CalendarPopup({
-  onClose,
-  position,
-  task,
-}: {
+interface CalendarPopupProps {
   onClose: () => void;
   position: { top: number; left: number };
-  task: Task;
-}) {
+  children: ReactNode;
+}
+
+export default function CalendarPopup({ onClose, position, children }: CalendarPopupProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,10 +37,8 @@ export default function CalendarPopup({
       zIndex={1}
       border="1px solid gray"
       borderRadius="md"
-      width={400}
-      height={400}
     >
-      <TempTask task={task}></TempTask>
+      {children}
     </Box>
   );
 }

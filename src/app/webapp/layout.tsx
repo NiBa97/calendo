@@ -15,7 +15,6 @@ export default function Layout({
 }) {
   const [height, setHeight] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
-
   useEffect(() => {
     const savedHeight = localStorage.getItem("height") ?? "0.5";
     const savedWidth = localStorage.getItem("width") ?? "0.5";

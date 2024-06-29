@@ -8,7 +8,7 @@ import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
 
-const TempTask = ({ task }: { task: Task }) => {
+const TempTask = ({ task, height, width }: { task: Task; height: number | undefined; width: number | undefined }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
   const { updateTask } = useTasks();
   const [name, setName] = useState(task?.name ?? "");
@@ -42,7 +42,7 @@ const TempTask = ({ task }: { task: Task }) => {
   };
 
   return (
-    <Flex direction="column" width="100%" height="100%" bg={"gray.800"} maxHeight={"100%"}>
+    <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"gray.800"} maxHeight={"100%"}>
       <InputGroup size="md" width={"100%"}>
         <InputLeftElement bg={"gray.800"}>
           <Checkbox size={"lg"} isChecked={status} onChange={() => setStatus(!status)} top={1} left={1}></Checkbox>
