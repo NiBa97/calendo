@@ -64,9 +64,7 @@ const TempTask = ({ task }: { task: Task }) => {
           </Link>
         </InputRightElement> */}
       </InputGroup>
-      <Flex grow={"1"} width={"100%"} flexDirection={"column"} overflowX={"hidden"}>
-        <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
-      </Flex>
+      <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
       <Flex justifyContent={"space-between"} alignItems={"center"} bg={"gray.900"} bottom={0}>
         <DateTimeRangeSelector task={task} />
         <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"} color={"gray.300"}>

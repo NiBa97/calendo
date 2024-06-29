@@ -15,6 +15,23 @@ import CalendarPopup from "~/components/calendar/popup";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
+const EventComponent = ({ event }: { event: Task }) => {
+  return (
+    <Box width="100%" height="100%" color="white" p={2}>
+      {event.name}
+    </Box>
+  );
+};
+
+const EventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolean) => ({
+  ...(event.status && {
+    className: "completed-task",
+  }),
+  ...(!event.status && {
+    className: "uncompleted-task",
+  }),
+});
+
 export default function Home() {
   const { tasks, updateTask, draggingTask, setDraggingTask } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
@@ -30,9 +47,9 @@ export default function Home() {
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
-        setSlotHeight((prevHeight) => Math.min(prevHeight + 5, 100));
+        setSlotHeight((prevHeight) => Math.min(prevHeight + 3, 100));
       } else {
-        setSlotHeight((prevHeight) => Math.max(prevHeight - 5, 20));
+        setSlotHeight((prevHeight) => Math.max(prevHeight - 3, 20));
       }
       event.preventDefault();
     }
@@ -109,12 +126,12 @@ export default function Home() {
     }
   };
   return (
-    <Box height={"100vh"} maxHeight={"100vh"} minHeight={"100vh"}>
+    <Box height={"100vh"} maxHeight={"100vh"}>
       {slotHeight > 0 && (
         <style>{`
           .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
         `}</style>
-      )}{" "}
+      )}
       <DnDCalendar
         view={view as View}
         date={date}
@@ -136,6 +153,9 @@ export default function Home() {
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
         onDropFromOutside={handleExternalDrop}
+        components={{ event: EventComponent }}
+        eventPropGetter={EventPropGetter}
+        formats={{ timeGutterFormat: "HH:mm" }}
       />
       {selectedEvent && (
         <CalendarPopup

@@ -20,10 +20,13 @@ a {
   height: 100%;
   cursor: col-resize;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 9;
+  z-index: 9999;
   position: absolute;
-  right: -10px;
+  top:0px;
+  right: -5px;
 }
+
+.react-resizable{position: relative;}
 
 .react-resizable-handle-s {
   height: 10px;
@@ -31,8 +34,10 @@ a {
   width: 100%;
   cursor: row-resize;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 9;
-  position: absolute;
+  z-index: 999;
+  left:0px;
+  position: absolute ;
+  /* position: absolute; */
   bottom: -10px;
 }
 .rbc-day-slot .rbc-time-slot{
@@ -69,3 +74,58 @@ a {
 .rbc-time-slot .rbc-label{
   font-size: 12px!important;
 }
+
+.rbc-calendar{
+  /* height: 100vh!important; */
+  height:100vh!important; 
+}
+.rbc-event{
+  padding:0px!important;
+}
+.rbc-event-label{
+  display:none!important;
+}
+.rbc-event-content{
+  height: 100%!important;
+}
+.mdxeditor{
+  flex-grow:1;   
+  display: flex;
+  flex-direction: column;
+}
+
+.completed-task{
+  border: none !important;
+  /* background-color: rgba(0, 0, 255, 0.8)!important; */
+  opacity: 0.5!important;
+}
+
+.uncompleted-task{
+  /* background-color: rgb(0 0 255)!important; */
+} 
+
+.rbc-current-time-indicator{
+  height:3px!important;
+}
+
+.rbc-addons-dnd-resize-ns-icon{
+  display:block!important;
+  height:15px!important;
+  width: 50px!important;
+  background: none!important;
+  background-color: rgba(0,0,0,0.5)!important;
+}
+
+.rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:first-child .rbc-addons-dnd-resize-ns-icon{
+  border-bottom: 3px double!important;
+  border-top: none!important;
+}
+.mdxeditor-root-contenteditable,.mdxeditor-root-contenteditable > div, .mdxeditor-rich-text-editor, .mdxeditor-diff-source-wrapper{
+  height: 100%;
+}
+/*
+.mdxeditor-diff-source-wrapper{
+  flex-grow:1;
+  display: flex;
+  flex-direction: column;
+}  */
