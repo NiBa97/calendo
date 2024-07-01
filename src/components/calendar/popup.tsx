@@ -27,17 +27,7 @@ export default function CalendarPopup({ onClose, position, children }: CalendarP
   }, [onClose]);
 
   return (
-    <Box
-      ref={ref}
-      position="absolute"
-      top={position.top}
-      left={position.left}
-      bg="white"
-      boxShadow="md"
-      zIndex={1}
-      border="1px solid gray"
-      borderRadius="md"
-    >
+    <Box ref={ref} position="absolute" top={position.top} left={position.left} zIndex={999}>
       {children}
     </Box>
   );
