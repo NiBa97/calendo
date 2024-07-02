@@ -52,7 +52,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
-  const [slotHeight, setSlotHeight] = useState<number>(0);
+  const [slotHeight, setSlotHeight] = useState<number>(100);
   const handleOnChangeView = (selectedView: string) => setView(selectedView);
 
   const [date, setDate] = useState(new Date());
@@ -61,9 +61,9 @@ export default function Home() {
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
-        setSlotHeight((prevHeight) => Math.min(prevHeight + 3, 100));
+        setSlotHeight((prevHeight) => Math.min(prevHeight + 1, 200));
       } else {
-        setSlotHeight((prevHeight) => Math.max(prevHeight - 3, 20));
+        setSlotHeight((prevHeight) => Math.max(prevHeight - 1, 10));
       }
       event.preventDefault();
     }
@@ -74,11 +74,7 @@ export default function Home() {
     if (calendarElement) {
       (calendarElement as HTMLElement).addEventListener("wheel", handleWheel);
     }
-    const element = document.querySelector(`.rbc-timeslot-group`);
-    if (element) {
-      console.log("element", element.clientHeight);
-      setSlotHeight(element.clientHeight);
-    }
+
     return () => {
       if (calendarElement) {
         (calendarElement as HTMLElement).removeEventListener("wheel", handleWheel);
@@ -124,7 +120,6 @@ export default function Home() {
   } as Partial<Messages>;
 
   const handleExternalDrop = (args: { start: string | number | Date; end: string | number | Date }) => {
-    console.log("external drop", args);
     if (draggingTask) {
       const { start, end } = args;
 
@@ -171,14 +166,13 @@ export default function Home() {
 
     setSelectedEvent(event as Task);
   };
-  return (
-    <Box height={"100vh"} maxHeight={"100vh"}>
-      {slotHeight > 0 && (
-        <style>{`
-          .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
-        `}</style>
-      )}
 
+  return (
+    <Box height={"100vh"}>
+      <style>{`
+          .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
+          .rbc-timeslot-group { min-height:20px!important; }
+        `}</style>
       <DnDCalendar
         view={view as View}
         date={date}
