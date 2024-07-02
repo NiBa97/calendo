@@ -7,10 +7,19 @@ import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button } from "@ch
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
-
-const TempTask = ({ task, height, width }: { task: Task; height: number | undefined; width: number | undefined }) => {
+const TempTask = ({
+  task,
+  height,
+  width,
+  onSave,
+}: {
+  task: Task;
+  height: number | undefined;
+  width: number | undefined;
+  onSave?: (task: Task) => void;
+}) => {
   const ref = React.useRef<MDXEditorMethods>(null);
-  const { updateTask } = useTasks();
+  const { updateTask, createTask, setTemporaryTask } = useTasks();
   const [name, setName] = useState(task?.name ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
   const [status, setStatus] = useState(task?.status ?? false);
@@ -38,7 +47,15 @@ const TempTask = ({ task, height, width }: { task: Task; height: number | undefi
   }, [status]);
 
   const handleSubmit = async (_e: React.FormEvent) => {
-    await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
+    if (task.id) {
+      await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
+    } else {
+      await createTask({ name, description, status, startDate, endDate, isAllDay });
+      setTemporaryTask(null);
+    }
+    if (onSave) {
+      onSave(task);
+    }
   };
 
   return (

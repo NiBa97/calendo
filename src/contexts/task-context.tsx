@@ -13,6 +13,8 @@ interface TaskContextType {
   setDraggingTask: (task: Task | null) => void;
   contextInformation: { x: number; y: number; task: Task } | undefined;
   setContextInformation: (contextInformation: { x: number; y: number; task: Task } | undefined) => void;
+  temporaryTask: Task | null;
+  setTemporaryTask: (task: Task | null) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ export const TaskContext = createContext<TaskContextType | undefined>(undefined)
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
+  const [temporaryTask, setTemporaryTask] = useState<Task | null>(null);
   const [contextInformation, setContextInformation] = useState<{ x: number; y: number; task: Task } | undefined>(
     undefined
   );
@@ -97,6 +100,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         setDraggingTask,
         contextInformation,
         setContextInformation,
+        temporaryTask,
+        setTemporaryTask,
       }}
     >
       {children}

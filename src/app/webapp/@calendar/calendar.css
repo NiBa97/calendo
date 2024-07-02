@@ -3,6 +3,11 @@
     height:auto;
     width: 100%;
 }
+.rbc-slot-selection{
+    background-color: #3174AE!important;
+    border:none!important;
+    border-radius: 5px!important;
+}
 .mdxeditor-diff-source-wrapper h1{
     font-size: 22px;
     font-weight: bold;

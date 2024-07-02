@@ -1,6 +1,6 @@
 "use client";
 import { Box } from "@chakra-ui/react";
-import { Calendar, Messages, View, momentLocalizer } from "react-big-calendar";
+import { Calendar, Messages, SlotInfo, View, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
@@ -23,6 +23,7 @@ const EventComponent = ({ event }: { event: Task }) => {
     e.preventDefault();
     setContextInformation({ x: e.clientX, y: e.clientY, task: event });
   };
+
   return (
     <Box
       width="100%"
@@ -47,12 +48,11 @@ const EventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolea
 });
 
 export default function Home() {
-  const { tasks, updateTask, draggingTask, setDraggingTask } = useTasks();
+  const { tasks, updateTask, draggingTask, setDraggingTask, temporaryTask, setTemporaryTask } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
   const [slotHeight, setSlotHeight] = useState<number>(0);
-
   const handleOnChangeView = (selectedView: string) => setView(selectedView);
 
   const [date, setDate] = useState(new Date());
@@ -87,8 +87,10 @@ export default function Home() {
   }, []);
 
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
-    if (selectedEvent?.id === (event as Task).id) return setSelectedEvent(null);
-
+    if (selectedEvent?.id === (event as Task).id) {
+      setTemporaryTask(null);
+      return setSelectedEvent(null);
+    }
     const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
     const { top, left, width } = parentElement.getBoundingClientRect();
     const screenHeight = window.innerHeight;
@@ -139,6 +141,36 @@ export default function Home() {
       setDraggingTask(null);
     }
   };
+
+  const handleSelectSlot = (slotInfo: SlotInfo) => {
+    const { start, end, bounds } = slotInfo;
+    setTemporaryTask(null);
+
+    if (!bounds) return; // exit if bounds are not available
+
+    // Create a partial Task object for temporary task
+    const event: Partial<Task> = {
+      name: "",
+      startDate: start,
+      endDate: end,
+      isAllDay: false,
+      status: false,
+    };
+    const el = document.getElementsByClassName(start.toISOString());
+    if (el.length == 0 || el[0] == undefined) {
+      return;
+    }
+    const { top, left, width } = el.length == 1 ? el[0].getBoundingClientRect() : el[1]!.getBoundingClientRect();
+    setTemporaryTask(event as Task);
+
+    const screenHeight = window.innerHeight;
+    const inverted = screenHeight - bounds.top < 200;
+    setSelectedEventPos({ inverted: inverted, top: top, left: left, width: width });
+
+    // Set selected event position and
+
+    setSelectedEvent(event as Task);
+  };
   return (
     <Box height={"100vh"} maxHeight={"100vh"}>
       {slotHeight > 0 && (
@@ -146,13 +178,14 @@ export default function Home() {
           .rbc-timeslot-group { min-height: ${slotHeight}px; max-height: ${slotHeight}px; }
         `}</style>
       )}
+
       <DnDCalendar
         view={view as View}
         date={date}
         views={views}
         selectable
         //only display events that have a start and end data
-        events={tasks.filter((task) => task.startDate && task.endDate)}
+        events={[...tasks.filter((task) => task.startDate && task.endDate), ...(temporaryTask ? [temporaryTask] : [])]}
         startAccessor={(event) => (event as Task).startDate ?? new Date()}
         messages={messages}
         endAccessor={(event) => (event as Task).endDate ?? new Date()}
@@ -166,9 +199,11 @@ export default function Home() {
         onEventDrop={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
+        onSelectSlot={handleSelectSlot}
         onDropFromOutside={handleExternalDrop}
         components={{ event: EventComponent }} // https://jquense.github.io/react-big-calendar/examples/index.html?path=/docs/props--components
         eventPropGetter={EventPropGetter}
+        slotPropGetter={(date) => ({ className: date.toISOString() })}
         formats={{ timeGutterFormat: "HH:mm" }}
       />
       {selectedEvent && (
@@ -179,7 +214,7 @@ export default function Home() {
             left: selectedEventPos.left + selectedEventPos.width,
           }}
         >
-          <TempTask task={selectedEvent} height={400} width={400}></TempTask>
+          <TempTask task={selectedEvent} height={400} width={400} onSave={() => setSelectedEvent(null)}></TempTask>
         </CalendarPopup>
       )}
     </Box>
