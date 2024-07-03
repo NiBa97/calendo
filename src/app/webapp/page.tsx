@@ -1,26 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
-import { VStack } from "@chakra-ui/react";
+import { Box, Flex, VStack } from "@chakra-ui/react";
 import AddTask from "../../components/add-task";
 import ListTasks from "../../components/list-tasks";
 import { useTasks } from "~/contexts/task-context";
 import TaskMenu from "~/components/task-menu";
+import { Resizable } from "react-resizable";
 export default function Home() {
-  const { contextInformation, setContextInformation } = useTasks();
   return (
-    <VStack height={"100%"} width={"100%"} maxHeight={"100%"}>
-      <AddTask />
-      <ListTasks />
-      {contextInformation && (
-        <TaskMenu
-          task={contextInformation.task}
-          x={contextInformation.x}
-          y={contextInformation.y}
-          onClose={() => {
-            setContextInformation(undefined);
-          }}
-        />
-      )}
-    </VStack>
+    <Flex height={"100%"} width={"100%"} bg={"green"} position={"relative"}>
+      <VStack height={"100%"} width={"100%"} maxHeight={"100%"}>
+        <AddTask />
+        <ListTasks />
+      </VStack>
+    </Flex>
   );
 }
