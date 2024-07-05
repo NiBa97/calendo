@@ -7,9 +7,9 @@ import TaskMenu from "~/components/task-menu";
 import TaskEditModal from "~/components/task-edit-modal";
 
 export default function Layout({ calendar, children }: { calendar: React.ReactNode; children: React.ReactNode }) {
+  const savedWidth = localStorage.getItem("width") ?? "0.5";
   const [width, setWidth] = useState<number>(0);
   useEffect(() => {
-    const savedWidth = localStorage.getItem("width") ?? "0.5";
     const handleResize = () => {
       setWidth(window.innerWidth * parseFloat(savedWidth));
     };

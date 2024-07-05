@@ -1,6 +1,15 @@
 "use client";
-import { Box } from "@chakra-ui/react";
-import { Calendar, EventPropGetter, EventProps, Messages, SlotInfo, View, momentLocalizer } from "react-big-calendar";
+import { Box, Button, HStack } from "@chakra-ui/react";
+import {
+  Calendar,
+  EventPropGetter,
+  EventProps,
+  Messages,
+  SlotInfo,
+  ToolbarProps,
+  View,
+  momentLocalizer,
+} from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
@@ -13,6 +22,7 @@ import { type Task } from "@prisma/client";
 import CustomMultiDayView from "~/components/calendar/custom-view";
 import CalendarPopup from "~/components/calendar/popup";
 import TempTask from "~/components/edit-task";
+import CustomToolbar from "~/components/calendar/custom-toolbar";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -200,7 +210,10 @@ export default function Home() {
         onSelectSlot={handleSelectSlot}
         onDoubleClickEvent={handleDoubleClickEvent}
         onDropFromOutside={handleExternalDrop}
-        components={{ event: EventComponent as React.ComponentType<EventProps<object>> }}
+        components={{
+          event: EventComponent as React.ComponentType<EventProps<object>>,
+          toolbar: CustomToolbar, // Add the custom toolbar component here
+        }}
         eventPropGetter={eventPropGetter as EventPropGetter<object>}
         slotPropGetter={(date) => ({ className: date.toISOString() })}
         formats={{ timeGutterFormat: "HH:mm" }}
@@ -213,7 +226,14 @@ export default function Home() {
             left: selectedEventPos.left + selectedEventPos.width,
           }}
         >
-          <TempTask task={selectedEvent} height={400} width={400} onSave={() => setSelectedEvent(null)}></TempTask>
+          <TempTask
+            task={selectedEvent}
+            height={400}
+            width={400}
+            onSave={() => setSelectedEvent(null)}
+            showCloseButton={false}
+            showToolbar={false}
+          ></TempTask>
         </CalendarPopup>
       )}
     </Box>

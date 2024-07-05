@@ -59,7 +59,7 @@ CustomMultiDayView.navigate = (date: Date, action: NavigateAction) => {
 };
 
 CustomMultiDayView.title = (date: Date) => {
-  return `Test ${date.toDateString()}`;
+  return `${date.toLocaleDateString()}`;
 };
 
 export default CustomMultiDayView;

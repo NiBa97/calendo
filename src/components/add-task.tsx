@@ -43,7 +43,7 @@ const AddTask = () => {
           handleCreateTask();
         }}
       >
-        <HStack gap={2} p={2}>
+        <HStack p={4}>
           <FormControl id="taskName">
             <InputGroup size="md">
               <InputLeftElement bg={"gray.800"}>

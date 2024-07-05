@@ -1,23 +1,33 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+
+import { useRouter } from "next/navigation";
+// Import necessary icons and components from chakra-ui or other places
+import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
-import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button, IconButton } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
+
 const TempTask = ({
   task,
-  height,
-  width,
+  height = undefined,
+  width = undefined,
   onSave,
+  showCloseButton = true,
+  showToolbar = true,
 }: {
   task: Task;
   height: number | undefined;
   width: number | undefined;
   onSave?: (task: Task) => void;
+  showCloseButton?: boolean;
+  showToolbar?: boolean;
 }) => {
+  const router = useRouter();
   const ref = React.useRef<MDXEditorMethods>(null);
   const { updateTask, createTask, setTemporaryTask } = useTasks();
   const [name, setName] = useState(task?.name ?? "");
@@ -26,6 +36,7 @@ const TempTask = ({
   const [startDate, setStartDate] = useState(task?.startDate ? new Date(task.startDate) : null);
   const [endDate, setEndDate] = useState(task?.endDate ? new Date(task.endDate) : null);
   const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
+
   useEffect(() => {
     if (task) {
       setName(task.name);
@@ -43,7 +54,6 @@ const TempTask = ({
       task.status = status;
       void updateTask(task.id, { status: status });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const handleSubmit = async (_e: React.FormEvent) => {
@@ -56,6 +66,10 @@ const TempTask = ({
     if (onSave) {
       onSave(task);
     }
+  };
+
+  const handleClose = () => {
+    void router.push("/webapp");
   };
 
   return (
@@ -74,14 +88,25 @@ const TempTask = ({
           value={name}
           _focus={{ border: "none", outline: "none", boxShadow: "none" }}
           onChange={(e) => setName(e.target.value)}
+          borderRadius={"none"}
         />
-        {/* <InputRightElement bg={"gray.800"}>
-          <Link href="/webapp/">
-            <Icon size={20} as={FaXmark}></Icon>
-          </Link>
-        </InputRightElement> */}
+        {showCloseButton && (
+          <IconButton
+            aria-label="Close"
+            icon={<FaTimes />}
+            bg={"gray.800"}
+            onClick={handleClose}
+            color={"white"}
+            size={"lg"}
+            borderRadius={"none"}
+          ></IconButton>
+        )}
       </InputGroup>
-      <ForwardRefEditor markdown={description} onChange={(markdown) => setDescription(markdown)} />
+      <ForwardRefEditor
+        markdown={description}
+        onChange={(markdown) => setDescription(markdown)}
+        showToolbar={showToolbar}
+      />
       <Flex justifyContent={"space-between"} alignItems={"center"} bg={"gray.900"} bottom={0}>
         <DateTimeRangeSelector task={task} />
         <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"} color={"gray.300"}>
@@ -91,4 +116,5 @@ const TempTask = ({
     </Flex>
   );
 };
+
 export default TempTask;

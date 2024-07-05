@@ -15,7 +15,6 @@ import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { type Task } from "@prisma/client";
-import debounce from "debounce";
 
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
@@ -114,7 +113,7 @@ const ListTasks: React.FC = () => {
             <Text>Today Tasks</Text>
             <Badge colorScheme="green">{todayTasks.length}</Badge>
           </AccordionButton>
-          <AccordionPanel width="100%">
+          <AccordionPanel width="100%" gap={4}>
             {todayTasks.map((task) => (
               <TaskItem
                 task={task}
@@ -161,6 +160,7 @@ const TaskItem = ({
     <HStack
       width={"100%"}
       p={2}
+      my={2}
       bg={"blue.400"}
       draggable
       onDragStart={(event) => onDragStart(task, event)}

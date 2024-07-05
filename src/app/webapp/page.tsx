@@ -9,7 +9,7 @@ import { Resizable } from "react-resizable";
 export default function Home() {
   return (
     <Flex height={"100%"} width={"100%"} bg={"green"} position={"relative"}>
-      <VStack height={"100%"} width={"100%"} maxHeight={"100%"}>
+      <VStack height={"100%"} width={"100%"} maxHeight={"100%"} gap={0}>
         <AddTask />
         <ListTasks />
       </VStack>
