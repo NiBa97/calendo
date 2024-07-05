@@ -15,7 +15,6 @@ class CustomMultiDayView extends React.Component<CustomMultiDayViewProps> {
   static navigate: (date: Date, action: NavigateAction) => Date;
   static title: (date: Date) => string;
   render() {
-    console.log("props", this.props);
     const numberOfDays = 3;
     const { date, localizer, ...props } = this.props;
     const start = localizer.startOf(date, "day");
@@ -28,7 +27,6 @@ class CustomMultiDayView extends React.Component<CustomMultiDayViewProps> {
       range.push(new Date(current.getTime()));
       current = dates.add(current, 1, "day");
     }
-    console.log(range);
 
     const max = localizer.endOf(new Date(), "day");
     const min = localizer.startOf(new Date(), "day");

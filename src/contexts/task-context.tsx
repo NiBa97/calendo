@@ -15,6 +15,8 @@ interface TaskContextType {
   setContextInformation: (contextInformation: { x: number; y: number; task: Task } | undefined) => void;
   temporaryTask: Task | null;
   setTemporaryTask: (task: Task | null) => void;
+  modalTask: Task | null;
+  setModalTask: (task: Task | null) => void;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
   const [temporaryTask, setTemporaryTask] = useState<Task | null>(null);
+  const [modalTask, setModalTask] = useState<Task | null>(null);
   const [contextInformation, setContextInformation] = useState<{ x: number; y: number; task: Task } | undefined>(
     undefined
   );
@@ -102,6 +105,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         setContextInformation,
         temporaryTask,
         setTemporaryTask,
+        modalTask,
+        setModalTask,
       }}
     >
       {children}

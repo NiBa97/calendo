@@ -15,6 +15,7 @@ import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { type Task } from "@prisma/client";
+import debounce from "debounce";
 
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
@@ -145,7 +146,7 @@ const ListTasks: React.FC = () => {
     </Box>
   );
 };
-
+export default ListTasks;
 const TaskItem = ({
   task,
   onDragStart,
@@ -155,8 +156,7 @@ const TaskItem = ({
   onDragStart: (task: Task, event: React.DragEvent) => void;
   onContextMenu: (task: Task, event: React.MouseEvent) => void;
 }) => {
-  const { updateTask } = useTasks();
-
+  const { updateTask, setModalTask } = useTasks();
   return (
     <HStack
       width={"100%"}
@@ -165,6 +165,12 @@ const TaskItem = ({
       draggable
       onDragStart={(event) => onDragStart(task, event)}
       onContextMenu={(event) => onContextMenu(task, event)}
+      _hover={{
+        ".showFullscreenBox": {
+          visibility: "visible",
+          opacity: 1,
+        },
+      }}
     >
       <Checkbox isChecked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
       <Link
@@ -178,6 +184,23 @@ const TaskItem = ({
         alignItems={"center"}
       >
         <Text fontSize="lg">{task.name}</Text>
+        <Box
+          className="showFullscreenBox"
+          visibility="hidden"
+          opacity={0}
+          transition="visibility 0s, opacity 0.2s linear"
+          _hover={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            borderRadius: "5px",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setModalTask(task);
+          }}
+        >
+          Show fullscreen
+        </Box>
         <Text fontSize="sm" color={"gray.300"}>
           {task.isAllDay
             ? "All Day"
@@ -189,5 +212,3 @@ const TaskItem = ({
     </HStack>
   );
 };
-
-export default ListTasks;

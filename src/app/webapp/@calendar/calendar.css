@@ -37,3 +37,16 @@
 .mdxeditor .mdxeditor-rich-text-editor ul li::before, .mdxeditor .mdxeditor-rich-text-editor ul li::after{
     margin-top:3px;
 }
+
+.mdxeditor{
+    max-height: 100%;
+    overflow-y: auto;
+}
+.mdxeditor-toolbar{
+   min-height: 44px;
+    
+}
+
+.mdxeditor-popup-container{
+    z-index:9999!important;
+}

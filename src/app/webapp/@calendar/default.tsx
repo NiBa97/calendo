@@ -1,6 +1,6 @@
 "use client";
 import { Box } from "@chakra-ui/react";
-import { Calendar, Messages, SlotInfo, View, momentLocalizer } from "react-big-calendar";
+import { Calendar, EventPropGetter, EventProps, Messages, SlotInfo, View, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
@@ -38,7 +38,7 @@ const EventComponent = ({ event }: { event: Task }) => {
   );
 };
 
-const EventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolean) => ({
+const eventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolean) => ({
   ...(event.status && {
     className: "completed-task",
   }),
@@ -48,7 +48,8 @@ const EventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolea
 });
 
 export default function Home() {
-  const { tasks, updateTask, draggingTask, setDraggingTask, temporaryTask, setTemporaryTask } = useTasks();
+  const { tasks, updateTask, draggingTask, setDraggingTask, temporaryTask, setTemporaryTask, setModalTask } =
+    useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
@@ -166,7 +167,10 @@ export default function Home() {
 
     setSelectedEvent(event as Task);
   };
-
+  const handleDoubleClickEvent = (event: object, _e: SyntheticEvent<HTMLElement, Event>) => {
+    setSelectedEvent(null);
+    setModalTask(event as Task);
+  };
   return (
     <Box height={"100vh"}>
       <style>{`
@@ -194,9 +198,10 @@ export default function Home() {
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
         onSelectSlot={handleSelectSlot}
+        onDoubleClickEvent={handleDoubleClickEvent}
         onDropFromOutside={handleExternalDrop}
-        components={{ event: EventComponent }} // https://jquense.github.io/react-big-calendar/examples/index.html?path=/docs/props--components
-        eventPropGetter={EventPropGetter}
+        components={{ event: EventComponent as React.ComponentType<EventProps<object>> }}
+        eventPropGetter={eventPropGetter as EventPropGetter<object>}
         slotPropGetter={(date) => ({ className: date.toISOString() })}
         formats={{ timeGutterFormat: "HH:mm" }}
       />

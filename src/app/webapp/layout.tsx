@@ -4,6 +4,7 @@ import { Box, Center, Flex, HStack, VStack, Wrap, WrapItem } from "@chakra-ui/re
 import { Resizable, type ResizeCallbackData } from "react-resizable";
 import { TaskProvider } from "../../contexts/task-context";
 import TaskMenu from "~/components/task-menu";
+import TaskEditModal from "~/components/task-edit-modal";
 
 export default function Layout({ calendar, children }: { calendar: React.ReactNode; children: React.ReactNode }) {
   const [width, setWidth] = useState<number>(0);
@@ -37,6 +38,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
           {calendar}
         </Box>
         <TaskMenu />
+        <TaskEditModal />
       </Flex>
     </TaskProvider>
   );
