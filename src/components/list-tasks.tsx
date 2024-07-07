@@ -161,7 +161,8 @@ const TaskItem = ({
       width={"100%"}
       p={2}
       my={2}
-      bg={"blue.400"}
+      bg={"brand.3"}
+      border={"none"}
       draggable
       onDragStart={(event) => onDragStart(task, event)}
       onContextMenu={(event) => onContextMenu(task, event)}
@@ -201,7 +202,7 @@ const TaskItem = ({
         >
           Show fullscreen
         </Box>
-        <Text fontSize="sm" color={"gray.300"}>
+        <Text fontSize="sm" color={"brand.4"}>
           {task.isAllDay
             ? "All Day"
             : task.startDate && task.endDate

@@ -46,12 +46,12 @@ const AddTask = () => {
         <HStack p={4}>
           <FormControl id="taskName">
             <InputGroup size="md">
-              <InputLeftElement bg={"gray.800"}>
+              <InputLeftElement bg={"brand.2"}>
                 <FaPlus />
               </InputLeftElement>
               <Input
                 placeholder="Add new unscheduled task"
-                bg={"gray.800"}
+                bg={"brand.2"}
                 border={"none"}
                 type="text"
                 value={taskName}
@@ -59,9 +59,7 @@ const AddTask = () => {
               />
             </InputGroup>
           </FormControl>
-          <Button onClick={handleCreateTask} bg={"gray.800"} color={"gray.200"}>
-            Create
-          </Button>
+          <Button onClick={handleCreateTask}>Create</Button>
         </HStack>
       </form>
     </Box>

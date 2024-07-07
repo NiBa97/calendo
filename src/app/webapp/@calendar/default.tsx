@@ -38,7 +38,7 @@ const EventComponent = ({ event }: { event: Task }) => {
     <Box
       width="100%"
       height="100%"
-      color="white"
+      color="brand.4"
       p={2}
       borderLeft={isOverdue ? "4px solid red" : ""}
       onContextMenu={onContextMenu}

@@ -73,14 +73,14 @@ const TempTask = ({
   };
 
   return (
-    <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"gray.800"} maxHeight={"100%"}>
+    <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"brand.1"} maxHeight={"100%"}>
       <InputGroup size="md" width={"100%"}>
-        <InputLeftElement bg={"gray.800"}>
+        <InputLeftElement bg={"brand.1"}>
           <Checkbox size={"lg"} isChecked={status} onChange={() => setStatus(!status)} top={1} left={1}></Checkbox>
         </InputLeftElement>
         <Input
           placeholder="Add new unscheduled task"
-          bg={"gray.800"}
+          bg={"brand.1"}
           border={"none"}
           type="text"
           size={"lg"}
@@ -94,9 +94,9 @@ const TempTask = ({
           <IconButton
             aria-label="Close"
             icon={<FaTimes />}
-            bg={"gray.800"}
+            bg={"brand.1"}
             onClick={handleClose}
-            color={"white"}
+            color={"brand.4"}
             size={"lg"}
             borderRadius={"none"}
           ></IconButton>
@@ -107,9 +107,9 @@ const TempTask = ({
         onChange={(markdown) => setDescription(markdown)}
         showToolbar={showToolbar}
       />
-      <Flex justifyContent={"space-between"} alignItems={"center"} bg={"gray.900"} bottom={0}>
+      <Flex justifyContent={"space-between"} alignItems={"center"} bg={"brand.1"} bottom={0}>
         <DateTimeRangeSelector task={task} />
-        <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"} color={"gray.300"}>
+        <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"}>
           Save
         </Button>
       </Flex>

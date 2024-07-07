@@ -26,9 +26,9 @@ export default function TaskEditModal() {
   return (
     <Modal isOpen={modalTask !== null} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent bg={"transparent"} color={"white"} height={"90vh"} width={"90vw"} maxH={"90vh"} maxW={"90vw"}>
+      <ModalContent bg={"transparent"} color={"brand.4"} height={"90vh"} width={"90vw"} maxH={"90vh"} maxW={"90vw"}>
         <ModalBody height={"90vh"} width={"90vw"} p={0}>
-          <Box bg={"black"} color={"white"} height={"90vh"} width={"90vw"}>
+          <Box bg={"black"} color={"brand.4"} height={"90vh"} width={"90vw"}>
             <TempTask task={modalTask!} onSave={(_task) => onClose()}></TempTask>
           </Box>
         </ModalBody>

@@ -33,41 +33,43 @@ const CustomToolbar = ({ label, onNavigate, onView, views, view }: ToolbarProps)
       <HStack justifyContent="space-between">
         <ButtonGroup isAttached variant="outline">
           <Button onClick={() => onNavigate("PREV")}>
-            <FaChevronLeft color="white" />
+            <FaChevronLeft color="brand.4" />
           </Button>
-          <Button color="white" onClick={() => onNavigate("TODAY")}>
-            Today
-          </Button>
+          <Button onClick={() => onNavigate("TODAY")}>Today</Button>
           <Button onClick={() => onNavigate("NEXT")}>
-            <FaChevronRight color="white" />
+            <FaChevronRight color="brand.4" />
           </Button>
         </ButtonGroup>
         <Box fontWeight="bold" fontSize="lg">
           {label}
         </Box>
         <Menu>
-          <MenuButton as={Button} rightIcon={<FaChevronDown />} variant={"outline"} color={"white"}>
+          <MenuButton as={Button} rightIcon={<FaChevronDown />} variant={"outline"}>
             {getMenuItemLabel(currentView)}
           </MenuButton>
           <MenuList zIndex={999}>
             {views.includes("day") && (
-              <MenuItem color="black" fontWeight={isCurrentView(currentView, "day")} onClick={() => onView("day")}>
+              <MenuItem color="brand.4" fontWeight={isCurrentView(currentView, "day")} onClick={() => onView("day")}>
                 Day
               </MenuItem>
             )}
             {views.includes("week") && (
-              <MenuItem color="black" fontWeight={isCurrentView(currentView, "week")} onClick={() => onView("week")}>
+              <MenuItem color="brand.4" fontWeight={isCurrentView(currentView, "week")} onClick={() => onView("week")}>
                 Week
               </MenuItem>
             )}
             {views.includes("month") && (
-              <MenuItem color="black" fontWeight={isCurrentView(currentView, "month")} onClick={() => onView("month")}>
+              <MenuItem
+                color="brand.4"
+                fontWeight={isCurrentView(currentView, "month")}
+                onClick={() => onView("month")}
+              >
                 Month
               </MenuItem>
             )}
             {views.includes("customDayView") && (
               <MenuItem
-                color="black"
+                color="brand.4"
                 fontWeight={isCurrentView(currentView, "customDayView")}
                 onClick={() => onView("customDayView")}
               >

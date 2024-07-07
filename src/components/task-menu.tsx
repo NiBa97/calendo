@@ -37,20 +37,12 @@ const TaskMenu = () => {
         onClose={() => setContextInformation(undefined)}
         position={{ top: contextInformation.y, left: contextInformation.x }}
       >
-        <Flex direction={"column"} bg={"gray.800"} borderRadius={"md"} border={"none"} zIndex={999}>
-          <Button
-            leftIcon={<Icon as={FaCopy} />}
-            bg={"gray.800"}
-            color={"white"}
-            onClick={handleDuplicate}
-            justifyContent="flex-start"
-          >
+        <Flex direction={"column"} bg={"brand.1"} borderRadius={"md"} border={"none"} zIndex={999}>
+          <Button leftIcon={<Icon as={FaCopy} />} onClick={handleDuplicate} justifyContent="flex-start">
             Duplicate
           </Button>
           <Button
             leftIcon={<Icon as={FaStop} />}
-            bg={"gray.800"}
-            color={"white"}
             justifyContent="flex-start"
             onClick={handleUnschedule}
             borderRadius={"none"}
@@ -59,8 +51,6 @@ const TaskMenu = () => {
           </Button>
           <Button
             leftIcon={<Icon as={FaTrash} />}
-            bg={"gray.800"}
-            color={"white"}
             justifyContent="flex-start"
             onClick={handleDelete}
             borderRadius={"none"}
