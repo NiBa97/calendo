@@ -6,6 +6,7 @@ import { TaskProvider } from "../../contexts/task-context";
 import TaskMenu from "~/components/task-menu";
 import TaskEditModal from "~/components/task-edit-modal";
 import React from "react";
+import { ResizeHandle } from "~/components/resize-handle";
 const theme = extendTheme({
   colors: {
     brand: {
@@ -49,6 +50,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
             onResize={onWidthResize}
             resizeHandles={["e"]}
             className={"resize-x"}
+            handle={<ResizeHandle />}
           >
             <Box width={width}>{children}</Box>
           </Resizable>

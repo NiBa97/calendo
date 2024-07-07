@@ -8,6 +8,7 @@ import TaskMenu from "~/components/task-menu";
 import { useTasks } from "~/contexts/task-context";
 import { Task } from "@prisma/client";
 import TempTask from "~/components/edit-task";
+import { ResizeHandle } from "~/components/resize-handle";
 
 export default function Home({ params: { id: taskId } }: { params: { id: string } }) {
   const [height, setHeight] = useState<number>(0);
@@ -55,6 +56,7 @@ export default function Home({ params: { id: taskId } }: { params: { id: string 
         onResize={onHeightResize}
         resizeHandles={["s"]}
         className={"resize-y"}
+        handle={<ResizeHandle />}
       >
         <Box height={height} width={"100%"} bg={"brand.1"} position={"relative"}>
           <VStack height={"100%"} width={"100%"} maxHeight={"100%"}>

@@ -14,32 +14,8 @@ a {
 * {
   box-sizing: border-box;
 }
-.react-resizable-handle-e {
-  width: 10px;
-  min-width: 10px;
-  height: 100%;
-  cursor: col-resize;
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 999;
-  position: absolute;
-  top:0px;
-  right: -5px;
-}
-
 .react-resizable{position: relative;}
 
-.react-resizable-handle-s {
-  height: 10px;
-  min-height: 10px;
-  width: 100%;
-  cursor: row-resize;
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
-  z-index: 999;
-  left:0px;
-  position: absolute ;
-  /* position: absolute; */
-  bottom: -10px;
-}
 .rbc-day-slot .rbc-time-slot{
   border-top: 1px solid rgba(255, 255, 255, 0.2)!important; 
 }
