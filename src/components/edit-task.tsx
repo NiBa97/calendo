@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { useRouter } from "next/navigation";
-// Import necessary icons and components from chakra-ui or other places
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
-import { InputGroup, InputLeftElement, Input, Checkbox, Flex, Button, IconButton } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
@@ -16,67 +15,92 @@ const TempTask = ({
   task,
   height = undefined,
   width = undefined,
-  onSave,
   showCloseButton = true,
   showToolbar = true,
 }: {
   task: Task;
   height: number | undefined;
   width: number | undefined;
-  onSave?: (task: Task) => void;
   showCloseButton?: boolean;
   showToolbar?: boolean;
 }) => {
   const router = useRouter();
   const ref = React.useRef<MDXEditorMethods>(null);
   const { updateTask, createTask, setTemporaryTask } = useTasks();
-  const [name, setName] = useState(task?.name ?? "");
-  const [description, setDescription] = useState(task?.description ?? "");
-  const [status, setStatus] = useState(task?.status ?? false);
-  const [startDate, setStartDate] = useState(task?.startDate ? new Date(task.startDate) : null);
-  const [endDate, setEndDate] = useState(task?.endDate ? new Date(task.endDate) : null);
-  const [isAllDay, setIsAllDay] = useState(task?.isAllDay ?? false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [taskState, setTaskState] = useState({
+    name: task?.name ?? "",
+    description: task?.description ?? "",
+    status: task?.status ?? false,
+    startDate: task?.startDate ? new Date(task.startDate) : null,
+    endDate: task?.endDate ? new Date(task.endDate) : null,
+    isAllDay: task?.isAllDay ?? false,
+  });
+  const taskStateRef = useRef(taskState);
 
-  useEffect(() => {
-    if (task) {
-      setName(task.name);
-      setDescription(task.description ?? "");
-      setStatus(task.status);
-      setStartDate(task.startDate ? new Date(task.startDate) : null);
-      setEndDate(task.endDate ? new Date(task.endDate) : null);
-      setIsAllDay(task.isAllDay);
-      ref.current?.setMarkdown(task.description!);
-    }
-  }, [task]);
+  ref.current?.setMarkdown(taskState.description);
 
-  useEffect(() => {
-    if (task.status !== status) {
-      task.status = status;
-      void updateTask(task.id, { status: status });
-    }
-  }, [status]);
-
-  const handleSubmit = async (_e: React.FormEvent) => {
+  const handleSave = async () => {
     if (task.id) {
-      await updateTask(task.id, { name, description, status, startDate, endDate, isAllDay });
+      await updateTask(task.id, taskStateRef.current);
     } else {
-      await createTask({ name, description, status, startDate, endDate, isAllDay });
+      await createTask(taskStateRef.current);
       setTemporaryTask(null);
     }
-    if (onSave) {
-      onSave(task);
+  };
+
+  const debounceSave = () => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
     }
+    debounceTimeout.current = setTimeout(() => {
+      void handleSave();
+    }, 5000);
+  };
+
+  const handleStatusChange = (value: boolean) => {
+    taskStateRef.current = { ...taskStateRef.current, status: value };
+    setTaskState((prevState) => ({
+      ...prevState,
+      status: value,
+    }));
+
+    task.status = taskState.status;
+    void updateTask(task.id, { status: taskState.status });
+  };
+
+  const handleChange = (field: keyof Task, value: Task[keyof Task]) => {
+    taskStateRef.current = { ...taskStateRef.current, [field]: value };
+    setTaskState((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+    debounceSave();
   };
 
   const handleClose = () => {
     void router.push("/webapp");
   };
 
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+        void handleSave();
+      }
+    };
+  }, [debounceTimeout, task]);
   return (
     <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"brand.1"} maxHeight={"100%"}>
       <InputGroup size="md" width={"100%"}>
         <InputLeftElement bg={"brand.1"}>
-          <Checkbox size={"lg"} isChecked={status} onChange={() => setStatus(!status)} top={1} left={1}></Checkbox>
+          <Checkbox
+            size={"lg"}
+            isChecked={taskState.status}
+            onChange={() => handleStatusChange(!taskState.status)}
+            top={1}
+            left={1}
+          ></Checkbox>
         </InputLeftElement>
         <Input
           placeholder="Add new unscheduled task"
@@ -85,9 +109,9 @@ const TempTask = ({
           type="text"
           size={"lg"}
           fontWeight={"600"}
-          value={name}
+          value={taskState.name}
           _focus={{ border: "none", outline: "none", boxShadow: "none" }}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => handleChange("name", e.target.value)}
           borderRadius={"none"}
         />
         {showCloseButton && (
@@ -103,15 +127,12 @@ const TempTask = ({
         )}
       </InputGroup>
       <ForwardRefEditor
-        markdown={description}
-        onChange={(markdown) => setDescription(markdown)}
+        markdown={taskState.description}
+        onChange={(markdown) => handleChange("description", markdown)}
         showToolbar={showToolbar}
       />
       <Flex justifyContent={"space-between"} alignItems={"center"} bg={"brand.1"} bottom={0}>
         <DateTimeRangeSelector task={task} />
-        <Button type="submit" onClick={handleSubmit} variant={"ghost"} float={"right"}>
-          Save
-        </Button>
       </Flex>
     </Flex>
   );

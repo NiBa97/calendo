@@ -230,7 +230,6 @@ export default function Home() {
             task={selectedEvent}
             height={400}
             width={400}
-            onSave={() => setSelectedEvent(null)}
             showCloseButton={false}
             showToolbar={false}
           ></TempTask>
