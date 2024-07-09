@@ -8,6 +8,21 @@
     border:none!important;
     border-radius: 5px!important;
 }
+.rbc-time-header{
+    margin-right: 0px!important;
+}
+.rbc-time-gutter .rbc-timeslot-group:first-child .rbc-label{
+    opacity: 0!important;
+}
+.rbc-time-gutter .rbc-timeslot-group{
+    border: none !important;
+}
+.rbc-time-gutter .rbc-time-slot{
+    border: none !important;
+    top:-13px;
+    position: relative;
+}
+
 .mdxeditor-diff-source-wrapper h1{
     font-size: 22px;
     font-weight: bold;

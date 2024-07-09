@@ -15,6 +15,7 @@ import { Link } from "@chakra-ui/next-js";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { type Task } from "@prisma/client";
+import { FaExpand } from "react-icons/fa6";
 
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
@@ -169,6 +170,7 @@ const TaskItem = ({
       _hover={{
         ".showFullscreenBox": {
           visibility: "visible",
+          display: "block",
           opacity: 1,
         },
       }}
@@ -185,30 +187,32 @@ const TaskItem = ({
         alignItems={"center"}
       >
         <Text fontSize="lg">{task.name}</Text>
-        <Box
-          className="showFullscreenBox"
-          visibility="hidden"
-          opacity={0}
-          transition="visibility 0s, opacity 0.2s linear"
-          _hover={{
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            borderRadius: "5px",
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setModalTask(task);
-          }}
-        >
-          Show fullscreen
-        </Box>
-        <Text fontSize="sm" color={"brand.4"}>
-          {task.isAllDay
-            ? "All Day"
-            : task.startDate && task.endDate
-            ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
-            : "No Date Assigned"}
-        </Text>
+        <HStack gap={1}>
+          <Text fontSize="sm" color={"brand.4"}>
+            {task.isAllDay
+              ? "All Day"
+              : task.startDate && task.endDate
+              ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
+              : "No Date Assigned"}
+          </Text>{" "}
+          <Box
+            className="showFullscreenBox"
+            display={"none"}
+            transition="visibility 0s, display 0.2s linear"
+            _hover={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              borderRadius: "5px",
+            }}
+            p={"4px"}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setModalTask(task);
+            }}
+          >
+            <FaExpand />
+          </Box>
+        </HStack>
       </Link>
     </HStack>
   );

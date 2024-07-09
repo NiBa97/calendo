@@ -92,7 +92,12 @@ const TempTask = ({
   }, [debounceTimeout, task]);
   return (
     <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"brand.1"} maxHeight={"100%"}>
-      <InputGroup size="md" width={"100%"}>
+      <InputGroup
+        size="md"
+        width={"100%"}
+        borderBottom={showCloseButton ? "none" : "2px solid"}
+        borderColor={"brand.2"}
+      >
         <InputLeftElement bg={"brand.1"}>
           <Checkbox
             size={"lg"}
@@ -131,7 +136,14 @@ const TempTask = ({
         onChange={(markdown) => handleChange("description", markdown)}
         showToolbar={showToolbar}
       />
-      <Flex justifyContent={"space-between"} alignItems={"center"} bg={"brand.1"} bottom={0}>
+      <Flex
+        justifyContent={"space-between"}
+        alignItems={"center"}
+        bg={"brand.1"}
+        bottom={0}
+        borderTop={showCloseButton ? "none" : "2px solid"}
+        borderColor={"brand.2"}
+      >
         <DateTimeRangeSelector task={task} />
       </Flex>
     </Flex>

@@ -65,7 +65,7 @@ export default function Home({ params: { id: taskId } }: { params: { id: string 
           </VStack>
         </Box>
       </Resizable>
-      <Box height={`calc(100vh - ${height}px)`} width={"100%"} bg={"brand.1"} color={"brand.4"}>
+      <Box height={`calc(100vh - ${height}px)`} width={"100%"} bg={"brand.1"} color={"brand.4"} pt={"10px"}>
         {selectedTask && <TempTask task={selectedTask} />}
       </Box>
     </div>
