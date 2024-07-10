@@ -1,12 +1,82 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Center, ChakraProvider, Flex, HStack, VStack, Wrap, WrapItem, extendTheme } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  ChakraProvider,
+  Flex,
+  HStack,
+  MenuButton,
+  MenuItem,
+  VStack,
+  Wrap,
+  WrapItem,
+  createMultiStyleConfigHelpers,
+  extendTheme,
+} from "@chakra-ui/react";
 import { Resizable, type ResizeCallbackData } from "react-resizable";
 import { TaskProvider } from "../../contexts/task-context";
 import TaskMenu from "~/components/task-menu";
 import TaskEditModal from "~/components/task-edit-modal";
 import React from "react";
 import { ResizeHandle } from "~/components/resize-handle";
+import AppNavbar from "~/components/app-navbar";
+
+// This function creates a set of function that helps us create multipart component styles.
+const helpers = createMultiStyleConfigHelpers(["menu", "item"]);
+
+const Menu = helpers.defineMultiStyleConfig({
+  baseStyle: {
+    menu: {
+      boxShadow: "lg",
+      rounded: "lg",
+      flexDirection: "column",
+      py: "2",
+    },
+    item: {
+      fontWeight: "medium",
+      lineHeight: "normal",
+      color: "gray.600",
+    },
+  },
+  sizes: {
+    sm: {
+      item: {
+        fontSize: "0.75rem",
+        px: 2,
+        py: 1,
+      },
+    },
+    md: {
+      item: {
+        fontSize: "0.875rem",
+        px: 3,
+        py: 2,
+      },
+    },
+  },
+  variants: {
+    bold: {
+      item: {
+        fontWeight: "bold",
+      },
+      menu: {
+        boxShadow: "xl",
+      },
+    },
+    colorful: {
+      item: {
+        color: "orange.600",
+      },
+      menu: {
+        bg: "orange.100",
+      },
+    },
+  },
+  defaultProps: {
+    size: "md",
+  },
+});
 const theme = extendTheme({
   colors: {
     brand: {
@@ -16,6 +86,29 @@ const theme = extendTheme({
       4: "#EEEEEE",
     },
   },
+  components: {
+    Button: {
+      baseStyle: {
+        bg: "brand.2",
+        color: "brand.4",
+        border: "none",
+        _hover: {
+          bg: "brand.4",
+        },
+      },
+      variants: {
+        solid: {
+          bg: "brand.2",
+          color: "brand.4",
+          border: "none",
+          _hover: {
+            bg: "brand.3",
+          },
+        },
+      },
+    },
+  },
+  Menu,
 });
 
 export default function Layout({ calendar, children }: { calendar: React.ReactNode; children: React.ReactNode }) {
@@ -43,6 +136,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
   return (
     <ChakraProvider theme={theme}>
       <TaskProvider>
+        <AppNavbar></AppNavbar>
         <Flex maxHeight={"100vh"} width={"100vw"} height={"100vh"} bg={"brand.1"} color={"brand.4"} gap={2}>
           <Resizable
             axis="x"

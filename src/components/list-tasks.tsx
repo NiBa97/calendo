@@ -205,9 +205,9 @@ const TaskItem = ({
             }}
             p={"4px"}
             onClick={(e) => {
+              setModalTask(task);
               e.stopPropagation();
               e.preventDefault();
-              setModalTask(task);
             }}
           >
             <FaExpand />

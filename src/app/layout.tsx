@@ -3,6 +3,8 @@ import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { Providers } from "~/contexts/providers";
+import { getServerAuthSession } from "~/server/auth";
 
 export const metadata = {
   title: "Create T3 App",
@@ -10,11 +12,15 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const serverSession = await getServerAuthSession();
+
   return (
     <html lang="en">
       <body className={GeistSans.className}>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <Providers serverSession={serverSession}>{children}</Providers>
+        </TRPCReactProvider>
       </body>
     </html>
   );

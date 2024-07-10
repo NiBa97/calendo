@@ -95,6 +95,14 @@ a {
 .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:first-child .rbc-addons-dnd-resize-ns-icon{
   border-bottom: 3px double!important;
   border-top: none!important;
+  position: relative;
+  margin: 0 0 0 5px;
+}
+
+.rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:last-child .rbc-addons-dnd-resize-ns-icon{
+  position: relative;
+  left:calc(100% - 55px)!important;
+  margin: 0;
 }
 .mdxeditor-root-contenteditable,.mdxeditor-root-contenteditable > div, .mdxeditor-rich-text-editor, .mdxeditor-diff-source-wrapper{
   height: 100%;

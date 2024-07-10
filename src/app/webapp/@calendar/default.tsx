@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, HStack } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import {
   Calendar,
   EventPropGetter,
@@ -35,16 +35,18 @@ const EventComponent = ({ event }: { event: Task }) => {
   };
 
   return (
-    <Box
+    <Flex
       width="100%"
       height="100%"
       color="brand.4"
       p={2}
       borderLeft={isOverdue ? "4px solid red" : ""}
       onContextMenu={onContextMenu}
+      justifyContent={"center"}
+      alignItems={"center"}
     >
-      {event.name}
-    </Box>
+      <Text>{event.name}</Text>
+    </Flex>
   );
 };
 

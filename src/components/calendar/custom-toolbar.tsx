@@ -31,7 +31,7 @@ const CustomToolbar = ({ label, onNavigate, onView, views, view }: ToolbarProps)
   return (
     <Box m={4} textAlign="center">
       <HStack justifyContent="space-between">
-        <ButtonGroup isAttached variant="outline">
+        <ButtonGroup isAttached>
           <Button onClick={() => onNavigate("PREV")}>
             <FaChevronLeft color="brand.4" />
           </Button>
@@ -44,32 +44,27 @@ const CustomToolbar = ({ label, onNavigate, onView, views, view }: ToolbarProps)
           {label}
         </Box>
         <Menu>
-          <MenuButton as={Button} rightIcon={<FaChevronDown />} variant={"outline"}>
+          <MenuButton as={Button} rightIcon={<FaChevronDown />}>
             {getMenuItemLabel(currentView)}
           </MenuButton>
           <MenuList zIndex={999}>
             {views.includes("day") && (
-              <MenuItem color="brand.4" fontWeight={isCurrentView(currentView, "day")} onClick={() => onView("day")}>
+              <MenuItem fontWeight={isCurrentView(currentView, "day")} onClick={() => onView("day")}>
                 Day
               </MenuItem>
             )}
             {views.includes("week") && (
-              <MenuItem color="brand.4" fontWeight={isCurrentView(currentView, "week")} onClick={() => onView("week")}>
+              <MenuItem fontWeight={isCurrentView(currentView, "week")} onClick={() => onView("week")}>
                 Week
               </MenuItem>
             )}
             {views.includes("month") && (
-              <MenuItem
-                color="brand.4"
-                fontWeight={isCurrentView(currentView, "month")}
-                onClick={() => onView("month")}
-              >
+              <MenuItem fontWeight={isCurrentView(currentView, "month")} onClick={() => onView("month")}>
                 Month
               </MenuItem>
             )}
             {views.includes("customDayView") && (
               <MenuItem
-                color="brand.4"
                 fontWeight={isCurrentView(currentView, "customDayView")}
                 onClick={() => onView("customDayView")}
               >

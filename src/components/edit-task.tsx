@@ -141,7 +141,7 @@ const TempTask = ({
         alignItems={"center"}
         bg={"brand.1"}
         bottom={0}
-        borderTop={showCloseButton ? "none" : "2px solid"}
+        borderTop={"2px solid"}
         borderColor={"brand.2"}
       >
         <DateTimeRangeSelector task={task} />
