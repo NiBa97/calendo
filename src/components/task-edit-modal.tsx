@@ -29,7 +29,7 @@ export default function TaskEditModal() {
       <ModalContent bg={"transparent"} color={"brand.4"} height={"90vh"} width={"90vw"} maxH={"90vh"} maxW={"90vw"}>
         <ModalBody height={"90vh"} width={"90vw"} p={0}>
           <Box bg={"black"} color={"brand.4"} height={"90vh"} width={"90vw"}>
-            <TempTask task={modalTask!}></TempTask>
+            <TempTask task={modalTask!} height={undefined} width={undefined}></TempTask>
           </Box>
         </ModalBody>
       </ModalContent>

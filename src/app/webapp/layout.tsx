@@ -144,7 +144,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
             onResize={onWidthResize}
             resizeHandles={["e"]}
             className={"resize-x"}
-            handle={<ResizeHandle />}
+            handle={<ResizeHandle handleAxis={"x"} innerRef={null} />}
           >
             <Box width={width}>{children}</Box>
           </Resizable>

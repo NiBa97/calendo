@@ -56,7 +56,7 @@ export default function Home({ params: { id: taskId } }: { params: { id: string 
         onResize={onHeightResize}
         resizeHandles={["s"]}
         className={"resize-y"}
-        handle={<ResizeHandle />}
+        handle={<ResizeHandle handleAxis={"y"} innerRef={null} />}
       >
         <Box height={height} width={"100%"} bg={"brand.1"} position={"relative"}>
           <VStack height={"100%"} width={"100%"} maxHeight={"100%"}>
@@ -66,7 +66,7 @@ export default function Home({ params: { id: taskId } }: { params: { id: string 
         </Box>
       </Resizable>
       <Box height={`calc(100vh - ${height}px)`} width={"100%"} bg={"brand.1"} color={"brand.4"} pt={"10px"}>
-        {selectedTask && <TempTask task={selectedTask} />}
+        {selectedTask && <TempTask task={selectedTask} height={undefined} width={undefined} />}
       </Box>
     </div>
   );

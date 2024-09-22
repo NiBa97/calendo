@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, ButtonGroup } from "@chakra-ui/react";
-import { ToolbarProps } from "react-big-calendar";
+import { ToolbarProps, View } from "react-big-calendar";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
@@ -48,25 +49,25 @@ const CustomToolbar = ({ label, onNavigate, onView, views, view }: ToolbarProps)
             {getMenuItemLabel(currentView)}
           </MenuButton>
           <MenuList zIndex={999}>
-            {views.includes("day") && (
+            {(views as []).toString().includes("day") && (
               <MenuItem fontWeight={isCurrentView(currentView, "day")} onClick={() => onView("day")}>
                 Day
               </MenuItem>
             )}
-            {views.includes("week") && (
+            {(views as []).toString().includes("week") && (
               <MenuItem fontWeight={isCurrentView(currentView, "week")} onClick={() => onView("week")}>
                 Week
               </MenuItem>
             )}
-            {views.includes("month") && (
+            {(views as []).toString().includes("month") && (
               <MenuItem fontWeight={isCurrentView(currentView, "month")} onClick={() => onView("month")}>
                 Month
               </MenuItem>
             )}
-            {views.includes("customDayView") && (
+            {(views as []).toString().includes("customDayView") && (
               <MenuItem
                 fontWeight={isCurrentView(currentView, "customDayView")}
-                onClick={() => onView("customDayView")}
+                onClick={() => onView("customDayView" as View)}
               >
                 Custom Day View
               </MenuItem>
