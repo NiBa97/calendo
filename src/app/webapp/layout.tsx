@@ -137,7 +137,14 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
     <ChakraProvider theme={theme}>
       <TaskProvider>
         <AppNavbar></AppNavbar>
-        <Flex maxHeight={"100vh"} width={"100vw"} height={"100vh"} bg={"brand.1"} color={"brand.4"} gap={2}>
+        <Flex
+          maxHeight={"calc(100vh - 50px)"}
+          width={"100vw"}
+          height={"calc(100vh - 50px)"}
+          bg={"brand.1"}
+          color={"brand.4"}
+          gap={2}
+        >
           <Resizable
             axis="x"
             width={width}
@@ -150,7 +157,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
           </Resizable>
           <Box
             width={`calc(100vw - ${width}px)`}
-            maxHeight={"100vh"}
+            maxHeight={"calc(100vh - 50px)"}
             bg={"brand.1"}
             color={"brand.4"}
             className="test123"

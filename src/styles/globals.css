@@ -52,8 +52,7 @@ a {
 }
 
 .rbc-calendar{
-  /* height: 100vh!important; */
-  height:100vh!important; 
+  height:calc(100vh - 50px)!important;
 }
 .rbc-event{
   padding:0px!important;
