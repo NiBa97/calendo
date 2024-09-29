@@ -17,7 +17,7 @@ export const taskRouter = createTRPCRouter({
       groupId: z.string().cuid().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.task.create({
+      const newTask = await ctx.db.task.create({
         data: {
           name: input.name,
           description: input.description,
@@ -25,23 +25,38 @@ export const taskRouter = createTRPCRouter({
           endDate: input.endDate,
           isAllDay: input.isAllDay ?? false,
           status: input.status ?? false,
-          groupId: input.groupId ?? undefined,
+          groupId: input.groupId,
           userId: ctx.session.user.id,
-        }, 
-        select:{
-          id:true,
-          name:true,
-          description:true,
-          startDate:true,
-          endDate:true,
-          isAllDay:true,
-          status:true,
-          groupId:true,
-          userId:true,
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          isAllDay: true,
+          status: true,
+          groupId: true,
+          userId: true,
         },
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const {id : taskId, ...newTaskData} = newTask;
+      await ctx.db.taskHistory.create({
+        data: {
+          ...newTaskData,
+          taskId: taskId,
+      }})
+      return newTask;
     }),
-
+getHistoric: protectedProcedure
+    .input(z.object({ id: z.string().cuid() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.taskHistory.findMany({
+        where: { taskId: input.id, userId:ctx.session.user.id },
+        orderBy: { changedAt: "desc" },
+      });
+    }),
 getAll: protectedProcedure
     .query(async ({ ctx }) => {
       return ctx.db.task.findMany({
@@ -71,10 +86,18 @@ getAll: protectedProcedure
     }))
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      return ctx.db.task.update({
+      const task = await ctx.db.task.update({
         where: { id: id, userId: ctx.session.user.id},
         data,
       });
+      const {id : taskId, ...taskData} = task;
+      await ctx.db.taskHistory.create({
+        data: {
+          ...taskData,
+          taskId: taskId,
+        },
+      });
+      return task;
     }),
 
   updateDates: protectedProcedure
