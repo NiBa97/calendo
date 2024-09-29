@@ -184,7 +184,7 @@ export default function Home() {
     setModalTask(event as Task);
   };
   return (
-    <Box height={"100vh"}>
+    <Box>
       <style>{`
           .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
           .rbc-timeslot-group { min-height:20px!important; }
