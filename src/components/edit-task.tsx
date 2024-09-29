@@ -10,6 +10,8 @@ import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from 
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
+import TaskHistory from "./task-changelog";
+import TaskChangelog from "./task-changelog";
 
 const TempTask = ({
   task,
@@ -146,6 +148,8 @@ const TempTask = ({
       >
         <DateTimeRangeSelector task={task} />
       </Flex>
+
+      <TaskChangelog taskId={task.id} />
     </Flex>
   );
 };
