@@ -23,11 +23,6 @@ export default function AppNavbar() {
         </Text>
       </Box>
       <Box>
-        <Link href={session ? "/api/auth/signout" : "/api/auth/signin"}>
-          <Button leftIcon={<FaSignOutAlt />}>Sign out</Button>
-        </Link>
-      </Box>
-      <Box>
         <Menu>
           <MenuButton as={Box} cursor="pointer">
             <Flex alignItems={"center"} gap={2}>
