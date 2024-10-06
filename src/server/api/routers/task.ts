@@ -99,7 +99,24 @@ getAll: protectedProcedure
       });
       return task;
     }),
-
+  restore: protectedProcedure
+    .input(z.object({
+      originalID: z.string().cuid(),
+      name: z.string().min(1),
+      description: z.string().optional(),
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+      isAllDay: z.boolean().optional(),
+      status: z.boolean().optional(),
+      groupId: z.string().cuid().optional(),
+    })).mutation(async ({ ctx, input }) => {
+      const { originalID, ...data } = input;
+      const task = await ctx.db.task.update({
+        where: { id: originalID, userId: ctx.session.user.id },
+        data,
+      });
+      return task;
+    }),
   updateDates: protectedProcedure
     .input(z.object({
       id: z.string().cuid(),

@@ -145,11 +145,13 @@ const TempTask = ({
         bottom={0}
         borderTop={"2px solid"}
         borderColor={"brand.2"}
+        paddingX={2}
+        paddingY={2}
       >
         <DateTimeRangeSelector task={task} />
-      </Flex>
 
-      <TaskChangelog taskId={task.id} />
+        <TaskChangelog taskId={task.id} />
+      </Flex>
     </Flex>
   );
 };
