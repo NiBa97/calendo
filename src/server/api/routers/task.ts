@@ -102,18 +102,22 @@ getAll: protectedProcedure
   restore: protectedProcedure
     .input(z.object({
       originalID: z.string().cuid(),
+      historyTimestamp: z.date(),
       name: z.string().min(1),
       description: z.string().optional(),
-      startDate: z.date().optional(),
-      endDate: z.date().optional(),
+      startDate: z.date().nullable().optional(),
+      endDate: z.date().nullable().optional(),
       isAllDay: z.boolean().optional(),
       status: z.boolean().optional(),
-      groupId: z.string().cuid().optional(),
+      groupId: z.string().cuid().nullable().optional(),
     })).mutation(async ({ ctx, input }) => {
-      const { originalID, ...data } = input;
+      const { originalID, historyTimestamp, ...data } = input;
       const task = await ctx.db.task.update({
         where: { id: originalID, userId: ctx.session.user.id },
         data,
+      });
+      await ctx.db.taskHistory.deleteMany({
+        where: { taskId: originalID, changedAt: { gt: historyTimestamp } },
       });
       return task;
     }),
