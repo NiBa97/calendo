@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
-import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton, Box } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
@@ -21,8 +21,8 @@ const TempTask = ({
   showToolbar = true,
 }: {
   task: Task;
-  height: number | undefined;
-  width: number | undefined;
+  height: number | string | undefined;
+  width: number | string | undefined;
   showCloseButton?: boolean;
   showToolbar?: boolean;
 }) => {
@@ -93,7 +93,14 @@ const TempTask = ({
     };
   }, [debounceTimeout, task]);
   return (
-    <Flex direction="column" width={width ?? "100%"} height={height ?? "100%"} bg={"brand.1"} maxHeight={"100%"}>
+    <Flex
+      direction="column"
+      width={width ?? "100%"}
+      height={height ?? "100%"}
+      bg={"brand.1"}
+      maxHeight={"100%"}
+      overflow={"hidden"}
+    >
       <InputGroup
         size="md"
         width={"100%"}

@@ -18,6 +18,7 @@ import {
 import { FaHistory } from "react-icons/fa";
 import { useTasks } from "~/contexts/task-context";
 import { useState } from "react";
+import { set } from "zod";
 
 const compareIsAllDay = (newVersion: TaskHistory, oldVersion: TaskHistory) => {
   if (newVersion.isAllDay === oldVersion.isAllDay) return "";
@@ -68,7 +69,6 @@ const ChangelogComponent = ({ children }: { children: React.ReactNode }) => {
         height: "100%",
         width: "3px",
         backgroundColor: "brand.2",
-
         position: "absolute",
       }}
     >
@@ -122,7 +122,6 @@ const ChangelogItem = ({ children }: { children: React.ReactNode }) => {
 
 const TaskChangelog = ({ taskId }: { taskId: string }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const toast = useToast();
   const { restoreTask } = useTasks();
   const { data } = api.task.getHistoric.useQuery({
     id: taskId,
@@ -130,7 +129,7 @@ const TaskChangelog = ({ taskId }: { taskId: string }) => {
   if (!data) return <Box>No history found</Box>;
 
   const restoreTaskFromHistory = (history: TaskHistory) => {
-    void restoreTask(history.taskId, {
+    restoreTask(history.taskId, history.changedAt, {
       name: history.name,
       description: history.description,
       startDate: history.startDate,
@@ -138,7 +137,13 @@ const TaskChangelog = ({ taskId }: { taskId: string }) => {
       isAllDay: history.isAllDay,
       status: history.status,
       groupId: history.groupId,
-    });
+    })
+      .then(() => {
+        setIsOpen(false);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
   return (
     <Box position={"relative"}>
@@ -166,6 +171,8 @@ const TaskChangelog = ({ taskId }: { taskId: string }) => {
             display="flex"
             top="5vh"
             left="5vw"
+            backgroundColor={"brand.1"}
+            border={"transparent"}
           >
             <PopoverCloseButton size={"lg"}></PopoverCloseButton>
             <PopoverHeader fontSize={"lg"}>History of &quot;{data[0]?.name ?? "Untitled"}&quot;</PopoverHeader>

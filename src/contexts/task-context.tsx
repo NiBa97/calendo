@@ -8,7 +8,7 @@ interface TaskContextType {
   tasks: Task[];
   createTask: (taskData: Partial<Task>) => Promise<void>;
   updateTask: (taskId: string, updatedData: Partial<Task>) => Promise<void>;
-  restoreTask: (taskId: string, restoreTask: Partial<Task>) => Promise<void>;
+  restoreTask: (taskId: string, historyTimestamp: Date, restoreTask: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
   draggingTask: Task | null;
   setDraggingTask: (task: Task | null) => void;
@@ -88,17 +88,18 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         return null;
       });
   };
-  const restoreTask = async (taskId: string, taskData: Partial<Task>) => {
+  const restoreTask = async (taskId: string, historyTimestamp: Date, taskData: Partial<Task>) => {
     const dataWithDefaults = taskData as {
       name: string;
-      startDate?: Date | undefined;
-      endDate?: Date | undefined;
+      startDate?: Date | undefined | null;
+      endDate?: Date | undefined | null;
       isAllDay?: boolean | undefined;
       status?: boolean | undefined;
       description?: string | undefined;
-      groupId?: string | undefined;
+      groupId?: string | undefined | null;
     };
-    await restoreMutation({ originalID: taskId, ...dataWithDefaults })
+    console.log(dataWithDefaults);
+    await restoreMutation({ originalID: taskId, historyTimestamp: historyTimestamp, ...dataWithDefaults })
       .then((updatedTask: Task) => {
         toast({
           title: "Task restored",
