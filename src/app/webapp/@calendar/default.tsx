@@ -70,7 +70,7 @@ export default function Home() {
 
   const [date, setDate] = useState(new Date());
   const onNavigate = useCallback((newDate: Date) => setDate(newDate), [setDate]);
-
+  const popupHeight = 400;
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
@@ -95,6 +95,19 @@ export default function Home() {
     };
   }, []);
 
+  const handlePopupPlacement = (top: number, left: number, width: number) => {
+    const screenHeight = window.innerHeight;
+    const inverted = screenHeight - top < 200;
+    const new_width = Math.min(width, 400);
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const left_new = left + width + new_width > windowWidth ? left - new_width - 2 : left + width + 1;
+
+    const top_new = Math.min(top, windowHeight - popupHeight);
+    setSelectedEventPos({ inverted: inverted, top: top_new, left: left_new, width: new_width });
+  };
+
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
     if (selectedEvent?.id === (event as Task).id) {
       setTemporaryTask(null);
@@ -102,9 +115,7 @@ export default function Home() {
     }
     const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
     const { top, left, width } = parentElement.getBoundingClientRect();
-    const screenHeight = window.innerHeight;
-    const inverted = screenHeight - top < 200;
-    setSelectedEventPos({ inverted, top, left, width });
+    handlePopupPlacement(top, left, width);
     setSelectedEvent(event as Task);
   };
 
@@ -149,7 +160,6 @@ export default function Home() {
       setDraggingTask(null);
     }
   };
-
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     const { start, end, bounds } = slotInfo;
     setTemporaryTask(null);
@@ -171,10 +181,7 @@ export default function Home() {
     const { top, left, width } = el.length == 1 ? el[0].getBoundingClientRect() : el[1]!.getBoundingClientRect();
     setTemporaryTask(event as Task);
 
-    const screenHeight = window.innerHeight;
-    const inverted = screenHeight - bounds.top < 200;
-    setSelectedEventPos({ inverted: inverted, top: top, left: left, width: width });
-
+    handlePopupPlacement(top, left, width);
     // Set selected event position and
 
     setSelectedEvent(event as Task);
@@ -224,14 +231,14 @@ export default function Home() {
         <CalendarPopup
           onClose={() => setSelectedEvent(null)}
           position={{
-            top: selectedEventPos.inverted ? selectedEventPos.top - 185 : selectedEventPos.top,
-            left: selectedEventPos.left + selectedEventPos.width,
+            top: selectedEventPos.top,
+            left: selectedEventPos.left,
           }}
         >
           <TempTask
             task={selectedEvent}
-            height={400}
-            width={400}
+            height={popupHeight}
+            width={selectedEventPos.width}
             showCloseButton={false}
             showToolbar={false}
           ></TempTask>

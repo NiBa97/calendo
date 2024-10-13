@@ -66,3 +66,8 @@
 .mdxeditor-popup-container{
     z-index:9999!important;
 }
+
+.rbc-time-view{
+    border-bottom:none!important;
+    border-right:none!important;
+}
