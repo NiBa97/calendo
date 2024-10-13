@@ -65,15 +65,8 @@ const ListTasks: React.FC = () => {
     setContextInformation({ x: event.clientX, y: event.clientY, task: task });
   };
   return (
-    <Box width={"100%"} height={"100%"}>
-      <Accordion
-        overflowY={"auto"}
-        overflowX={"hidden"}
-        maxHeight={"100%"}
-        width={"100%"}
-        allowMultiple
-        defaultIndex={[0, 1, 2]}
-      >
+    <Box width={"100%"} height={"100%"} overflowY={"auto"}>
+      <Accordion overflowX={"hidden"} maxHeight={"100%"} width={"100%"} allowMultiple defaultIndex={[0, 1, 2]}>
         <AccordionItem hidden={withoutAssignedDate.length === 0}>
           <AccordionButton width="100%" justifyContent={"space-between"}>
             <AccordionIcon />
