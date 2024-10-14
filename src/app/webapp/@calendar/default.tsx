@@ -98,7 +98,7 @@ export default function Home() {
   const handlePopupPlacement = (top: number, left: number, width: number) => {
     const screenHeight = window.innerHeight;
     const inverted = screenHeight - top < 200;
-    const new_width = Math.min(width, 400);
+    const new_width = Math.max(width, 400);
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
