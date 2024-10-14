@@ -126,7 +126,7 @@ const TaskChangelog = ({ taskId }: { taskId: string }) => {
   const { data } = api.task.getHistoric.useQuery({
     id: taskId,
   });
-  if (!data) return <Box>No history found</Box>;
+  // if (!data) return <Box>No history found</Box>;
 
   const restoreTaskFromHistory = (history: TaskHistory) => {
     restoreTask(history.taskId, history.changedAt, {
@@ -147,76 +147,78 @@ const TaskChangelog = ({ taskId }: { taskId: string }) => {
   };
   return (
     <Box position={"relative"}>
-      <Button onClick={() => setIsOpen(!isOpen)} disabled={!data}>
+      <Button onClick={() => setIsOpen(!isOpen)} isDisabled={!data}>
         <FaHistory />
       </Button>
-      <Flex
-        hidden={!isOpen}
-        position="fixed"
-        top="0"
-        left="0"
-        width="100vw"
-        height="100vh"
-        justifyContent="center"
-        alignItems="center"
-        zIndex="popover"
-        bg={"blackAlpha.800"}
-      >
-        <Popover isOpen={isOpen} onClose={() => setIsOpen(false)} closeOnBlur={true}>
-          <PopoverContent
-            height={"90vh"}
-            width={"90vw"}
-            maxH={"90vh"}
-            maxW={"90vw"}
-            display="flex"
-            top="5vh"
-            left="5vw"
-            backgroundColor={"brand.1"}
-            border={"transparent"}
-          >
-            <PopoverCloseButton size={"lg"}></PopoverCloseButton>
-            <PopoverHeader fontSize={"lg"}>History of &quot;{data[0]?.name ?? "Untitled"}&quot;</PopoverHeader>
-            <PopoverBody overflow={"auto"} pointerEvents={"visible"}>
-              <ChangelogComponent>
-                {data.map((newVersion, index) => {
-                  const oldVersion = data[index + 1] ?? null;
-                  if (!oldVersion)
+      {data && (
+        <Flex
+          hidden={!isOpen}
+          position="fixed"
+          top="0"
+          left="0"
+          width="100vw"
+          height="100vh"
+          justifyContent="center"
+          alignItems="center"
+          zIndex="popover"
+          bg={"blackAlpha.800"}
+        >
+          <Popover isOpen={isOpen} onClose={() => setIsOpen(false)} closeOnBlur={true}>
+            <PopoverContent
+              height={"90vh"}
+              width={"90vw"}
+              maxH={"90vh"}
+              maxW={"90vw"}
+              display="flex"
+              top="5vh"
+              left="5vw"
+              backgroundColor={"brand.1"}
+              border={"transparent"}
+            >
+              <PopoverCloseButton size={"lg"}></PopoverCloseButton>
+              <PopoverHeader fontSize={"lg"}>History of &quot;{data[0]?.name ?? "Untitled"}&quot;</PopoverHeader>
+              <PopoverBody overflow={"auto"} pointerEvents={"visible"}>
+                <ChangelogComponent>
+                  {data.map((newVersion, index) => {
+                    const oldVersion = data[index + 1] ?? null;
+                    if (!oldVersion)
+                      return (
+                        <ChangelogStart key={newVersion.historyId}>
+                          {newVersion.changedAt.toLocaleString()} Task created
+                        </ChangelogStart>
+                      );
                     return (
-                      <ChangelogStart key={newVersion.historyId}>
-                        {newVersion.changedAt.toLocaleString()} Task created
-                      </ChangelogStart>
+                      <ChangelogItem key={newVersion.historyId}>
+                        <i>Changes on {newVersion.changedAt.toLocaleString()}</i>
+                        <List>
+                          {compareName(newVersion, oldVersion)}
+                          {compareDescription(newVersion, oldVersion)}
+                          {compareStartDate(newVersion, oldVersion)}
+                          {compareEndDate(newVersion, oldVersion)}
+                          {compareIsAllDay(newVersion, oldVersion)}
+                          {compareStatus(newVersion, oldVersion)}
+                          {compareGroup(newVersion, oldVersion)}
+                        </List>
+                        <Button
+                          w={100}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            restoreTaskFromHistory(newVersion);
+                          }}
+                        >
+                          Restore
+                        </Button>
+                        <Divider color={"brand.4"} my={4} borderColor={"brand.3"} variant={"dashed"} />
+                      </ChangelogItem>
                     );
-                  return (
-                    <ChangelogItem key={newVersion.historyId}>
-                      <i>Changes on {newVersion.changedAt.toLocaleString()}</i>
-                      <List>
-                        {compareName(newVersion, oldVersion)}
-                        {compareDescription(newVersion, oldVersion)}
-                        {compareStartDate(newVersion, oldVersion)}
-                        {compareEndDate(newVersion, oldVersion)}
-                        {compareIsAllDay(newVersion, oldVersion)}
-                        {compareStatus(newVersion, oldVersion)}
-                        {compareGroup(newVersion, oldVersion)}
-                      </List>
-                      <Button
-                        w={100}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          restoreTaskFromHistory(newVersion);
-                        }}
-                      >
-                        Restore
-                      </Button>
-                      <Divider color={"brand.4"} my={4} borderColor={"brand.3"} variant={"dashed"} />
-                    </ChangelogItem>
-                  );
-                })}
-              </ChangelogComponent>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
-      </Flex>
+                  })}
+                </ChangelogComponent>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
+      )}
     </Box>
   );
 };
