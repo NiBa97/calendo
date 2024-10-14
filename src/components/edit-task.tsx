@@ -127,6 +127,7 @@ const TempTask = ({
           _focus={{ border: "none", outline: "none", boxShadow: "none" }}
           onChange={(e) => handleChange("name", e.target.value)}
           borderRadius={"none"}
+          autoFocus={taskState.name === ""}
         />
         {showCloseButton && (
           <IconButton
