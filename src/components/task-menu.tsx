@@ -1,5 +1,4 @@
-import { Button, Flex, Icon, Text } from "@chakra-ui/react";
-import { Task } from "@prisma/client";
+import { Button, Flex, Icon } from "@chakra-ui/react";
 import React from "react";
 import CalendarPopup from "./calendar/popup";
 import { useTasks } from "~/contexts/task-context";

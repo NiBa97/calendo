@@ -6,11 +6,10 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
-import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton, Box } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
 import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
-import TaskHistory from "./task-changelog";
 import TaskChangelog from "./task-changelog";
 
 const TempTask = ({

@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Box, Center, Flex, HStack, VStack, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, VStack } from "@chakra-ui/react";
 import { Resizable, type ResizeCallbackData } from "react-resizable";
 import AddTask from "~/components/add-task";
 import ListTasks from "~/components/list-tasks";
-import TaskMenu from "~/components/task-menu";
 import { useTasks } from "~/contexts/task-context";
-import { Task } from "@prisma/client";
+import { type Task } from "@prisma/client";
 import TempTask from "~/components/edit-task";
 import { ResizeHandle } from "~/components/resize-handle";
 

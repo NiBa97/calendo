@@ -1,13 +1,12 @@
 "use client";
-import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import {
   Calendar,
-  EventPropGetter,
-  EventProps,
-  Messages,
-  SlotInfo,
-  ToolbarProps,
-  View,
+  type EventPropGetter,
+  type EventProps,
+  type Messages,
+  type SlotInfo,
+  type View,
   momentLocalizer,
 } from "react-big-calendar";
 import moment from "moment";

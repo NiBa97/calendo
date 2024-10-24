@@ -1,7 +1,6 @@
 import { Box } from "@chakra-ui/react";
-import { type Task } from "@prisma/client";
 import React from "react";
-import { useEffect, useRef, ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 interface CalendarPopupProps {
   onClose: () => void;

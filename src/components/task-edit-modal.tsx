@@ -1,14 +1,5 @@
 "use client";
-import {
-  Box,
-  Flex,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-} from "@chakra-ui/react";
+import { Box, Modal, ModalBody, ModalContent, ModalOverlay } from "@chakra-ui/react";
 import React from "react";
 import TempTask from "./edit-task";
 import { useTasks } from "~/contexts/task-context";

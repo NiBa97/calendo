@@ -1,14 +1,12 @@
-import { TaskHistory } from "@prisma/client";
+import { type TaskHistory } from "@prisma/client";
 import { api } from "~/trpc/react";
 import {
   Button,
   Box,
-  ModalCloseButton,
   Flex,
   List,
   ListItem,
   Divider,
-  useToast,
   Popover,
   PopoverContent,
   PopoverBody,
@@ -18,7 +16,6 @@ import {
 import { FaHistory } from "react-icons/fa";
 import { useTasks } from "~/contexts/task-context";
 import { useState } from "react";
-import { set } from "zod";
 
 const compareIsAllDay = (newVersion: TaskHistory, oldVersion: TaskHistory) => {
   if (newVersion.isAllDay === oldVersion.isAllDay) return "";

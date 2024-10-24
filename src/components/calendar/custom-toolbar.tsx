@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Box, Button, HStack, Menu, MenuButton, MenuList, MenuItem, ButtonGroup } from "@chakra-ui/react";
-import { ToolbarProps, View } from "react-big-calendar";
+import { type ToolbarProps, type View } from "react-big-calendar";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 

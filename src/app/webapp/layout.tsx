@@ -1,19 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Center,
-  ChakraProvider,
-  Flex,
-  HStack,
-  MenuButton,
-  MenuItem,
-  VStack,
-  Wrap,
-  WrapItem,
-  createMultiStyleConfigHelpers,
-  extendTheme,
-} from "@chakra-ui/react";
+import { Box, ChakraProvider, Flex, createMultiStyleConfigHelpers, extendTheme } from "@chakra-ui/react";
 import { Resizable, type ResizeCallbackData } from "react-resizable";
 import { TaskProvider } from "../../contexts/task-context";
 import TaskMenu from "~/components/task-menu";
