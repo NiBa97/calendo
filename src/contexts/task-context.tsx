@@ -1,7 +1,6 @@
 // contexts/TaskContext.tsx
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { type Task } from "@prisma/client";
-
+import { Attachment, type Task } from "@prisma/client";
 import { api } from "~/trpc/react";
 import { useToast } from "@chakra-ui/react";
 interface TaskContextType {

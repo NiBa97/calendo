@@ -8,6 +8,7 @@ import TaskEditModal from "~/components/task-edit-modal";
 import React from "react";
 import { ResizeHandle } from "~/components/resize-handle";
 import AppNavbar from "~/components/app-navbar";
+import { AttachmentProvider } from "~/contexts/attachment-context";
 
 // This function creates a set of function that helps us create multipart component styles.
 const helpers = createMultiStyleConfigHelpers(["menu", "item"]);
@@ -123,37 +124,39 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
   return (
     <ChakraProvider theme={theme}>
       <TaskProvider>
-        <AppNavbar></AppNavbar>
-        <Flex
-          maxHeight={"calc(100vh - 50px)"}
-          width={"100vw"}
-          height={"calc(100vh - 50px)"}
-          bg={"brand.1"}
-          color={"brand.4"}
-          gap={2}
-        >
-          <Resizable
-            axis="x"
-            width={width}
-            onResize={onWidthResize}
-            resizeHandles={["e"]}
-            className={"resize-x"}
-            handle={<ResizeHandle handleAxis={"x"} innerRef={null} />}
-          >
-            <Box width={width}>{children}</Box>
-          </Resizable>
-          <Box
-            width={`calc(100vw - ${width}px)`}
+        <AttachmentProvider>
+          <AppNavbar></AppNavbar>
+          <Flex
             maxHeight={"calc(100vh - 50px)"}
+            width={"100vw"}
+            height={"calc(100vh - 50px)"}
             bg={"brand.1"}
             color={"brand.4"}
-            className="test123"
+            gap={2}
           >
-            {calendar}
-          </Box>
-          <TaskMenu />
-          <TaskEditModal />
-        </Flex>
+            <Resizable
+              axis="x"
+              width={width}
+              onResize={onWidthResize}
+              resizeHandles={["e"]}
+              className={"resize-x"}
+              handle={<ResizeHandle handleAxis={"x"} innerRef={null} />}
+            >
+              <Box width={width}>{children}</Box>
+            </Resizable>
+            <Box
+              width={`calc(100vw - ${width}px)`}
+              maxHeight={"calc(100vh - 50px)"}
+              bg={"brand.1"}
+              color={"brand.4"}
+              className="test123"
+            >
+              {calendar}
+            </Box>
+            <TaskMenu />
+            <TaskEditModal />
+          </Flex>
+        </AttachmentProvider>
       </TaskProvider>
     </ChakraProvider>
   );

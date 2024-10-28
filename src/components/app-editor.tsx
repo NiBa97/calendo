@@ -30,20 +30,22 @@ import { api } from "~/trpc/react";
 import { Box } from "@chakra-ui/react";
 import React from "react";
 import { type FC } from "react";
-import { type Task } from "@prisma/client";
+import { Attachment, type Task } from "@prisma/client";
+import { useAttachments } from "~/contexts/attachment-context";
 
 interface EditorProps {
   markdown: string;
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
   handleChange: (field: keyof Task, value: Task[keyof Task]) => void;
   showToolbar?: boolean;
+  taskId: string;
 }
 const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // Only import this to the next file
-const Editor: FC<EditorProps> = ({ markdown, editorRef, handleChange, showToolbar = true }) => {
+const Editor: FC<EditorProps> = ({ taskId, markdown, editorRef, handleChange, showToolbar = true }) => {
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
-
+  const { addAttachment } = useAttachments();
   const plugins = [
     listsPlugin(),
     quotePlugin(),
@@ -127,6 +129,11 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, handleChange, showToolba
       await fetch(url, {
         method: "POST",
         body: formData,
+      });
+      await addAttachment(taskId, {
+        fileName: files[0]!.name,
+        fileKey: key,
+        taskId: taskId,
       });
       console.log("Setting content");
       console.log("File uploaded successfully!");
