@@ -18,7 +18,7 @@ import {
   thematicBreakPlugin,
   toolbarPlugin,
 } from "@mdxeditor/editor";
-import "@mdxeditor/editor/style.css";
+import "mdxeditor/editor/style.css";
 import { type FC } from "react";
 interface EditorProps {
   markdown: string;

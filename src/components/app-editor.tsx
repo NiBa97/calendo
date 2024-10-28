@@ -1,6 +1,7 @@
 "use client";
-// InitializedMDXEditor.tsx
-import type { ForwardedRef } from "react";
+import "@mdxeditor/editor/style.css";
+
+import { useState } from "react";
 import {
   headingsPlugin,
   listsPlugin,
@@ -9,7 +10,6 @@ import {
   markdownShortcutPlugin,
   MDXEditor,
   type MDXEditorMethods,
-  type MDXEditorProps,
   codeBlockPlugin,
   codeMirrorPlugin,
   diffSourcePlugin,
@@ -27,12 +27,21 @@ import {
   InsertImage,
 } from "@mdxeditor/editor";
 import { api } from "~/trpc/react";
-type InitializedMDXEditorProps = MDXEditorProps & {
-  editorRef: ForwardedRef<MDXEditorMethods> | null;
-  showToolbar?: boolean;
-};
+import { Box } from "@chakra-ui/react";
+import React from "react";
+import { type FC } from "react";
+import { type Task } from "@prisma/client";
 
-export default function InitializedMDXEditor({ editorRef, showToolbar = true, ...props }: InitializedMDXEditorProps) {
+interface EditorProps {
+  markdown: string;
+  editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
+  handleChange: (field: keyof Task, value: Task[keyof Task]) => void;
+  showToolbar?: boolean;
+}
+const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+// Only import this to the next file
+const Editor: FC<EditorProps> = ({ markdown, editorRef, handleChange, showToolbar = true }) => {
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
 
   const plugins = [
@@ -40,6 +49,7 @@ export default function InitializedMDXEditor({ editorRef, showToolbar = true, ..
     quotePlugin(),
     headingsPlugin(),
     linkPlugin(),
+    imagePlugin(),
     linkDialogPlugin(),
     tablePlugin(),
     thematicBreakPlugin(),
@@ -48,34 +58,13 @@ export default function InitializedMDXEditor({ editorRef, showToolbar = true, ..
     codeMirrorPlugin({ codeBlockLanguages: { js: "JavaScript", css: "CSS", txt: "text", tsx: "TypeScript" } }),
     diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "boo" }),
     markdownShortcutPlugin(),
-    imagePlugin({
-      imageUploadHandler: async (file) => {
-        const { url, fields, key } = await presignedUrlMutation.mutateAsync({
-          fileName: file.name,
-          fileType: file.type,
-        });
-        const formData = new FormData();
-        Object.entries(fields).forEach(([key, value]) => {
-          formData.append(key, value);
-        });
-        formData.append("file", file);
-        await fetch(url, {
-          method: "POST",
-          body: formData,
-        });
-
-        // Return the URL where the image can be accessed
-        // Assuming your S3 or storage URL structure. Adjust this based on your actual URL pattern
-        return `/api/files/${key}`;
-      }, // Add image handler configuration
-    }),
   ];
-
   if (showToolbar) {
     plugins.unshift(
       toolbarPlugin({
         toolbarContents: () => (
           <>
+            {" "}
             <BoldItalicUnderlineToggles />
             <CreateLink />
             <Separator />
@@ -88,6 +77,121 @@ export default function InitializedMDXEditor({ editorRef, showToolbar = true, ..
       })
     );
   }
+  const [isDragging, setIsDragging] = useState(false);
 
-  return <MDXEditor plugins={plugins} {...props} ref={editorRef} />;
-}
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    const items = Array.from(event.dataTransfer.items);
+    const files = items.filter((item) => item.kind === "file");
+
+    if (files.length === 0) return;
+
+    // Check if any of the dragged files is an image
+    const hasImage = files.some((file) => SUPPORTED_IMAGE_FORMATS.includes(file.type));
+
+    // Only show dragging state if none of the files are images
+    if (!hasImage) {
+      event.preventDefault();
+      setIsDragging(true);
+    }
+    return true;
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    // Only handle drag leave if the mouse leaves the wrapper element
+    if (event.currentTarget === event.target) {
+      setIsDragging(false);
+    }
+  };
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length === 0 || !files[0] === undefined) return;
+    // Check if the dropped file is an image
+    const isImage = SUPPORTED_IMAGE_FORMATS.includes(files[0]!.type);
+    console.log(isImage);
+    event.preventDefault();
+    // Handle non-image file upload
+    setIsDragging(false);
+
+    try {
+      const { url, fields, key } = await presignedUrlMutation.mutateAsync({
+        fileName: files[0]!.name,
+        fileType: files[0]!.type,
+      });
+
+      const formData = new FormData();
+      Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append("file", files[0]!);
+      console.log("waiting...");
+      await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      console.log("Setting content");
+      console.log("File uploaded successfully!");
+      if (isImage) {
+        console.log(key);
+        editorRef!.current!.insertMarkdown(`<img src="/api/files/${key}" alt="${files[0]!.name}" name="test"/>`);
+      } else {
+        editorRef!.current!.insertMarkdown(`NEW FILE! {{${key}}}`);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    // Check if the dragged file is an image
+    const items = Array.from(event.dataTransfer.items);
+    const hasFile = items.some((item) => item.kind === "file");
+
+    // If it's not an image, prevent propagation to allow our drop handler to work
+    if (hasFile) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+  return (
+    <Box
+      onDrop={handleDrop}
+      onDragOver={handleDragOver} // Allow drop
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      {isDragging && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.2)", // Transparent overlay
+            border: "2px dashed #00f", // Dashed border for feedback
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#00f",
+            fontSize: "1.2em",
+            transition: "opacity 0.3s ease-in-out",
+          }}
+        >
+          Drop your file here
+        </div>
+      )}
+      <MDXEditor
+        plugins={plugins}
+        markdown={markdown}
+        ref={editorRef}
+        onChange={(markdown) => handleChange("description", markdown)}
+      />
+    </Box>
+  );
+};
+export default Editor;
