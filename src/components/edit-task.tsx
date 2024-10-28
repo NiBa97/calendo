@@ -10,6 +10,7 @@ import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from 
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
 import TaskChangelog from "./task-changelog";
+import AttachmentList from "./attachment-list";
 const EditorComp = dynamic(() => import("./app-editor"), { ssr: false });
 
 const TempTask = ({
@@ -146,6 +147,7 @@ const TempTask = ({
         editorRef={ref}
         // onChange={(markdown) => handleChange("description", markdown)}
         showToolbar={showToolbar}
+        taskId={task.id}
       />
       <Flex
         justifyContent={"space-between"}
@@ -161,6 +163,7 @@ const TempTask = ({
 
         <TaskChangelog taskId={task.id} />
       </Flex>
+      <AttachmentList taskId={task.id}></AttachmentList>
     </Flex>
   );
 };

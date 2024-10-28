@@ -26,7 +26,22 @@ model Task {
     groupId     String?
     User        User          @relation(fields: [userId], references: [id])
     userId      String
+    attachments Attachment[]
     TaskHistory TaskHistory[]
+}
+
+model Attachment {
+    id         String   @id @default(cuid())
+    fileName   String
+    fileKey    String   @unique
+    uploadedAt DateTime @default(now())
+    task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+    taskId     String
+    user       User     @relation(fields: [userId], references: [id])
+    userId     String
+
+    @@index([taskId])
+    @@index([userId])
 }
 
 model TaskHistory {
@@ -111,6 +126,7 @@ model User {
     Task          Task[]
 
     TaskHistory TaskHistory[]
+    Attachment  Attachment[]
 }
 
 model VerificationToken {

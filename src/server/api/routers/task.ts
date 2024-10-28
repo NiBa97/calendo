@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -49,6 +50,7 @@ export const taskRouter = createTRPCRouter({
       }})
       return newTask;
     }),
+
 getHistoric: protectedProcedure
     .input(z.object({ id: z.string().cuid() }))
     .query(async ({ ctx, input }) => {
