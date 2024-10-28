@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { type Task } from "@prisma/client";
 import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
-import { ForwardRefEditor } from "./bypass-editor";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
 import TaskChangelog from "./task-changelog";
+const EditorComp = dynamic(() => import("./app-editor"), { ssr: false });
 
 const TempTask = ({
   task,
@@ -140,9 +140,11 @@ const TempTask = ({
           ></IconButton>
         )}
       </InputGroup>
-      <ForwardRefEditor
+      <EditorComp
         markdown={taskState.description}
-        onChange={(markdown) => handleChange("description", markdown)}
+        handleChange={handleChange}
+        editorRef={ref}
+        // onChange={(markdown) => handleChange("description", markdown)}
         showToolbar={showToolbar}
       />
       <Flex
