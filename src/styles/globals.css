@@ -112,3 +112,32 @@ a {
   display: flex;
   flex-direction: column;
 }  */
+
+/* Add these styles to ensure proper event styling */
+.rbc-event {
+  background-color: #00ADB5 !important; /* brand.3 color */
+  border: none !important;
+}
+
+.rbc-event:hover {
+  background-color: #00ADB5 !important; /* brand.3 color */
+}
+
+.rbc-event.rbc-selected {
+  background-color: #00ADB5 !important; /* brand.3 color */
+}
+ 
+
+/* Add these styles to ensure proper event styling */
+.rbc-event {
+  background-color: #00ADB5 !important; /* brand.3 color */
+  border: none !important;
+}
+
+.rbc-event:hover {
+  background-color: #00ADB5 !important; /* brand.3 color */
+}
+
+.rbc-event.rbc-selected {
+  background-color: #00ADB5 !important; /* brand.3 color */
+}
