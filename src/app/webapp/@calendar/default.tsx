@@ -6,10 +6,11 @@ import {
   type EventProps,
   type Messages,
   type SlotInfo,
+  ToolbarProps,
   type View,
   momentLocalizer,
 } from "react-big-calendar";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
@@ -107,6 +108,15 @@ export default function Home() {
     setSelectedEventPos({ inverted: inverted, top: top_new, left: left_new, width: new_width });
   };
 
+  const [timeRange, setTimeRange] = useState({
+    start: moment(localStorage.getItem("calendar-time-range-start"), "HH:mm") ?? moment("9:00", "HH:mm"),
+    end: moment(localStorage.getItem("calendar-time-range-end"), "HH:mm") ?? moment("17:00", "HH:mm"),
+  });
+  useEffect(() => {
+    localStorage.setItem("calendar-time-range-start", timeRange.start.format("HH:mm"));
+    localStorage.setItem("calendar-time-range-end", timeRange.end.format("HH:mm"));
+  }, [timeRange]);
+
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
     if (selectedEvent?.id === (event as Task).id) {
       setTemporaryTask(null);
@@ -195,6 +205,7 @@ export default function Home() {
           .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
           .rbc-timeslot-group { min-height:20px!important; }
         `}</style>
+
       <DnDCalendar
         view={view as View}
         date={date}
@@ -220,11 +231,15 @@ export default function Home() {
         onDropFromOutside={handleExternalDrop}
         components={{
           event: EventComponent as React.ComponentType<EventProps<object>>,
-          toolbar: CustomToolbar, // Add the custom toolbar component here
+          toolbar: (props: ToolbarProps) => (
+            <CustomToolbar {...props} setTimeRange={setTimeRange} timeRange={timeRange} />
+          ),
         }}
         eventPropGetter={eventPropGetter as EventPropGetter<object>}
         slotPropGetter={(date) => ({ className: date.toISOString() })}
         formats={{ timeGutterFormat: "HH:mm" }}
+        min={timeRange.start.toDate()}
+        max={timeRange.end.toDate()}
       />
       {selectedEvent && (
         <CalendarPopup
