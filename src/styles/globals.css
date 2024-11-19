@@ -141,3 +141,6 @@ a {
 .rbc-event.rbc-selected {
   background-color: #00ADB5 !important; /* brand.3 color */
 }
+.mdxeditor-diff-source-wrapper span,.mdxeditor-diff-source-wrapper p, .mdxeditor-diff-source-wrapper li {
+  color:white !important;
+}
