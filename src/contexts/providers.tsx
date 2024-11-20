@@ -3,6 +3,9 @@ import { SessionProvider } from "next-auth/react";
 import { type Session } from "next-auth";
 import React from "react";
 import { ChakraProvider, createMultiStyleConfigHelpers, extendTheme } from "@chakra-ui/react";
+import { TaskProvider } from "./task-context";
+import { NoteProvider } from "./note-context";
+import { AttachmentProvider } from "./attachment-context";
 // This function creates a set of function that helps us create multipart component styles.
 const helpers = createMultiStyleConfigHelpers(["menu", "item"]);
 
@@ -94,7 +97,13 @@ const theme = extendTheme({
 export function Providers(props: { children: React.ReactNode; serverSession: Session | null }) {
   return (
     <SessionProvider session={props.serverSession}>
-      <ChakraProvider theme={theme}>{props.children}</ChakraProvider>
+      <ChakraProvider theme={theme}>
+        <AttachmentProvider>
+          <TaskProvider>
+            <NoteProvider>{props.children}</NoteProvider>
+          </TaskProvider>
+        </AttachmentProvider>
+      </ChakraProvider>
     </SessionProvider>
   );
 }
