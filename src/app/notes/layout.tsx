@@ -32,27 +32,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <NoteProvider>
-      <AttachmentProvider>
-        <AppNavbar />
-        <Flex height="calc(100vh - 50px)" width="100vw" bg="brand.1" color="brand.4" gap={2}>
-          <Resizable
-            axis="x"
-            width={width}
-            onResize={onWidthResize}
-            resizeHandles={["e"]}
-            className={"resize-x"}
-            handle={<ResizeHandle handleAxis="x" innerRef={null} />}
-          >
-            <Box width={width}>
-              <NoteList />
-            </Box>
-          </Resizable>
-          <Box width={`calc(100vw - ${width}px)`} height="100%" bg="brand.1" color="brand.4" overflow="auto">
-            {children}
+    <Box>
+      <AppNavbar />
+      <Flex height="calc(100vh - 50px)" width="100vw" bg="brand.1" color="brand.4" gap={2}>
+        <Resizable
+          axis="x"
+          width={width}
+          onResize={onWidthResize}
+          resizeHandles={["e"]}
+          className={"resize-x"}
+          handle={<ResizeHandle handleAxis="x" innerRef={null} />}
+        >
+          <Box width={width}>
+            <NoteList />
           </Box>
-        </Flex>
-      </AttachmentProvider>
-    </NoteProvider>
+        </Resizable>
+        <Box width={`calc(100vw - ${width}px)`} height="100%" bg="brand.1" color="brand.4" overflow="auto">
+          {children}
+        </Box>
+      </Flex>
+    </Box>
   );
 }
