@@ -63,7 +63,6 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
           {calendar}
         </Box>
         <TaskMenu />
-        <TaskEditModal />
       </Flex>
     </AttachmentProvider>
   );

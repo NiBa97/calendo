@@ -25,6 +25,7 @@ import {
   Separator,
   BlockTypeSelect,
   InsertImage,
+  jsxPlugin,
 } from "@mdxeditor/editor";
 import { api } from "~/trpc/react";
 import { Box } from "@chakra-ui/react";
@@ -32,7 +33,7 @@ import React from "react";
 import { type FC } from "react";
 import { Attachment, type Task } from "@prisma/client";
 import { useAttachments } from "~/contexts/attachment-context";
-
+import { InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
 interface EditorProps {
   markdown: string;
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
@@ -47,6 +48,7 @@ const Editor: FC<EditorProps> = ({ taskId, markdown, editorRef, handleChange, sh
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   const { addAttachment } = useAttachments();
   const plugins = [
+    jsxPlugin({ jsxComponentDescriptors: [taskRefComponentDescriptor] }),
     listsPlugin(),
     quotePlugin(),
     headingsPlugin(),
@@ -67,6 +69,7 @@ const Editor: FC<EditorProps> = ({ taskId, markdown, editorRef, handleChange, sh
         toolbarContents: () => (
           <>
             {" "}
+            <InsertTaskButton />
             <BoldItalicUnderlineToggles />
             <CreateLink />
             <Separator />

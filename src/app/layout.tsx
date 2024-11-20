@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "~/contexts/providers";
 import { getServerAuthSession } from "~/server/auth";
+import TaskEditModal from "~/components/task-edit-modal";
 
 export const metadata = {
   title: "Calendo",
@@ -18,7 +19,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <Providers serverSession={serverSession}>{children}</Providers>
+          <Providers serverSession={serverSession}>
+            {children} <TaskEditModal />
+          </Providers>
         </TRPCReactProvider>
       </body>
     </html>

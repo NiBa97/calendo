@@ -11,7 +11,7 @@ export default function TaskEditModal() {
   const onClose = () => {
     void setModalTask(null);
     //navigate to /webapp
-    void router.push("/webapp");
+    // void router.push("/webapp");
     // check if the task got edited
   };
   return (
