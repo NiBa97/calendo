@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
-import { type Task } from "@prisma/client";
+import { ParentType, type Task } from "@prisma/client";
 import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
@@ -147,7 +147,8 @@ const TempTask = ({
         editorRef={ref}
         // onChange={(markdown) => handleChange("description", markdown)}
         showToolbar={showToolbar}
-        taskId={task.id}
+        parentId={task.id}
+        parentType={ParentType.TASK}
       />
       <Flex
         justifyContent={"space-between"}
@@ -163,7 +164,7 @@ const TempTask = ({
 
         <TaskChangelog taskId={task.id} />
       </Flex>
-      <AttachmentList taskId={task.id}></AttachmentList>
+      <AttachmentList parentId={task.id} parentType={ParentType.TASK} />
     </Flex>
   );
 };

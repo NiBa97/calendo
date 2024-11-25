@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useNotes } from "~/contexts/note-context";
 import { useRouter } from "next/navigation";
 import AttachmentList from "~/components/attachment-list";
+import { ParentType } from "@prisma/client";
 
 const EditorComp = dynamic(() => import("~/components/app-editor"), { ssr: false });
 
@@ -111,11 +112,12 @@ export default function NotePage({ params }: { params: { id: string } }) {
             }
           }}
           showToolbar={true}
-          taskId={note.id}
+          parentId={note.id}
+          parentType={ParentType.NOTE}
         />
       </Box>
 
-      <AttachmentList taskId={note.id} />
+      <AttachmentList parentId={note.id} parentType={ParentType.NOTE} />
     </VStack>
   );
 }
