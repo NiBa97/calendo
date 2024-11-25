@@ -6,16 +6,32 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { ParentType } from "@prisma/client";
 
 export const attachmentRouter = createTRPCRouter({
-    
-  getByTask: protectedProcedure
-    .input(z.object({ taskId: z.string().cuid() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.attachment.findMany({
-        where: { taskId: input.taskId, userId: ctx.session.user.id },
-      });
-    }),
+  getByParent: protectedProcedure
+  .input(z.object({
+    parentId: z.string().cuid(),
+    parentType: z.nativeEnum(ParentType)
+  }))
+  .query(async ({ ctx, input }) => {
+    type WhereClause = {
+      userId: string;
+      taskId?: string;
+      noteId?: string;
+    };
+
+    const statement: WhereClause = {
+      userId: ctx.session.user.id,
+      ...(input.parentType === ParentType.TASK
+        ? { taskId: input.parentId }
+        : { noteId: input.parentId })
+    };
+
+    return ctx.db.attachment.findMany({
+      where: statement
+    });
+  }),
 
   getAllForUser: protectedProcedure
     .query(async ({ ctx }) => {
@@ -27,40 +43,60 @@ export const attachmentRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        taskId: z.string().cuid(),
+        parentId: z.string().cuid(),
+        parentType: z.nativeEnum(ParentType),
         fileName: z.string(),
         fileKey: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.task.findUnique({
-        where: { id: input.taskId, userId: ctx.session.user.id },
-      });
-
-      if (!task) {
+      // Check if parent exists and user has access
+      console.log("input", input)
+      const parent = input.parentType === ParentType.TASK
+        ? await ctx.db.task.findUnique({
+            where: { id: input.parentId, userId: ctx.session.user.id },
+          })
+        : await ctx.db.note.findUnique({
+            where: { id: input.parentId, userId: ctx.session.user.id },
+          });
+      console.log(parent)
+      if (!parent) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Task not found or unauthorized",
+          message: `${input.parentType} not found or unauthorized`,
         });
       }
 
-      const attachment = await ctx.db.attachment.create({
+      // Create attachment with correct parent field
+      return ctx.db.attachment.create({
         data: {
           fileName: input.fileName,
           fileKey: input.fileKey,
-          taskId: input.taskId,
+          parentType: input.parentType,
           userId: ctx.session.user.id,
+          ...(input.parentType === ParentType.TASK
+            ? { taskId: input.parentId }
+            : { noteId: input.parentId })
         },
       });
-
-      return attachment;
     }),
 
   delete: protectedProcedure
-    .input(z.object({ fileKey: z.string().cuid() }))
+    .input(z.object({ fileKey: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // TODO: Add your storage deletion logic here
-      // await deleteFromStorage(attachment.fileKey);
+      // First find the attachment to verify ownership
+      const attachment = await ctx.db.attachment.findUnique({
+        where: { fileKey: input.fileKey },
+      });
+
+      if (!attachment || attachment.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Attachment not found or unauthorized",
+        });
+      }
+
+      // Initialize S3 client
       const s3Client = new S3Client({
         endpoint: env.MINIO_SERVER_URL,
         credentials: {
@@ -70,16 +106,28 @@ export const attachmentRouter = createTRPCRouter({
         region: "us-east-1",
         forcePathStyle: true,
       });
+
       const secureFileKey = input.fileKey.split('/').pop();
-      const command = new DeleteObjectCommand({
-        Bucket: "calendo",
-        Key: ctx.session.user.id + "/" + secureFileKey,
-      });
-      console.log(input.fileKey);
-      await s3Client.send(command);
-      console.log("File deleted:",ctx.session.user.id + "/" + secureFileKey,);
-      return ctx.db.attachment.delete({
-        where: { fileKey: input.fileKey, userId: ctx.session.user.id },
-      });
+      
+      try {
+        // Delete from S3
+        const command = new DeleteObjectCommand({
+          Bucket: "calendo",
+          Key: ctx.session.user.id + "/" + secureFileKey,
+        });
+        await s3Client.send(command);
+        console.log("File deleted:", ctx.session.user.id + "/" + secureFileKey);
+
+        // Delete from database
+        return ctx.db.attachment.delete({
+          where: { fileKey: input.fileKey, userId: ctx.session.user.id },
+        });
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete file",
+        });
+      }
     }),
 });

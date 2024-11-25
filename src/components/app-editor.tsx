@@ -1,6 +1,5 @@
 "use client";
 import "@mdxeditor/editor/style.css";
-
 import { useState } from "react";
 import {
   headingsPlugin,
@@ -31,7 +30,7 @@ import { api } from "~/trpc/react";
 import { Box } from "@chakra-ui/react";
 import React from "react";
 import { type FC } from "react";
-import { Attachment, type Task } from "@prisma/client";
+import { type Task, ParentType } from "@prisma/client";
 import { useAttachments } from "~/contexts/attachment-context";
 import { InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
 interface EditorProps {
@@ -39,12 +38,15 @@ interface EditorProps {
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
   handleChange: (field: keyof Task, value: Task[keyof Task]) => void;
   showToolbar?: boolean;
-  taskId: string;
+  parentId: string;
+  parentType: ParentType;
 }
 const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // Only import this to the next file
-const Editor: FC<EditorProps> = ({ taskId, markdown, editorRef, handleChange, showToolbar = true }) => {
+const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, handleChange, showToolbar = true }) => {
+  console.log("editot parentId", parentId);
+  console.log("editot parentType", parentType);
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   const { addAttachment } = useAttachments();
   const plugins = [
@@ -133,10 +135,10 @@ const Editor: FC<EditorProps> = ({ taskId, markdown, editorRef, handleChange, sh
         method: "POST",
         body: formData,
       });
-      await addAttachment(taskId, {
+      console.log("uploading");
+      await addAttachment(parentId, parentType, {
         fileName: files[0]!.name,
         fileKey: key,
-        taskId: taskId,
       });
       console.log("Setting content");
       console.log("File uploaded successfully!");

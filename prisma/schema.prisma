@@ -1,5 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+enum ParentType {
+    TASK
+    NOTE
+}
 
 generator client {
     provider = "prisma-client-js"
@@ -31,18 +35,26 @@ model Task {
 }
 
 model Attachment {
-    id         String   @id @default(cuid())
+    id         String     @id @default(cuid())
     fileName   String
-    fileKey    String   @unique
-    uploadedAt DateTime @default(now())
-    task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-    taskId     String
-    user       User     @relation(fields: [userId], references: [id])
-    userId     String
-    Note       Note?    @relation(fields: [noteId], references: [id])
-    noteId     String?
+    fileKey    String     @unique
+    uploadedAt DateTime   @default(now())
+    parentType ParentType
+
+    // Task relation
+    taskId String?
+    task   Task?   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+    // Note relation
+    noteId String?
+    note   Note?   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+    // User relation
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
 
     @@index([taskId])
+    @@index([noteId])
     @@index([userId])
 }
 

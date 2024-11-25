@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, VStack, HStack, Icon, IconButton, Text, useBreakpointValue } from "@chakra-ui/react";
 import { FaDownload, FaTrash, FaFile, FaImage, FaFileWord, FaFileExcel, FaFilePdf } from "react-icons/fa";
-import { type Attachment } from "@prisma/client";
+import { type Attachment, ParentType } from "@prisma/client";
 import { useAttachments } from "~/contexts/attachment-context";
 
 const getFileIcon = (fileType: string) => {
@@ -13,14 +13,15 @@ const getFileIcon = (fileType: string) => {
 };
 
 interface AttachmentListProps {
-  taskId: string;
+  parentId: string;
+  parentType: ParentType;
 }
 
-const AttachmentList = ({ taskId }: AttachmentListProps) => {
-  const { deleteAttachment, getAttachmentsForTask } = useAttachments();
-  const attachments = getAttachmentsForTask(taskId);
+const AttachmentList = ({ parentId, parentType }: AttachmentListProps) => {
+  const { deleteAttachment, getAttachmentsForParent } = useAttachments();
+  const attachments = getAttachmentsForParent(parentId, parentType);
   const isMobile = useBreakpointValue({ base: true, md: false });
-  console.log(attachments);
+
   const handleDownload = async (attachment: Attachment) => {
     const response = await fetch(`/api/files/${attachment.fileKey}`);
     const blob = await response.blob();
@@ -88,7 +89,7 @@ const AttachmentList = ({ taskId }: AttachmentListProps) => {
                 variant="ghost"
                 color="red.500"
                 _hover={{ bg: "red.100" }}
-                onClick={() => deleteAttachment(attachment.fileKey, taskId)}
+                onClick={() => deleteAttachment(attachment.fileKey, parentId)}
               />
             </HStack>
           </HStack>

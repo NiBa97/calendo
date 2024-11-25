@@ -1,13 +1,12 @@
-// contexts/AttachmentContext.tsx
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { type Attachment } from "@prisma/client";
-
+import { ParentType } from "@prisma/client";
 import { api } from "~/trpc/react";
 
-interface AttachmentContextType {
-  getAttachmentsForTask: (taskId: string) => Attachment[];
-  addAttachment: (taskId: string, attachment: Partial<Attachment>) => Promise<void>;
-  deleteAttachment: (attachmentId: string, taskId: string) => Promise<void>;
+export interface AttachmentContextType {
+  getAttachmentsForParent: (parentId: string, parentType: ParentType) => Attachment[];
+  addAttachment: (parentId: string, parentType: ParentType, attachment: Partial<Attachment>) => Promise<void>;
+  deleteAttachment: (fileKey: string, parentId: string) => Promise<void>;
 }
 
 export const AttachmentContext = createContext<AttachmentContextType | undefined>(undefined);
@@ -17,19 +16,26 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
   const { mutateAsync: addAttachmentMutation } = api.attachments.create.useMutation();
   const { mutateAsync: deleteAttachmentMutation } = api.attachments.delete.useMutation();
   const { data: fetched_attachments } = api.attachments.getAllForUser.useQuery();
+
   useEffect(() => {
     if (fetched_attachments) {
       setAttachments(fetched_attachments);
     }
   }, [fetched_attachments]);
 
-  const getAttachmentsForTask = (taskId: string): Attachment[] => {
-    return attachments.filter((attachment) => attachment.taskId === taskId);
+  const getAttachmentsForParent = (parentId: string, parentType: ParentType): Attachment[] => {
+    if (parentType === ParentType.TASK) {
+      return attachments.filter((attachment) => attachment.taskId === parentId && attachment.parentType === parentType);
+    } else {
+      return attachments.filter((attachment) => attachment.noteId === parentId && attachment.parentType === parentType);
+    }
   };
 
-  const addAttachment = async (taskId: string, attachment: Partial<Attachment>) => {
+  const addAttachment = async (parentId: string, parentType: ParentType, attachment: Partial<Attachment>) => {
+    console.log("addAttachment", parentId, parentType, attachment);
     const new_attachment = await addAttachmentMutation({
-      taskId: taskId,
+      parentId: parentId,
+      parentType: parentType,
       fileName: attachment.fileName!,
       fileKey: attachment.fileKey!,
     });
@@ -39,14 +45,13 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteAttachment = async (attachmentKey: string) => {
     await deleteAttachmentMutation({ fileKey: attachmentKey });
-
     setAttachments((prevAttachments) => prevAttachments.filter((attachment) => attachment.fileKey !== attachmentKey));
   };
 
   return (
     <AttachmentContext.Provider
       value={{
-        getAttachmentsForTask,
+        getAttachmentsForParent,
         addAttachment,
         deleteAttachment,
       }}

@@ -7,6 +7,7 @@ import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { useRouter } from "next/navigation";
 import AttachmentList from "./attachment-list";
 import { useNotes } from "~/contexts/note-context";
+import { ParentType } from "@prisma/client";
 
 const EditorComp = dynamic(() => import("./app-editor"), { ssr: false });
 
@@ -145,12 +146,13 @@ export default function NoteEditor({
             }
           }}
           showToolbar={showToolbar}
-          taskId={note.id}
+          parentId={noteId}
+          parentType={ParentType.NOTE}
           editorRef={ref}
         />
       </Box>
 
-      <AttachmentList taskId={note.id} />
+      <AttachmentList parentId={noteId} parentType={ParentType.NOTE} />
     </Flex>
   );
 }
