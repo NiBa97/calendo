@@ -141,6 +141,9 @@ getAll: protectedProcedure
   delete: protectedProcedure
     .input(z.object({ id: z.string().cuid() }))
     .mutation(async ({ ctx, input }) => {
+      await ctx.db.taskHistory.deleteMany({
+        where: { taskId: input.id, userId: ctx.session.user.id },
+      });
       return ctx.db.task.delete({
         where: { id: input.id, userId: ctx.session.user.id },
       });

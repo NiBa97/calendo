@@ -33,7 +33,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   const { mutateAsync: updateMutation } = api.task.update.useMutation();
   const { mutateAsync: createMutation } = api.task.create.useMutation();
-  const { mutate: deleteMutation } = api.task.delete.useMutation();
+  const { mutateAsync: deleteMutation } = api.task.delete.useMutation();
   const { mutateAsync: restoreMutation } = api.task.restore.useMutation();
   const toast = useToast();
   useEffect(() => {
@@ -121,7 +121,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteTask = async (taskId: string) => {
-    deleteMutation({ id: taskId });
+    await deleteMutation({ id: taskId });
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
 
