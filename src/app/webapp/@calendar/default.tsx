@@ -229,6 +229,8 @@ export default function Home() {
         onSelectSlot={handleSelectSlot}
         onDoubleClickEvent={handleDoubleClickEvent}
         onDropFromOutside={handleExternalDrop}
+        step={15}
+        timeslots={4}
         components={{
           event: EventComponent as React.ComponentType<EventProps<object>>,
           toolbar: (props: ToolbarProps) => (
