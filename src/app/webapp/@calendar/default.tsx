@@ -255,6 +255,7 @@ export default function Home() {
             width={selectedEventPos.width}
             showCloseButton={false}
             showToolbar={false}
+            onComplete={() => setSelectedEvent(null)}
           ></TempTask>
         </CalendarPopup>
       )}
