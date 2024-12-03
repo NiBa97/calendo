@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { FaTimes } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { ParentType, type Task } from "@prisma/client";
-import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton } from "@chakra-ui/react";
+import { InputGroup, InputLeftElement, Input, Checkbox, Flex, IconButton, Box } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import DateTimeRangeSelector from "./datetime-range-selector";
 import TaskChangelog from "./task-changelog";
 import AttachmentList from "./attachment-list";
+import { on } from "events";
 const EditorComp = dynamic(() => import("./app-editor"), { ssr: false });
 
 const TempTask = ({
@@ -19,10 +20,12 @@ const TempTask = ({
   width = undefined,
   showCloseButton = true,
   showToolbar = true,
+  onComplete,
 }: {
   task: Task;
   height: number | string | undefined;
   width: number | string | undefined;
+  onComplete?: () => void;
   showCloseButton?: boolean;
   showToolbar?: boolean;
 }) => {
@@ -71,6 +74,12 @@ const TempTask = ({
     void updateTask(task.id, { status: value });
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (!task.id && taskState.name.trim()) {
+      onComplete?.();
+    }
+  };
+
   const handleChange = (field: keyof Task, value: Task[keyof Task]) => {
     taskStateRef.current = { ...taskStateRef.current, [field]: value };
     setTaskState((prevState) => ({
@@ -78,10 +87,6 @@ const TempTask = ({
       [field]: value,
     }));
     debounceSave();
-  };
-
-  const handleClose = () => {
-    void router.push("/webapp");
   };
 
   useEffect(() => {
@@ -101,46 +106,48 @@ const TempTask = ({
       maxHeight={"100%"}
       overflow={"hidden"}
     >
-      <InputGroup
-        size="md"
-        width={"100%"}
-        borderBottom={showCloseButton ? "none" : "2px solid"}
-        borderColor={"brand.2"}
-      >
-        <InputLeftElement bg={"brand.1"}>
-          <Checkbox
-            size={"lg"}
-            isChecked={taskState.status}
-            onChange={() => handleStatusChange(!taskState.status)}
-            top={1}
-            left={1}
-          ></Checkbox>
-        </InputLeftElement>
-        <Input
-          placeholder="Add new unscheduled task"
-          bg={"brand.1"}
-          border={"none"}
-          type="text"
-          size={"lg"}
-          fontWeight={"600"}
-          value={taskState.name}
-          _focus={{ border: "none", outline: "none", boxShadow: "none" }}
-          onChange={(e) => handleChange("name", e.target.value)}
-          borderRadius={"none"}
-          autoFocus={taskState.name === ""}
-        />
-        {showCloseButton && (
-          <IconButton
-            aria-label="Close"
-            icon={<FaTimes />}
+      <Box as="form" onSubmit={handleSubmit}>
+        <InputGroup
+          size="md"
+          width={"100%"}
+          borderBottom={showCloseButton ? "none" : "2px solid"}
+          borderColor={"brand.2"}
+        >
+          <InputLeftElement bg={"brand.1"}>
+            <Checkbox
+              size={"lg"}
+              isChecked={taskState.status}
+              onChange={() => handleStatusChange(!taskState.status)}
+              top={1}
+              left={1}
+            ></Checkbox>
+          </InputLeftElement>
+          <Input
+            placeholder="Add new unscheduled task"
             bg={"brand.1"}
-            onClick={handleClose}
-            color={"brand.4"}
+            border={"none"}
+            type="text"
             size={"lg"}
+            fontWeight={"600"}
+            value={taskState.name}
+            _focus={{ border: "none", outline: "none", boxShadow: "none" }}
+            onChange={(e) => handleChange("name", e.target.value)}
             borderRadius={"none"}
-          ></IconButton>
-        )}
-      </InputGroup>
+            autoFocus={taskState.name === ""}
+          />
+          {showCloseButton && (
+            <IconButton
+              aria-label="Close"
+              icon={<FaTimes />}
+              bg={"brand.1"}
+              onClick={onComplete}
+              color={"brand.4"}
+              size={"lg"}
+              borderRadius={"none"}
+            ></IconButton>
+          )}
+        </InputGroup>
+      </Box>
       <EditorComp
         markdown={taskState.description}
         handleChange={handleChange}

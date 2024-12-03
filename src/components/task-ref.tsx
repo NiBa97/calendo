@@ -2,6 +2,7 @@ import { Box, Checkbox, Text } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 import { useTasks } from "~/contexts/task-context";
 import TempTask from "./edit-task";
+import { set } from "zod";
 
 interface TaskRefProps {
   taskId: string;
@@ -94,7 +95,14 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
           onMouseEnter={() => setShowPopup(true)}
           onMouseLeave={() => setShowPopup(false)}
         >
-          <TempTask task={task} showCloseButton={false} height={400} width={400} showToolbar={false} />
+          <TempTask
+            task={task}
+            showCloseButton={false}
+            height={400}
+            width={400}
+            showToolbar={false}
+            onComplete={() => setShowPopup(false)}
+          />
         </Box>
       )}
     </>
