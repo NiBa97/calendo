@@ -68,7 +68,7 @@ const TempTask = ({
     }));
 
     task.status = taskState.status;
-    void updateTask(task.id, { status: taskState.status });
+    void updateTask(task.id, { status: value });
   };
 
   const handleChange = (field: keyof Task, value: Task[keyof Task]) => {
