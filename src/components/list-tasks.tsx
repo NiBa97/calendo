@@ -21,7 +21,15 @@ const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
   useEffect(() => {
-    setStateTasks(tasks);
+    const sortedTasks = [...tasks].sort((a, b) => {
+      // If either date is null, put it at the end
+      if (!a.startDate) return 1;
+      if (!b.startDate) return -1;
+
+      // Compare valid dates
+      return a.startDate.getTime() - b.startDate.getTime();
+    });
+    setStateTasks(sortedTasks);
   }, [tasks]);
 
   const today = moment().startOf("day");
