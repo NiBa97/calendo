@@ -88,6 +88,13 @@ a {
   background: none!important;
   background-color: rgba(0,0,0,0.5)!important;
 }
+.rbc-day-slot .rbc-time-slot:nth-child(2) ,.rbc-day-slot .rbc-time-slot:nth-child(4){
+  border-top: none !important;
+}
+
+.rbc-day-slot .rbc-time-slot:nth-child(3) {
+    border-top: 1px dashed rgba(255, 255, 255, 0.2) !important;
+}
 
 .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:first-child .rbc-addons-dnd-resize-ns-icon{
   border-bottom: 3px double!important;
