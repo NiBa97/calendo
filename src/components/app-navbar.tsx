@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { FaCalendarAlt, FaBook, FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
 import { SettingsModal } from "./settings-modal";
+import { RxCaretDown } from "react-icons/rx";
 
 export default function AdvancedNavbar() {
   const pathname = usePathname();
@@ -100,6 +101,7 @@ export default function AdvancedNavbar() {
                       _before: {
                         opacity: 0,
                       },
+                      cursor: "pointer",
                     }}
                   >
                     <HStack spacing={2}>
@@ -116,30 +118,29 @@ export default function AdvancedNavbar() {
             <Menu>
               <MenuButton
                 as={Button}
-                variant="ghost"
+                // variant="ghost"
                 height="10"
                 px={3}
-                _hover={{ bg: "brand.2" }}
-                _active={{ bg: "brand.2" }}
+                // _hover={{ bg: "brand.2" }}
+                // _active={{ bg: "brand.2" }}
               >
-                <HStack spacing={2}>
+                <HStack spacing={2} alignItems={"center"}>
                   <Avatar size="sm" name={session.user.name ?? undefined} src={session.user.image ?? undefined} />
                   <Text display={{ base: "none", md: "block" }}>{session.user.name}</Text>
+                  <RxCaretDown size={30} />
                 </HStack>
               </MenuButton>
-              <MenuList bg="brand.1" borderColor="brand.2">
-                <MenuItem icon={<Icon as={FaUser} />} _hover={{ bg: "brand.2" }}>
-                  Profile
-                </MenuItem>
-                <MenuItem icon={<Icon as={FaCog} />} onClick={() => setIsSettingsOpen(true)} _hover={{ bg: "brand.2" }}>
+              <MenuList bg="brand.2" border={"1px solid"} borderColor="brand.2">
+                <MenuItem bg={"brand.2"} icon={<Icon as={FaCog} />} onClick={() => setIsSettingsOpen(true)}>
                   Settings
                 </MenuItem>
                 <Divider borderColor="brand.2" />
                 <MenuItem
+                  bg={"brand.2"}
                   icon={<Icon as={FaSignOutAlt} />}
                   onClick={() => void signOut()}
                   color="red.400"
-                  _hover={{ bg: "brand.2" }}
+                  _hover={{ cursor: "pointer" }}
                 >
                   Sign out
                 </MenuItem>
