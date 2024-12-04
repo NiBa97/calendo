@@ -36,9 +36,10 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
     <AttachmentProvider>
       <AppNavbar></AppNavbar>
       <Flex
-        maxHeight={"calc(100vh - 50px)"}
-        width={"100vw"}
-        height={"calc(100vh - 50px)"}
+        maxHeight={"calc(100vh - 56px)"}
+        width={"calc(100vw -15px)"}
+        maxWidth={"100vw"}
+        height={"calc(100vh - 56px)"}
         bg={"brand.1"}
         color={"brand.4"}
         gap={2}
@@ -54,8 +55,8 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
           <Box width={width}>{children}</Box>
         </Resizable>
         <Box
-          width={`calc(100vw - ${width}px)`}
-          maxHeight={"calc(100vh - 50px)"}
+          width={`calc(100vw - ${width + 15}px)`}
+          maxHeight={"calc(100vh - 56px)"}
           bg={"brand.1"}
           color={"brand.4"}
           className="test123"
