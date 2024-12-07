@@ -38,6 +38,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const toast = useToast();
   useEffect(() => {
     if (fetched_tasks) {
+      console.log(fetched_tasks);
       setTasks(fetched_tasks);
     }
   }, [fetched_tasks]);
