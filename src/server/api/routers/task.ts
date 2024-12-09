@@ -12,10 +12,84 @@ const taskInputSchema = z.object({
   endDate: z.date().optional(),
   isAllDay: z.boolean().optional(),
   status: z.boolean().optional(),
-  groupId: z.string().cuid().optional(),
+  // groupId: z.string().cuid().optional(),
 });
-
+// const tasks: Partial<{
+//   id: string;
+//   startDate: Date | null;
+//   endDate: Date | null;
+//   isAllDay: boolean;
+//   status: boolean;
+//   name: string;
+//   description: string | null;
+//   groupId: string | null;
+//   userId: string;
+// }>[]
 export const taskRouter = createTRPCRouter({
+  deleteDuplicates: protectedProcedure
+  .mutation(async ({ ctx }) => {
+    // 1. Get all tasks for the user
+    const tasks = await ctx.db.task.findMany({
+      where: { userId: ctx.session.user.id },
+      orderBy: { startDate: 'asc' }, // Keep oldest tasks
+    });
+
+    // 2. Find duplicates
+    const seen = new Map();
+    const duplicates = new Set();
+
+    tasks.forEach(task => {
+      const key = JSON.stringify({
+        name: task.name,
+        description: task.description,
+        startDate: task.startDate,
+        endDate: task.endDate
+      });
+
+      if (seen.has(key)) {
+        duplicates.add(task.id);
+      } else {
+        seen.set(key, task.id);
+      }
+    });
+
+    if (duplicates.size === 0) {
+      return { deletedCount: 0 };
+    }
+    // 3. Convert duplicates to array for processing
+    const duplicateIds = Array.from(duplicates);
+    let deletedCount = 0;
+    const BATCH_SIZE = 1000; // Process 1000 items at a time
+
+    // 4. Process in batches
+    for (let i = 0; i < duplicateIds.length; i += BATCH_SIZE) {
+      const batch = duplicateIds.slice(i, i + BATCH_SIZE);
+      
+      // Use transaction to ensure consistency
+      await ctx.db.$transaction(async (tx) => {
+        // Delete histories first
+        await tx.taskHistory.deleteMany({
+          where: {
+            taskId: { in: batch as string[] },
+            userId: ctx.session.user.id
+          }
+        });
+
+        // Then delete tasks
+        const result = await tx.task.deleteMany({
+          where: {
+            id: { in: batch as string[] },
+            userId: ctx.session.user.id
+          }
+        });
+
+        deletedCount += result.count;
+      });
+    }
+
+
+    return { deletedCount: duplicates.size };
+  }),
     create: protectedProcedure
     .input(z.object({
       name: z.string().min(1),
@@ -65,13 +139,6 @@ export const taskRouter = createTRPCRouter({
       tasks: z.array(taskInputSchema)
     }))
     .mutation(async ({ ctx, input }) => {
-      const results = {
-        success: true,
-        tasksCreated: 0,
-        errors: [] as string[],
-        tasks: [] as any[],
-      };
-
       try {
         const tasks = ctx.db.task.createManyAndReturn({
           data: input.tasks.map((taskData) => ({
@@ -81,63 +148,14 @@ export const taskRouter = createTRPCRouter({
             endDate: taskData.endDate,
             isAllDay: taskData.isAllDay ?? false,
             status: taskData.status ?? false,
-            groupId: taskData.groupId,
             userId: ctx.session.user.id,
           })),
         });
         return tasks;
-        // Use a transaction to ensure all tasks are created or none
-        await ctx.db.$transaction(async (tx) => {
-          for (const taskData of input.tasks) {
-            try {
-              // Create the task
-              const newTask = await tx.task.create({
-                data: {
-                  name: taskData.name,
-                  description: taskData.description,
-                  startDate: taskData.startDate,
-                  endDate: taskData.endDate,
-                  isAllDay: taskData.isAllDay ?? false,
-                  status: taskData.status ?? false,
-                  groupId: taskData.groupId,
-                  userId: ctx.session.user.id,
-                },
-                select: {
-                  id: true,
-                  name: true,
-                  description: true,
-                  startDate: true,
-                  endDate: true,
-                  isAllDay: true,
-                  status: true,
-                  groupId: true,
-                  userId: true,
-                },
-              });
-
-              // Create history entry for the task
-              const { id: taskId, ...taskDataForHistory } = newTask;
-              await tx.taskHistory.create({
-                data: {
-                  ...taskDataForHistory,
-                  taskId: taskId,
-                },
-              });
-
-              results.tasksCreated++;
-              results.tasks.push(newTask);
-            } catch (error) {
-              console.log(error);
-              // If any task fails, add to errors but continue with others
-              results.errors.push(`Failed to create task "${taskData.name}": ${error instanceof Error ? error.message : 'Unknown error'}`);
-            }
-          }
-        });
+        
       } catch (error) {
-        console.log(error.message)
+        console.log(error)
         // If the transaction fails entirely
-        results.success = false;
-        results.errors.push(`Transaction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to create tasks',
@@ -145,7 +163,6 @@ export const taskRouter = createTRPCRouter({
         });
       }
 
-      return results;
     }),
 getHistoric: protectedProcedure
     .input(z.object({ id: z.string().cuid() }))
