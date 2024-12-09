@@ -25,6 +25,12 @@ import { useNotes } from "~/contexts/note-context";
 import { useSession } from "next-auth/react";
 import { type Task, type Note, type Tag } from "@prisma/client";
 import { api } from "~/trpc/react";
+
+import { DuplicateTaskManager } from "./duplicate-task-remover";
+import { TickTickImport } from "./ticktick-import";
+interface CleanTag {
+  name: string;
+}
 interface CleanTask {
   name: string;
   description?: string | null;
@@ -34,17 +40,6 @@ interface CleanTask {
   status: boolean;
   groupId?: string | null;
 }
-
-interface CleanTag {
-  name: string;
-}
-
-interface CleanNote {
-  title: string;
-  content?: string | null;
-  tags: CleanTag[];
-}
-
 interface ExportData {
   tasks: CleanTask[];
   notes: CleanNote[];
@@ -57,125 +52,30 @@ interface ImportData {
   exportDate: string;
 }
 
+interface CleanNote {
+  title: string;
+  content?: string | null;
+  tags: CleanTag[];
+}
+interface ImportData {
+  tasks: CleanTask[];
+  notes: CleanNote[];
+  exportDate: string;
+}
 interface ImportResult {
   success: boolean;
   tasksImported: number;
   notesImported: number;
   errors: string[];
 }
-import Papa from "papaparse";
-import moment from "moment";
-
-interface TickTickTask {
-  Title: string;
-  Content: string;
-  Status: string;
-  "Start Date": string;
-  "Due Date": string;
-  "Is All Day": string;
-  Tags: string;
-  Timezone: string;
-}
-
-export const parseTickTickCsv = (csvContent: string) => {
-  // Skip the first few lines that contain metadata
-  const dataLines = csvContent.split("\n").slice(4).join("\n");
-
-  return new Promise<TickTickTask[]>((resolve, reject) => {
-    Papa.parse(csvContent, {
-      header: true,
-      skipEmptyLines: true,
-      quoteChar: '"',
-      delimiter: ",",
-      complete: (results) => {
-        // Filter out any empty rows and cast to TickTickTask
-        const tasks = results.data
-          .filter((row) => Object.keys(row).length > 1) // Filter out empty rows
-          .map((row) => row as TickTickTask);
-        resolve(tasks);
-      },
-      error: (error) => {
-        reject(new Error(`CSV parsing failed: ${error.message}`));
-      },
-    });
-  });
-};
-
-const convertTickTickToCalendo = (tickTickTasks: TickTickTask[]) => {
-  const tasks: Partial<Task>[] = [];
-  const notes: Partial<Note & { tags: Tag[] }>[] = [];
-
-  tickTickTasks.forEach((task) => {
-    // Convert status (0=Normal, 1=Completed, 2=Archived)
-    const status = task.Status === "1" || task.Status === "2";
-
-    // Convert dates
-    const startDate = task["Start Date"] ? moment(task["Start Date"]).toDate() : undefined;
-    const endDate = task["Due Date"] ? moment(task["Due Date"]).toDate() : undefined;
-
-    // Convert tags
-    const tags = task.Tags
-      ? task.Tags.split(",").map((tag) => ({
-          name: tag.trim(),
-        }))
-      : [];
-
-    // Convert isAllDay
-    const isAllDay = task["Is All Day"]?.toLowerCase() === "true";
-
-    // Create Calendo task object
-    const calendoItem = {
-      name: task.Title,
-      description: task.Content,
-      status,
-      startDate,
-      endDate,
-      isAllDay,
-    };
-    if (!task.Title) {
-      console.log("Skipping...");
-      console.log(task);
-      return;
-    }
-
-    // If it has dates, treat as task, otherwise as note
-    if (startDate || endDate) {
-      tasks.push(calendoItem);
-    } else {
-      console.log("Skipping...");
-      // notes.push({
-      //   title: task.Title,
-      //   content: task.Content,
-      //   tags,
-      // });
-    }
-  });
-
-  return { tasks, notes };
-};
-
-export const importTickTickData = async (file: File) => {
-  try {
-    const text = await file.text();
-    const tickTickTasks = await parseTickTickCsv(text);
-    console.log("tickTickTasks");
-    console.log(tickTickTasks);
-    return convertTickTickToCalendo(tickTickTasks);
-  } catch (error) {
-    console.error("Error importing TickTick data:", error);
-    throw error;
-  }
-};
 export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { tasks, createTask } = useTasks();
   const { notes, createNote } = useNotes();
   const { data: session } = useSession();
-  const { mutateAsync: createBulkTasks } = api.task.createBulk.useMutation();
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const tickTickFileInputRef = useRef<HTMLInputElement>(null); // Add this line
   const cleanTaskForExport = (task: Task): CleanTask => {
     // Destructure and omit unused properties
     const { userId, ...cleanTask } = task;
@@ -196,79 +96,6 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
       ...rest,
       tags: note.tags.map(cleanTagForExport),
     };
-  };
-  const handleTickTickImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !session?.user?.id) return;
-
-    setImporting(true);
-    setImportResult(null);
-    const result: ImportResult = {
-      success: false,
-      tasksImported: 0,
-      notesImported: 0,
-      errors: [],
-    };
-
-    try {
-      const { tasks, notes } = await importTickTickData(file);
-      console.log(tasks);
-      console.log(notes);
-      const taskResult = await createBulkTasks({ tasks });
-      console.log(taskResult);
-      return;
-      // Import tasks
-      for (const task of tasks) {
-        try {
-          const taskResult = await createBulkTasks({ tasks });
-          console.log(taskResult);
-
-          result.tasksImported = taskResult.tasksCreated;
-          result.errors.push(...taskResult.errors);
-        } catch (error) {
-          console.log(error);
-          result.errors.push(`Failed to import task: ${task.name}`);
-        }
-      }
-
-      // Import notes
-      for (const note of notes) {
-        try {
-          await createNote({
-            title: note.title!,
-            content: note.content ?? undefined,
-            tags: note.tags,
-          });
-          result.notesImported++;
-        } catch (error) {
-          result.errors.push(`Failed to import note: ${note.title}`);
-        }
-      }
-
-      result.success = true;
-      toast({
-        title: "TickTick Import successful",
-        description: `Imported ${result.tasksImported} tasks and ${result.notesImported} notes`,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-    } catch (error) {
-      result.errors.push("Failed to parse TickTick file");
-      toast({
-        title: "Import failed",
-        description: "There was an error importing your TickTick data. Please check the file format.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setImporting(false);
-      setImportResult(result);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
   };
 
   const handleExportData = () => {
@@ -441,24 +268,7 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
                 >
                   Import Data
                 </Button>
-                <Input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleTickTickImport}
-                  ref={tickTickFileInputRef}
-                  display="none"
-                />
 
-                <Button
-                  leftIcon={<FaUpload />}
-                  onClick={() => tickTickFileInputRef.current?.click()}
-                  width="full"
-                  bg="brand.2"
-                  _hover={{ bg: "brand.3" }}
-                  isDisabled={importing}
-                >
-                  Import from TickTick
-                </Button>
                 {importing && <Progress size="xs" isIndeterminate colorScheme="teal" />}
 
                 {importResult && (
@@ -495,6 +305,14 @@ export const SettingsModal: React.FC<{ isOpen: boolean; onClose: () => void }> =
               <Text fontSize="sm" color="gray.500" mt={2}>
                 Export/Import all your tasks and notes as a JSON file
               </Text>
+              <TickTickImport></TickTickImport>
+              <Box>
+                <Text fontSize="lg" fontWeight="bold" mb={2}>
+                  Task Management
+                </Text>
+                <Divider mb={4} borderColor="brand.2" />
+                <DuplicateTaskManager />
+              </Box>
             </Box>
           </VStack>
         </ModalBody>
