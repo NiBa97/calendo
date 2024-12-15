@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { Attachment, type Task } from "@prisma/client";
 import { api } from "~/trpc/react";
 import { useToast } from "@chakra-ui/react";
+import { useTaskLoader } from "~/hooks/useTaskLoader";
 interface TaskContextType {
   tasks: Task[];
   createTask: (taskData: Partial<Task>) => Promise<void>;
@@ -17,6 +18,7 @@ interface TaskContextType {
   setTemporaryTask: (task: Task | null) => void;
   modalTask: Task | null;
   setModalTask: (task: Task | null) => void;
+  loadTasksForRange: (date: Date) => Promise<void>;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -29,17 +31,28 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const [contextInformation, setContextInformation] = useState<{ x: number; y: number; task: Task } | undefined>(
     undefined
   );
-  const { data: fetched_tasks } = api.task.getAll.useQuery();
+  const { data: fetched_tasks } = api.task.getDefaultAll.useQuery();
 
   const { mutateAsync: updateMutation } = api.task.update.useMutation();
   const { mutateAsync: createMutation } = api.task.create.useMutation();
   const { mutateAsync: deleteMutation } = api.task.delete.useMutation();
   const { mutateAsync: restoreMutation } = api.task.restore.useMutation();
   const toast = useToast();
+  const taskLoader = useTaskLoader();
+
+  // Load tasks for a given date
+  const loadTasksForRange = async (date: Date) => {
+    const updatedTasks = await taskLoader.loadTasksForRange(date, tasks);
+    if (updatedTasks) {
+      setTasks(updatedTasks);
+    }
+  };
+
   useEffect(() => {
     if (fetched_tasks) {
       console.log(fetched_tasks);
       setTasks(fetched_tasks);
+      void loadTasksForRange(new Date());
     }
   }, [fetched_tasks]);
 
@@ -88,6 +101,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         return null;
       });
   };
+
   const restoreTask = async (taskId: string, historyTimestamp: Date, taskData: Partial<Task>) => {
     const dataWithDefaults = taskData as {
       name: string;
@@ -142,6 +156,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         modalTask,
         setModalTask,
         restoreTask,
+        loadTasksForRange,
       }}
     >
       {children}

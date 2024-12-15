@@ -2,6 +2,7 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import {
   Calendar,
+  DateRange,
   type EventPropGetter,
   type EventProps,
   type Messages,
@@ -60,8 +61,16 @@ const eventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolea
 });
 
 export default function Home() {
-  const { tasks, updateTask, draggingTask, setDraggingTask, temporaryTask, setTemporaryTask, setModalTask } =
-    useTasks();
+  const {
+    tasks,
+    updateTask,
+    draggingTask,
+    setDraggingTask,
+    temporaryTask,
+    setTemporaryTask,
+    setModalTask,
+    loadTasksForRange,
+  } = useTasks();
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<string>("customDayView");
@@ -69,7 +78,12 @@ export default function Home() {
   const handleOnChangeView = (selectedView: string) => setView(selectedView);
 
   const [date, setDate] = useState(new Date());
-  const onNavigate = useCallback((newDate: Date) => setDate(newDate), [setDate]);
+
+  const onNavigate = (newDate: Date) => {
+    void loadTasksForRange(newDate);
+    setDate(newDate);
+  };
+
   const popupHeight = 400;
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
@@ -198,6 +212,9 @@ export default function Home() {
   const handleDoubleClickEvent = (event: object, _e: SyntheticEvent<HTMLElement, Event>) => {
     setSelectedEvent(null);
     setModalTask(event as Task);
+  };
+  const handleRangeChange = (range: DateRange) => {
+    console.log(range);
   };
   return (
     <Box>

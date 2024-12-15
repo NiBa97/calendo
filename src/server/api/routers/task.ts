@@ -172,6 +172,74 @@ getHistoric: protectedProcedure
         orderBy: { changedAt: "desc" },
       });
     }),
+getDefaultAll: protectedProcedure.query(async ({ ctx }) => {
+  return ctx.db.task.findMany({
+    where: {
+      userId: ctx.session.user.id,
+      OR: [
+        { status: false },
+        {
+          status: false,
+          startDate: null,
+          endDate: null,
+        }
+      ]
+    },
+    take: 1000,
+    orderBy: {
+      startDate: 'asc'
+    }
+  });
+}),
+getTasksInRange: protectedProcedure
+  .input(z.object({
+    rangeStart: z.date(),
+    rangeEnd: z.date()
+  }))
+  .query(async ({ ctx, input }) => {
+    const { rangeStart, rangeEnd } = input;
+    
+    return ctx.db.task.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        AND: [
+          {
+            OR: [
+              // Task starts within range
+              {
+                startDate: {
+                  gte: rangeStart,
+                  lte: rangeEnd,
+                }
+              },
+              // Task ends within range
+              {
+                endDate: {
+                  gte: rangeStart,
+                  lte: rangeEnd,
+                }
+              },
+              // Task spans entire range
+              {
+                AND: [
+                  { startDate: { lte: rangeStart } },
+                  { endDate: { gte: rangeEnd } }
+                ]
+              }
+            ]
+          },
+          // Ensure we only get tasks with valid dates
+          {
+            startDate: { not: null },
+            endDate: { not: null }
+          }
+        ]
+      },
+      orderBy: {
+        startDate: 'asc'
+      }
+    });
+  }),
 getAll: protectedProcedure
     .query(async ({ ctx }) => {
       return ctx.db.task.findMany({
