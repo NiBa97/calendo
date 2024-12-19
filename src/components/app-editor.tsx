@@ -33,6 +33,7 @@ import { type FC } from "react";
 import { type Task, ParentType } from "@prisma/client";
 import { useAttachments } from "~/contexts/attachment-context";
 import { InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
+import { drawIORefComponentDescriptor, InsertDrawIOButton } from "./drawio-editor-plugin";
 interface EditorProps {
   markdown: string;
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
@@ -50,7 +51,7 @@ const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, ha
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   const { addAttachment } = useAttachments();
   const plugins = [
-    jsxPlugin({ jsxComponentDescriptors: [taskRefComponentDescriptor] }),
+    jsxPlugin({ jsxComponentDescriptors: [taskRefComponentDescriptor, drawIORefComponentDescriptor] }),
     listsPlugin(),
     quotePlugin(),
     headingsPlugin(),
@@ -72,6 +73,7 @@ const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, ha
           <>
             {" "}
             <InsertTaskButton />
+            <InsertDrawIOButton />
             <BoldItalicUnderlineToggles />
             <CreateLink />
             <Separator />
