@@ -43,15 +43,48 @@ export const DrawIORef: React.FC<DrawIORefProps> = ({ xml, onSave }) => {
 
   return (
     <>
-      <Box cursor="pointer" onClick={onOpen}>
+      <Box
+        cursor="pointer"
+        onClick={onOpen}
+        bg="gray.100"
+        w="fit-content"
+        h="fit-content"
+        p={2}
+        position="relative"
+        _hover={{
+          cursor: "hand",
+          bg: "gray.200",
+          "& > .hover-text": {
+            opacity: 1,
+            cursor: "pointer",
+          },
+        }}
+      >
         <Image src={xml} alt="drawio" w="auto" h="auto" />
+        <Box
+          className="hover-text"
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          bg="blackAlpha.600"
+          color="white"
+          opacity="0"
+          transition="opacity 0.2s"
+          cursor={"pointer"}
+        >
+          Click to edit
+        </Box>
       </Box>
-
       {/* Main Modal */}
       <Modal isOpen={isOpen} onClose={onAlertOpen} size="full">
         <ModalOverlay />
-        <ModalContent h="90vh" maxW="90vw" maxH="90vh" m="auto">
-          <ModalBody p={6}>
+        <ModalContent h="80vh" maxW="90vw" maxH="80vh" background={"transparent"}>
+          <ModalBody py={4} background={"transparent"}>
             <DrawIoEmbed xml={xml} onSave={(data) => handleSave(data.xml)} onClose={onClose} />
           </ModalBody>
         </ModalContent>
