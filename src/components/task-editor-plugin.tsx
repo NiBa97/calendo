@@ -1,4 +1,5 @@
-import { MdastJsx, NestedLexicalEditor, type JsxComponentDescriptor } from "@mdxeditor/editor";
+import { currentSelection$, activeEditor$, type JsxComponentDescriptor, useCellValues } from "@mdxeditor/editor";
+
 import { usePublisher, insertJsx$ } from "@mdxeditor/editor";
 import { Button, Modal, ModalOverlay, ModalContent, ModalBody, Input, VStack, Text, Box } from "@chakra-ui/react";
 import { FaHashtag } from "react-icons/fa";
@@ -6,7 +7,7 @@ import { useState, useEffect } from "react";
 import { useTasks } from "~/contexts/task-context";
 import { type Task } from "@prisma/client";
 import TaskRef from "./task-ref";
-import { MdxJsxTextElement } from "mdast-util-mdx";
+import { $getSelection, $isRangeSelection, $isTextNode } from "lexical";
 
 // Task selector modal component
 const TaskSelector = ({
@@ -99,4 +100,62 @@ export const taskRefComponentDescriptor: JsxComponentDescriptor = {
       return <></>;
     }
   },
+};
+
+// Toolbar button component
+export const CreateTaskButton = () => {
+  const { createTask } = useTasks();
+  const insertJsx = usePublisher(insertJsx$);
+  // const selection = useCellValue(currentSelection$);
+  const [currentSelection, activeEditor] = useCellValues(currentSelection$, activeEditor$);
+
+  if (!currentSelection || !activeEditor) return null;
+
+  // const insertJsx = usePublisher(insertJsx$);
+  const handleTaskSelect = () => {
+    activeEditor.update(() => {
+      //  const children = currentHTMLNode?.getChildren() || []
+      const selection = $getSelection();
+      console.log("Selection: ", selection);
+      if ($isRangeSelection(selection)) {
+        console.log("Range Selection: ", selection.getTextContent());
+        const selectedNodes = selection.getNodes();
+        console.log();
+        const currentTextNode = selectedNodes.length === 1 && $isTextNode(selectedNodes[0]) ? selectedNodes[0] : null;
+        console.log("Current Text Node: ", currentTextNode);
+        createTask({ name: selection.getTextContent() })
+          .then((task) => {
+            insertJsx({
+              name: "TaskRef",
+              kind: "text",
+              props: {
+                taskId: task.id,
+              },
+            });
+          })
+          .catch((error) => {
+            console.error("Error creating task:", error);
+          });
+        // const newNode = $createGenericHTMLNode("span", "mdxJsxTextElement");
+        // selection.insertNodes([newNode]);
+        // selection.
+      }
+    });
+
+    // console.log("test", selection?.getTextContent());
+    // insertJsx({
+    //   name: "TaskRef",
+    //   kind: "text",
+    //   props: {
+    //     taskId: task.id,
+    //   },
+    // });
+  };
+  return (
+    <>
+      <Button onClick={handleTaskSelect} leftIcon={<FaHashtag />} size="sm">
+        Create Task
+      </Button>
+    </>
+  );
 };

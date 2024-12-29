@@ -32,7 +32,7 @@ import React from "react";
 import { type FC } from "react";
 import { type Task, ParentType } from "@prisma/client";
 import { useAttachments } from "~/contexts/attachment-context";
-import { InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
+import { CreateTaskButton, InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
 import { drawIORefComponentDescriptor, InsertDrawIOButton } from "./drawio-editor-plugin";
 interface EditorProps {
   markdown: string;
@@ -73,6 +73,7 @@ const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, ha
           <>
             {" "}
             <InsertTaskButton />
+            <CreateTaskButton />
             <InsertDrawIOButton />
             <BoldItalicUnderlineToggles />
             <CreateLink />

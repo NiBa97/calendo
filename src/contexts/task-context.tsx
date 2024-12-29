@@ -6,7 +6,7 @@ import { useToast } from "@chakra-ui/react";
 import { useTaskLoader } from "~/hooks/useTaskLoader";
 interface TaskContextType {
   tasks: Task[];
-  createTask: (taskData: Partial<Task>) => Promise<void>;
+  createTask: (taskData: Partial<Task>) => Promise<Task>;
   updateTask: (taskId: string, updatedData: Partial<Task>) => Promise<void>;
   restoreTask: (taskId: string, historyTimestamp: Date, restoreTask: Partial<Task>) => Promise<void>;
   deleteTask: (taskId: string) => Promise<void>;
@@ -68,6 +68,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     };
     const newTask = await createMutation(dataWithDefaults);
     setTasks((prevTasks) => [...prevTasks, newTask]);
+    return newTask;
   };
 
   const updateTask = async (taskId: string, restoreTask: Partial<Task>) => {
