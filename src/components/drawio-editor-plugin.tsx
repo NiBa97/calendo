@@ -39,11 +39,8 @@ export const drawIORefComponentDescriptor: JsxComponentDescriptor = {
   hasChildren: false,
   defaultExport: true,
   Editor: ({ mdastNode }) => {
-    console.log("node", mdastNode);
-    console.log(mdastNode.attributes);
     const updateMdastNode = useMdastNodeUpdater();
     const handleSave = (xml: string) => {
-      console.log("saving", xml);
       const new_attributes: MdxJsxAttribute[] = [{ name: "xml", value: xml } as MdxJsxAttribute];
       updateMdastNode({ attributes: new_attributes });
     };

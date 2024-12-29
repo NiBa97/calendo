@@ -46,8 +46,6 @@ const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/
 
 // Only import this to the next file
 const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, handleChange, showToolbar = true }) => {
-  console.log("editot parentId", parentId);
-  console.log("editot parentType", parentType);
   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   const { addAttachment } = useAttachments();
   const plugins = [
@@ -117,7 +115,6 @@ const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, ha
     if (files.length === 0 || !files[0] === undefined) return;
     // Check if the dropped file is an image
     const isImage = SUPPORTED_IMAGE_FORMATS.includes(files[0]!.type);
-    console.log(isImage);
     event.preventDefault();
     // Handle non-image file upload
     setIsDragging(false);
@@ -133,20 +130,15 @@ const Editor: FC<EditorProps> = ({ parentId, parentType, markdown, editorRef, ha
         formData.append(key, value);
       });
       formData.append("file", files[0]!);
-      console.log("waiting...");
       await fetch(url, {
         method: "POST",
         body: formData,
       });
-      console.log("uploading");
       await addAttachment(parentId, parentType, {
         fileName: files[0]!.name,
         fileKey: key,
       });
-      console.log("Setting content");
-      console.log("File uploaded successfully!");
       if (isImage) {
-        console.log(key);
         editorRef!.current!.insertMarkdown(`<img src="/api/files/${key}" alt="${files[0]!.name}" name="test"/>`);
       } else {
         editorRef!.current!.insertMarkdown(`NEW FILE! {{${key}}}`);

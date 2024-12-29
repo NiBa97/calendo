@@ -106,7 +106,6 @@ export async function GET(
     const { userId, fileId } = params;
     // Get session
     const session = await getServerAuthSession();
-    console.log(session)
     if (!session || session.user.id !== userId) {
       return new Response("Unauthorized", { status: 401 });
     }

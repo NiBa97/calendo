@@ -50,7 +50,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (fetched_tasks) {
-      console.log(fetched_tasks);
       setTasks(fetched_tasks);
       void loadTasksForRange(new Date());
     }
@@ -113,7 +112,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       description?: string | undefined;
       groupId?: string | undefined | null;
     };
-    console.log(dataWithDefaults);
     await restoreMutation({ originalID: taskId, historyTimestamp: historyTimestamp, ...dataWithDefaults })
       .then((updatedTask: Task) => {
         toast({

@@ -114,15 +114,8 @@ export const CreateTaskButton = () => {
   // const insertJsx = usePublisher(insertJsx$);
   const handleTaskSelect = () => {
     activeEditor.update(() => {
-      //  const children = currentHTMLNode?.getChildren() || []
       const selection = $getSelection();
-      console.log("Selection: ", selection);
       if ($isRangeSelection(selection)) {
-        console.log("Range Selection: ", selection.getTextContent());
-        const selectedNodes = selection.getNodes();
-        console.log();
-        const currentTextNode = selectedNodes.length === 1 && $isTextNode(selectedNodes[0]) ? selectedNodes[0] : null;
-        console.log("Current Text Node: ", currentTextNode);
         createTask({ name: selection.getTextContent() })
           .then((task) => {
             insertJsx({
@@ -136,9 +129,6 @@ export const CreateTaskButton = () => {
           .catch((error) => {
             console.error("Error creating task:", error);
           });
-        // const newNode = $createGenericHTMLNode("span", "mdxJsxTextElement");
-        // selection.insertNodes([newNode]);
-        // selection.
       }
     });
 

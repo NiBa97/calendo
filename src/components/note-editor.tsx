@@ -140,7 +140,6 @@ export default function NoteEditor({
         <EditorComp
           markdown={noteState.content}
           handleChange={(field, value) => {
-            console.log(field, value);
             if (field === "description") {
               handleChange("content", value as string);
             }

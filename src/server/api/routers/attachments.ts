@@ -51,7 +51,6 @@ export const attachmentRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       // Check if parent exists and user has access
-      console.log("input", input)
       const parent = input.parentType === ParentType.TASK
         ? await ctx.db.task.findUnique({
             where: { id: input.parentId, userId: ctx.session.user.id },
@@ -59,7 +58,6 @@ export const attachmentRouter = createTRPCRouter({
         : await ctx.db.note.findUnique({
             where: { id: input.parentId, userId: ctx.session.user.id },
           });
-      console.log(parent)
       if (!parent) {
         throw new TRPCError({
           code: "NOT_FOUND",

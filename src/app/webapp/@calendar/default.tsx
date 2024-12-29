@@ -213,9 +213,7 @@ export default function Home() {
     setSelectedEvent(null);
     setModalTask(event as Task);
   };
-  const handleRangeChange = (range: DateRange) => {
-    console.log(range);
-  };
+
   return (
     <Box>
       <style>{`

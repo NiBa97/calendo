@@ -32,7 +32,6 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addAttachment = async (parentId: string, parentType: ParentType, attachment: Partial<Attachment>) => {
-    console.log("addAttachment", parentId, parentType, attachment);
     const new_attachment = await addAttachmentMutation({
       parentId: parentId,
       parentType: parentType,
