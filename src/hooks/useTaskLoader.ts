@@ -16,15 +16,15 @@ export const useTaskLoader = () => {
       return loadedMonths.current.has(getMonthKey(date));
     };
   
-    // Get array of month keys to load
     const getMonthsToLoad = (date: Date): string[] => {
       const months: string[] = [];
-      const baseDate = new Date(date);
       
       // Get previous, current, and next month
       for (let i = -1; i <= 1; i++) {
-        baseDate.setMonth(date.getMonth() + i);
-        const monthKey = getMonthKey(baseDate);
+        // Create new Date object for each iteration
+        const targetDate = new Date(date.getFullYear(), date.getMonth() + i, 1);
+        const monthKey = getMonthKey(targetDate);
+        
         if (!loadedMonths.current.has(monthKey)) {
           months.push(monthKey);
         }
@@ -32,7 +32,6 @@ export const useTaskLoader = () => {
       
       return months;
     };
-  
     // Function to merge tasks, preferring newer tasks
     const mergeTasks = (existingTasks: Task[], newTasks: Task[]): Task[] => {
       const taskMap = new Map<string, Task>();
