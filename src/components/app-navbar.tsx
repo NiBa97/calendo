@@ -60,7 +60,7 @@ export default function AdvancedNavbar() {
               const isActive = pathname.startsWith(item.path);
 
               return (
-                <Link key={item.path} href={item.path} passHref>
+                <Link key={item.path} href={item.path} passHref legacyBehavior>
                   <Button
                     as="a"
                     height="55px"
@@ -156,7 +156,7 @@ export default function AdvancedNavbar() {
               const isActive = pathname.startsWith(item.path);
 
               return (
-                <Link key={item.path} href={item.path} passHref style={{ flex: 1 }}>
+                <Link key={item.path} href={item.path} passHref legacyBehavior style={{ flex: 1 }}>
                   <Button
                     as="a"
                     variant="unstyled"
