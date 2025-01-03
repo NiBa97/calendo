@@ -48,12 +48,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+
   useEffect(() => {
-    if (fetched_tasks) {
+    if (fetched_tasks && !initialLoadDone) {
       setTasks(fetched_tasks);
+      taskLoader.resetLoadedMonths();
       void loadTasksForRange(new Date());
+      setInitialLoadDone(true);
     }
-  }, [fetched_tasks]);
+  }, [fetched_tasks, initialLoadDone]);
 
   const createTask = async (taskData: Partial<Task>) => {
     const dataWithDefaults = taskData as {
