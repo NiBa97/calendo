@@ -88,9 +88,9 @@ export default function Home() {
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey) {
       if (event.deltaY < 0) {
-        setSlotHeight((prevHeight) => Math.min(prevHeight + 1, 200));
+        setSlotHeight((prevHeight) => Math.min(prevHeight + 10, 200));
       } else {
-        setSlotHeight((prevHeight) => Math.max(prevHeight - 1, 10));
+        setSlotHeight((prevHeight) => Math.max(prevHeight - 10, 10));
       }
       event.preventDefault();
     }
