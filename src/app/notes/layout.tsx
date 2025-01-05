@@ -34,7 +34,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Box>
       <AppNavbar />
-      <Flex height="calc(100vh - 50px)" width="100vw" bg="brand.1" color="brand.4" gap={2}>
+      <Flex
+        maxHeight={"calc(100vh - 56px)"}
+        width={"calc(100vw -15px)"}
+        maxWidth={"100vw"}
+        height={"calc(100vh - 56px)"}
+        bg={"brand.1"}
+        color={"brand.4"}
+        gap={2}
+      >
         <Resizable
           axis="x"
           width={width}
@@ -47,7 +55,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <NoteList />
           </Box>
         </Resizable>
-        <Box width={`calc(100vw - ${width}px)`} height="100%" bg="brand.1" color="brand.4" overflow="auto">
+        <Box
+          width={`calc(100vw - ${width + 15}px)`}
+          maxHeight={"calc(100vh - 56px)"}
+          bg={"brand.1"}
+          color={"brand.4"}
+          className="test123"
+        >
+          {" "}
           {children}
         </Box>
       </Flex>
