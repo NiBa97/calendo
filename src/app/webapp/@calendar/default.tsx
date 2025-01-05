@@ -242,6 +242,7 @@ export default function Home() {
         onEventResize={(args) => onEventDropOrResize(args as EventChangeArgs)}
         onSelectEvent={handleEventSelect}
         onSelectSlot={handleSelectSlot}
+        dayLayoutAlgorithm={"no-overlap"}
         onDoubleClickEvent={handleDoubleClickEvent}
         onDropFromOutside={handleExternalDrop}
         step={15}
