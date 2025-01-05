@@ -96,17 +96,24 @@ a {
   background: none!important;
   background-color: rgba(0,0,0,0.5)!important;
 }
+.rbc-event:hover  .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:first-child {
+  margin-left:5px;
+  margin-top:-2px;
+  width:50px;
+}
 .rbc-event:hover  .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:first-child .rbc-addons-dnd-resize-ns-icon{
   border-bottom: 3px double!important;
   border-top: none!important;
   position: relative;
-  margin: 0 0 0 5px;  
   cursor: "n-resize";
 }
-
-.rbc-event:hover  .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:last-child .rbc-addons-dnd-resize-ns-icon{
-  position: relative;
+.rbc-event:hover  .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:last-child{
+  width:50px;
   left:calc(100% - 55px)!important;
+  position: relative;
+  bottom:13px;
+}
+.rbc-event:hover  .rbc-addons-dnd-resizable .rbc-addons-dnd-resize-ns-anchor:last-child .rbc-addons-dnd-resize-ns-icon{
   margin: 0;  
   cursor: "s-resize";
 
