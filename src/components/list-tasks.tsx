@@ -88,6 +88,7 @@ const ListTasks: React.FC = () => {
                 key={task.id}
                 onDragStart={dragStart}
                 onContextMenu={(task, event) => onContextMenu(task, event)}
+                showDate={false}
               ></TaskItem>
             ))}
           </AccordionPanel>
@@ -105,6 +106,7 @@ const ListTasks: React.FC = () => {
                 key={task.id}
                 onDragStart={dragStart}
                 onContextMenu={(task, event) => onContextMenu(task, event)}
+                showDate={true}
               ></TaskItem>
             ))}
           </AccordionPanel>
@@ -122,6 +124,7 @@ const ListTasks: React.FC = () => {
                 key={task.id}
                 onDragStart={dragStart}
                 onContextMenu={(task, event) => onContextMenu(task, event)}
+                showDate={false}
               ></TaskItem>
             ))}
           </AccordionPanel>
@@ -139,6 +142,7 @@ const ListTasks: React.FC = () => {
                 key={task.id}
                 onDragStart={dragStart}
                 onContextMenu={(task, event) => onContextMenu(task, event)}
+                showDate={false}
               ></TaskItem>
             ))}
           </AccordionPanel>
@@ -152,10 +156,12 @@ const TaskItem = ({
   task,
   onDragStart,
   onContextMenu,
+  showDate,
 }: {
   task: Task;
   onDragStart: (task: Task, event: React.DragEvent) => void;
   onContextMenu: (task: Task, event: React.MouseEvent) => void;
+  showDate: boolean;
 }) => {
   const { updateTask, setModalTask } = useTasks();
   return (
@@ -189,7 +195,12 @@ const TaskItem = ({
       >
         <Text fontSize="lg">{task.name}</Text>
         <HStack gap={1}>
-          <Text fontSize="sm" color={"brand.4"}>
+          {showDate && (
+            <Text fontSize="xs" color={"brand.4"}>
+              {task.startDate && task.endDate ? `${moment(task.startDate).format("DD/MM/YYYY")}` : "No Date Assigned"}
+            </Text>
+          )}
+          <Text fontSize="md" color={"brand.4"}>
             {task.isAllDay
               ? "All Day"
               : task.startDate && task.endDate
