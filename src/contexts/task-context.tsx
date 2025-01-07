@@ -60,7 +60,14 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   }, [fetched_tasks, initialLoadDone]);
 
   const createTask = async (taskData: Partial<Task>) => {
-    const dataWithDefaults = taskData as {
+    const currentTime = new Date();
+    const isInPast =
+      taskData.startDate && taskData.endDate && taskData.startDate < currentTime && taskData.endDate < currentTime;
+
+    const dataWithDefaults = {
+      ...taskData,
+      status: isInPast ? true : taskData.status ?? false,
+    } as {
       name: string;
       startDate?: Date | undefined;
       endDate?: Date | undefined;

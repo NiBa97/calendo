@@ -49,9 +49,6 @@ const TempTask = ({
     if (task.id) {
       await updateTask(task.id, taskStateRef.current);
     } else {
-      if (task?.startDate && task?.endDate && task.startDate < new Date() && task.endDate > new Date()) {
-        taskStateRef.current = { ...taskStateRef.current, status: true };
-      }
       await createTask(taskStateRef.current);
       setTemporaryTask(null);
     }
