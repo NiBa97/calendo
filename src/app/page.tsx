@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { CreatePost } from "~/components/create-post";
 import { getServerAuthSession } from "~/server/auth";
@@ -8,7 +9,9 @@ import styles from "./index.module.css";
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
   const session = await getServerAuthSession();
-
+  if (session?.user) {
+    redirect("/webapp");
+  }
   return (
     <main className={styles.main}>
       <div className={styles.container}>
