@@ -4,7 +4,6 @@ import { GeistSans } from "geist/font/sans";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Providers } from "~/contexts/providers";
-import { getServerAuthSession } from "~/server/auth";
 import TaskEditModal from "~/components/task-edit-modal";
 
 export const metadata = {
@@ -13,13 +12,11 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const serverSession = await getServerAuthSession();
-
   return (
     <html lang="en">
       <body className={GeistSans.className}>
         <TRPCReactProvider>
-          <Providers serverSession={serverSession}>
+          <Providers>
             {children} <TaskEditModal />
           </Providers>
         </TRPCReactProvider>

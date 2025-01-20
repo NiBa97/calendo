@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
-import { getServerAuthSession } from "~/server/auth";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { env } from "~/env";
 import { RateLimiter } from "limiter";
+import { auth } from "@clerk/nextjs/server";
 
 
 
@@ -105,8 +105,8 @@ export async function GET(
 
     const { userId, fileId } = params;
     // Get session
-    const session = await getServerAuthSession();
-    if (!session || session.user.id !== userId) {
+    const {userId: clerkUserId} = await auth();
+    if (!clerkUserId || clerkUserId !== userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 

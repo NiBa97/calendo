@@ -16,14 +16,14 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
 import { FaCalendarAlt, FaBook, FaUser, FaSignOutAlt, FaCog } from "react-icons/fa";
 import { SettingsModal } from "./settings-modal";
 import { RxCaretDown } from "react-icons/rx";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 export default function AdvancedNavbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { user } = useUser();
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -114,7 +114,7 @@ export default function AdvancedNavbar() {
             })}
           </HStack>
 
-          {session?.user && (
+          {user && (
             <Menu>
               <MenuButton
                 as={Button}
@@ -125,8 +125,8 @@ export default function AdvancedNavbar() {
                 // _active={{ bg: "brand.2" }}
               >
                 <HStack spacing={2} alignItems={"center"}>
-                  <Avatar size="sm" name={session.user.name ?? undefined} src={session.user.image ?? undefined} />
-                  <Text display={{ base: "none", md: "block" }}>{session.user.name}</Text>
+                  <Avatar size="sm" name={user?.firstName ?? undefined} src={user?.imageUrl ?? undefined} />
+                  <Text display={{ base: "none", md: "block" }}>{user?.firstName}</Text>
                   <RxCaretDown size={30} />
                 </HStack>
               </MenuButton>
@@ -135,15 +135,7 @@ export default function AdvancedNavbar() {
                   Settings
                 </MenuItem>
                 <Divider borderColor="brand.2" />
-                <MenuItem
-                  bg={"brand.2"}
-                  icon={<Icon as={FaSignOutAlt} />}
-                  onClick={() => void signOut()}
-                  color="red.400"
-                  _hover={{ cursor: "pointer" }}
-                >
-                  Sign out
-                </MenuItem>
+                <SignOutButton />
               </MenuList>
             </Menu>
           )}
