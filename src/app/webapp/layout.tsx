@@ -9,9 +9,10 @@ import React from "react";
 import { ResizeHandle } from "~/components/resize-handle";
 import AppNavbar from "~/components/app-navbar";
 import { AttachmentProvider } from "~/contexts/attachment-context";
+import { getLocalStorage, setLocalStorage } from "~/utils/storage";
 
 export default function Layout({ calendar, children }: { calendar: React.ReactNode; children: React.ReactNode }) {
-  const savedWidth = localStorage.getItem("width") ?? "0.5";
+  const savedWidth = getLocalStorage("width", "0.5");
   const [width, setWidth] = useState<number>(0);
   useEffect(() => {
     const handleResize = () => {
@@ -27,7 +28,7 @@ export default function Layout({ calendar, children }: { calendar: React.ReactNo
     event.preventDefault();
     if (window === undefined) return;
     if (size.width > window.innerWidth * 0.25 && size.width < window.innerWidth * 0.75) {
-      localStorage.setItem("width", (size.width / window.innerWidth).toString());
+      setLocalStorage("width", (size.width / window.innerWidth).toString());
       setWidth(size.width);
     }
   };

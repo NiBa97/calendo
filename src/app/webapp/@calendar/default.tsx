@@ -24,6 +24,7 @@ import CustomMultiDayView from "~/components/calendar/custom-view";
 import CalendarPopup from "~/components/calendar/popup";
 import TempTask from "~/components/edit-task";
 import CustomToolbar from "~/components/calendar/custom-toolbar";
+import { getLocalStorage, setLocalStorage } from "~/utils/storage";
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -123,12 +124,12 @@ export default function Home() {
   };
 
   const [timeRange, setTimeRange] = useState({
-    start: moment(localStorage.getItem("calendar-time-range-start"), "HH:mm") ?? moment("9:00", "HH:mm"),
-    end: moment(localStorage.getItem("calendar-time-range-end"), "HH:mm") ?? moment("17:00", "HH:mm"),
+    start: moment(getLocalStorage("calendar-time-range-start", "09:00"), "HH:mm"),
+    end: moment(getLocalStorage("calendar-time-range-end", "17:00"), "HH:mm"),
   });
   useEffect(() => {
-    localStorage.setItem("calendar-time-range-start", timeRange.start.format("HH:mm"));
-    localStorage.setItem("calendar-time-range-end", timeRange.end.format("HH:mm"));
+    setLocalStorage("calendar-time-range-start", timeRange.start.format("HH:mm"));
+    setLocalStorage("calendar-time-range-end", timeRange.end.format("HH:mm"));
   }, [timeRange]);
 
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {

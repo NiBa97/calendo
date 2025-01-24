@@ -8,13 +8,14 @@ import { useTasks } from "~/contexts/task-context";
 import { type Task } from "@prisma/client";
 import TempTask from "~/components/edit-task";
 import { ResizeHandle } from "~/components/resize-handle";
+import { getLocalStorage, setLocalStorage } from "~/utils/storage";
 
 export default function Home({ params: { id: taskId } }: { params: { id: string } }) {
   const [height, setHeight] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
   useEffect(() => {
-    const savedHeight = localStorage.getItem("height") ?? "0.5";
-    const savedWidth = localStorage.getItem("width") ?? "0.5";
+    const savedHeight = getLocalStorage("height", "0.5");
+    const savedWidth = getLocalStorage("width", "0.5");
     const handleResize = () => {
       setHeight(window.innerHeight * parseFloat(savedHeight));
       setWidth(window.innerWidth * parseFloat(savedWidth));
@@ -30,12 +31,12 @@ export default function Home({ params: { id: taskId } }: { params: { id: string 
     if (window === undefined) return;
     if (size.height > window.innerHeight * 0.25 && size.height < window.innerHeight * 0.75) {
       setHeight(size.height);
-      localStorage.setItem("height", (size.height / window.innerHeight).toString());
+      setLocalStorage("height", (size.height / window.innerHeight).toString());
     } else if (size.height < window.innerHeight * 0.25) {
-      localStorage.setItem("height", "0.25");
+      setLocalStorage("height", "0.25");
       setHeight(window.innerHeight * 0.25);
     } else if (size.height > window.innerHeight * 0.75) {
-      localStorage.setItem("height", "0.75");
+      setLocalStorage("height", "0.75");
       setHeight(window.innerHeight * 0.75);
     }
   };
