@@ -26,7 +26,9 @@ export const env = createEnv({
     GITHUB_CLIENT_SECRET: z.string(),
     MINIO_ACCESS_KEY: z.string(),
     MINIO_SECRET_KEY: z.string(),
-    MINIO_SERVER_URL: z.string()
+    MINIO_SERVER_URL: z.string(),
+    // NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
+    // CLERK_SECRET_KEY=z.string(),
   },
 
   /**

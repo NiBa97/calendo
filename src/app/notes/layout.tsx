@@ -7,9 +7,10 @@ import { AttachmentProvider } from "~/contexts/attachment-context";
 import { ResizeHandle } from "~/components/resize-handle";
 import AppNavbar from "~/components/app-navbar";
 import { NoteList } from "~/components/note-list";
+import { getLocalStorage, setLocalStorage } from "~/utils/storage";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const savedWidth = localStorage.getItem("notes-width") ?? "0.3";
+  const savedWidth = getLocalStorage("notes-width", "0.3");
   const [width, setWidth] = useState<number>(0);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     event.preventDefault();
     if (window === undefined) return;
     if (size.width > window.innerWidth * 0.2 && size.width < window.innerWidth * 0.8) {
-      localStorage.setItem("notes-width", (size.width / window.innerWidth).toString());
+      setLocalStorage("notes-width", (size.width / window.innerWidth).toString());
       setWidth(size.width);
     }
   };
