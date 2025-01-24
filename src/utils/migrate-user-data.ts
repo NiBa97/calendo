@@ -1,6 +1,17 @@
-import { PrismaClient, type Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import type { Task, Note, Group, Tag, TaskHistory, NoteHistory, Attachment } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+// Define interfaces for objects with history
+interface TaskWithHistory extends Task {
+  TaskHistory: TaskHistory[];
+}
+
+interface NoteWithHistory extends Note {
+  NoteHistory: NoteHistory[];
+  tags: Tag[];
+}
 
 // Helper function to log with timestamp
 function logWithTime(message: string) {
@@ -53,7 +64,7 @@ async function migrateGroups(oldUserId: string, newUserId: string) {
   return groupMap;
 }
 
-async function migrateTask(task: any, newUserId: string, groupMap: Map<string, string>) {
+async function migrateTask(task: TaskWithHistory, newUserId: string, groupMap: Map<string, string>) {
   const groupId = task.groupId ? groupMap.get(task.groupId) : null;
   
   // Create new task
@@ -98,7 +109,7 @@ async function migrateTasks(oldUserId: string, newUserId: string, groupMap: Map<
     include: {
       TaskHistory: true,
     }
-  });
+  }) as TaskWithHistory[];
 
   const taskMap = new Map<string, string>();
 
@@ -115,7 +126,7 @@ async function migrateTasks(oldUserId: string, newUserId: string, groupMap: Map<
   return taskMap;
 }
 
-async function migrateNote(note: any, newUserId: string) {
+async function migrateNote(note: NoteWithHistory, newUserId: string) {
   // Create new note
   const newNote = await prisma.note.create({
     data: {
@@ -179,7 +190,7 @@ async function migrateNotes(oldUserId: string, newUserId: string) {
       NoteHistory: true,
       tags: true,
     }
-  });
+  }) as NoteWithHistory[];
 
   const noteMap = new Map<string, string>();
 
@@ -226,7 +237,6 @@ async function migrateAttachments(oldUserId: string, newUserId: string, taskMap:
     }
   }
 }
-
 async function migrateUserData(oldUserId: string, newUserId: string) {
   try {
     // First verify users exist
@@ -331,7 +341,7 @@ async function main() {
     const newUserId = process.argv[3];
 
     logWithTime(`Starting migration from user ${oldUserId} to ${newUserId}`);
-    await migrateUserData(oldUserId, newUserId);
+    await migrateUserData(oldUserId!, newUserId!);
   } catch (error) {
     console.error("Migration failed:", error);
     process.exit(1);
@@ -339,4 +349,4 @@ async function main() {
 }
 
 // Run the script
-main();
+void main();
