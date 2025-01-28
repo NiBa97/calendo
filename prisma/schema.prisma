@@ -178,6 +178,7 @@ model User {
     Note        Note[]
     Tag         Tag[]
     NoteHistory NoteHistory[]
+    Pomodoro    Pomodoro[]
 }
 
 model VerificationToken {
@@ -186,4 +187,12 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Pomodoro {
+    id        String   @id @default(cuid())
+    startTime DateTime @default(now())
+    duration  Int // in minutes
+    userId    String
+    User      User     @relation(fields: [userId], references: [id])
 }

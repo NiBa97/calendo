@@ -20,6 +20,7 @@ import { FaCalendarAlt, FaBook, FaUser, FaSignOutAlt, FaCog } from "react-icons/
 import { SettingsModal } from "./settings-modal";
 import { RxCaretDown } from "react-icons/rx";
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import { PomodoroTimer } from "./pomodoro-timer";
 
 export default function AdvancedNavbar() {
   const pathname = usePathname();
@@ -55,7 +56,8 @@ export default function AdvancedNavbar() {
             Calendo
           </Text>
 
-          <HStack spacing={0} display={{ base: "none", md: "flex" }} height="100%">
+          <HStack spacing={4} display={{ base: "none", md: "flex" }} height="100%">
+            <PomodoroTimer />
             {navigationItems.map((item) => {
               const isActive = pathname.startsWith(item.path);
 

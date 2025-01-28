@@ -5,6 +5,7 @@ import { taskRouter } from "./routers/task";
 import { uploadRouter } from "./routers/upload";
 import { attachmentRouter } from "./routers/attachments";
 import { noteRouter } from "./routers/note";
+import { pomodoroRouter } from "./routers/pomodoro";
 
 /**
  * This is the primary router for your server.
@@ -17,7 +18,8 @@ export const appRouter = createTRPCRouter({
   task:taskRouter,
   upload: uploadRouter,
   attachments: attachmentRouter,
-  note: noteRouter, // Add this line
+  note: noteRouter,
+  pomodoro: pomodoroRouter,
 });
 
 // export type definition of API
