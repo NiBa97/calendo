@@ -2,6 +2,9 @@ import { type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import { auth } from "@clerk/nextjs/server";
 
+// Mark route as dynamic
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -9,7 +12,7 @@ export async function GET(req: NextRequest) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const dateStr = req.nextUrl.searchParams.get('date');
+    const dateStr = req.nextUrl.searchParams.get("date");
     if (!dateStr) {
       return new Response("Date parameter is required", { status: 400 });
     }
@@ -28,21 +31,21 @@ export async function GET(req: NextRequest) {
                 startDate: {
                   gte: startOfDay,
                   lte: endOfDay,
-                }
+                },
               },
               {
                 endDate: {
                   gte: startOfDay,
                   lte: endOfDay,
-                }
-              }
-            ]
-          }
-        ]
+                },
+              },
+            ],
+          },
+        ],
       },
       orderBy: {
-        startDate: 'asc'
-      }
+        startDate: "asc",
+      },
     });
 
     return Response.json(tasks);
