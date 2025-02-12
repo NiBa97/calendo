@@ -1,6 +1,7 @@
 import { Box, Flex, IconButton, Icon, useDisclosure, Text } from "@chakra-ui/react";
-import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiX } from "react-icons/fi";
-import { Link, useLocation } from "react-router-dom";
+import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiLogOut } from "react-icons/fi";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout } from "../pocketbaseUtils";
 
 const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick }) => {
   const content = (
@@ -53,12 +54,17 @@ const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }) => {
 
 export default function DashboardLayout({ children }) {
   const { open: isSidebarOpen, onToggle: toggleSidebar } = useDisclosure({ defaultOpen: false });
+  const navigate = useNavigate();
 
   const handlePlaceholderClick = (label) => {
     console.log(`Clicked ${label} - Add your placeholder action here`);
     // You can add popup logic or other actions here
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   const sidebarItems = [
     {
       icon: FiGrid,
@@ -86,9 +92,9 @@ export default function DashboardLayout({ children }) {
       onClick: () => handlePlaceholderClick("Loader"),
     },
     {
-      icon: FiX,
-      label: "Extend",
-      onClick: () => handlePlaceholderClick("Extend"),
+      icon: FiLogOut,
+      label: "Logout",
+      onClick: () => handleLogout(),
     },
   ];
 
