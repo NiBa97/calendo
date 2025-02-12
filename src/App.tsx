@@ -1,9 +1,15 @@
 import { Flex } from "@chakra-ui/react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import DashboardLayout from "./layouts/dashboardLayout";
 import Notes from "./pages/notes";
 import Tasks from "./pages/tasks";
 import Login from "./pages/login";
+import { checkIfLoggedIn } from "./pocketbaseUtils";
+import {} from "react-router-dom";
+
+const AuthRoute = ({ children }) => {
+  return checkIfLoggedIn() ? children : <Navigate to="/login" />;
+};
 
 export default function App() {
   return (
@@ -16,9 +22,30 @@ export default function App() {
             element={
               <DashboardLayout>
                 <Routes>
-                  <Route path="/notes" element={<Notes />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/" element={<Tasks />} />
+                  <Route
+                    path="/notes"
+                    element={
+                      <AuthRoute>
+                        <Notes />
+                      </AuthRoute>
+                    }
+                  />
+                  <Route
+                    path="/tasks"
+                    element={
+                      <AuthRoute>
+                        <Tasks />
+                      </AuthRoute>
+                    }
+                  />
+                  <Route
+                    path="/"
+                    element={
+                      <AuthRoute>
+                        <Tasks />
+                      </AuthRoute>
+                    }
+                  />
                 </Routes>
               </DashboardLayout>
             }
