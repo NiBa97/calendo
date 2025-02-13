@@ -1,11 +1,11 @@
 import { HStack, Text, Badge, Box, Link } from "@chakra-ui/react";
-import { Checkbox } from "@chakra-ui/checkbox";
 import { useTasks } from "../contexts/task-context";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { FaExpand } from "react-icons/fa6";
-import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from "@chakra-ui/accordion";
 import { Task } from "../types";
+import { Checkbox } from "./ui/checkbox";
+import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "./ui/accordion";
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
@@ -63,15 +63,14 @@ const ListTasks: React.FC = () => {
   };
   return (
     <Box width={"100%"} height={"100%"} overflowY={"auto"}>
-      test
-      <Accordion overflowX={"hidden"} maxHeight={"100%"} width={"100%"} allowMultiple defaultIndex={[0, 1, 2]}>
-        <AccordionItem hidden={withoutAssignedDate.length === 0}>
-          <AccordionButton width="100%" justifyContent={"space-between"}>
-            <AccordionIcon />
+      <AccordionRoot overflowX={"hidden"} maxHeight={"100%"} width={"100%"} allowMultiple defaultIndex={[0, 1, 2]}>
+        <AccordionItem hidden={withoutAssignedDate.length === 0} value="without-date">
+          <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
+            {/* <AccordionIcon /> */}
             <Text>No Date Assigned</Text>
             <Badge colorScheme="red">{withoutAssignedDate.length}</Badge>
-          </AccordionButton>
-          <AccordionPanel width="100%">
+          </AccordionItemTrigger>
+          <AccordionItemContent width="100%">
             {withoutAssignedDate.map((task) => (
               <TaskItem
                 task={task}
@@ -81,15 +80,15 @@ const ListTasks: React.FC = () => {
                 showDate={false}
               ></TaskItem>
             ))}
-          </AccordionPanel>
+          </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem hidden={overdueTasks.length === 0}>
-          <AccordionButton width="100%" justifyContent={"space-between"}>
-            <AccordionIcon />
+        <AccordionItem hidden={overdueTasks.length === 0} value="overdue-tasks">
+          <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
+            {/* <AccordionIcon /> */}
             <Text>Overdue Tasks</Text>
             <Badge colorScheme="red">{overdueTasks.length}</Badge>
-          </AccordionButton>
-          <AccordionPanel width="100%">
+          </AccordionItemTrigger>
+          <AccordionItemContent width="100%">
             {overdueTasks.map((task) => (
               <TaskItem
                 task={task}
@@ -99,15 +98,15 @@ const ListTasks: React.FC = () => {
                 showDate={true}
               ></TaskItem>
             ))}
-          </AccordionPanel>
+          </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem>
-          <AccordionButton width="100%" justifyContent={"space-between"}>
-            <AccordionIcon />
+        <AccordionItem value="todo-today">
+          <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
+            {/* <AccordionIcon /> */}
             <Text>Today Tasks</Text>
             <Badge colorScheme="green">{todayTasks.length}</Badge>
-          </AccordionButton>
-          <AccordionPanel width="100%" gap={4}>
+          </AccordionItemTrigger>
+          <AccordionItemContent width="100%" gap={4}>
             {todayTasks.map((task) => (
               <TaskItem
                 task={task}
@@ -117,15 +116,15 @@ const ListTasks: React.FC = () => {
                 showDate={false}
               ></TaskItem>
             ))}
-          </AccordionPanel>
+          </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem hidden={completedToday.length === 0}>
-          <AccordionButton width="100%" justifyContent={"space-between"}>
-            <AccordionIcon />
+        <AccordionItem hidden={completedToday.length === 0} value="completed-today">
+          <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
+            {/* <AccordionIcon /> */}
             <Text>Completed Tasks</Text>
             <Badge colorScheme="gray">{completedToday.length}</Badge>
-          </AccordionButton>
-          <AccordionPanel width="100%">
+          </AccordionItemTrigger>
+          <AccordionItemContent width="100%">
             {completedToday.map((task) => (
               <TaskItem
                 task={task}
@@ -135,9 +134,9 @@ const ListTasks: React.FC = () => {
                 showDate={false}
               ></TaskItem>
             ))}
-          </AccordionPanel>
+          </AccordionItemContent>
         </AccordionItem>
-      </Accordion>
+      </AccordionRoot>
     </Box>
   );
 };

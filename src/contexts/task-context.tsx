@@ -76,7 +76,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       user: pb.authStore.record?.id, // Get the current user's ID from PocketBase
     };
 
-    const record = await pb.collection("tasks").create(data);
+    const record = await pb.collection("task").create(data);
     const newTask = convertTaskRecordToTask(record);
     setTasks((prevTasks) => [...prevTasks, newTask]);
     return newTask;
@@ -94,7 +94,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         user: pb.authStore.model?.id,
       };
 
-      const record = await pb.collection("tasks").update(taskId, data);
+      const record = await pb.collection("task").update(taskId, data);
       const updatedTask = convertTaskRecordToTask(record);
 
       toast({
