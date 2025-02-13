@@ -2,8 +2,8 @@ import { TaskRecord } from "./pocketbase-types";
 
 export interface Task {
     id: string;
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | undefined;
+    endDate: Date | undefined;
     isAllDay: boolean;
     status: boolean;
     name: string;
@@ -11,12 +11,7 @@ export interface Task {
   }
 
   export function convertTaskRecordToTask(record: TaskRecord): Task {
-    if (!record.startDate) {
-      throw new Error('TaskRecord must have a startDate');
-    }
-    if (!record.endDate) {
-      throw new Error('TaskRecord must have an endDate');
-    }
+
     if (!record.name) {
       throw new Error('TaskRecord must have a name');
     }
@@ -28,8 +23,8 @@ export interface Task {
     }
     return {
       id: record.id,
-      startDate: new Date(record.startDate),
-      endDate: new Date(record.endDate),
+      startDate: record.startDate ? new Date(record.startDate) : undefined,
+      endDate: record.startDate ? new Date(record.startDate) : undefined,
       isAllDay: record.isAllDay,
       status: record.status,
       name: record.name,

@@ -73,7 +73,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       status: isInPast ? true : taskData.status ?? false,
       name: taskData.name,
       description: taskData.description,
-      user: pb.authStore.record?.id, // Get the current user's ID from PocketBase
+      user: pb.authStore.record?.id,
     };
 
     const record = await pb.collection("task").create(data);
