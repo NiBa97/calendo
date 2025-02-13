@@ -1,6 +1,7 @@
 import { Box, Flex, IconButton, HStack, useDisclosure } from "@chakra-ui/react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
+import ListTasks from "../components/task-list";
 
 export default function Tasks() {
   const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: true });
@@ -28,7 +29,7 @@ export default function Tasks() {
         {isTaskListOpen && (
           <>
             <Panel defaultSize={50} minSize={20}>
-              <Box h="100%" borderRight="1px solid" borderColor="gray.200" />
+              <ListTasks></ListTasks>
             </Panel>
 
             <PanelResizeHandle style={{ width: "8px", cursor: "col-resize" }}>

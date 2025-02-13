@@ -6,6 +6,7 @@ import Tasks from "./pages/tasks";
 import Login from "./pages/login";
 import { checkIfLoggedIn } from "./pocketbaseUtils";
 import {} from "react-router-dom";
+import { TaskProvider } from "./contexts/task-context";
 
 const AuthRoute = ({ children }) => {
   return checkIfLoggedIn() ? children : <Navigate to="/login" />;
@@ -34,7 +35,9 @@ export default function App() {
                     path="/tasks"
                     element={
                       <AuthRoute>
-                        <Tasks />
+                        <TaskProvider>
+                          <Tasks />
+                        </TaskProvider>
                       </AuthRoute>
                     }
                   />
@@ -42,7 +45,9 @@ export default function App() {
                     path="/"
                     element={
                       <AuthRoute>
-                        <Tasks />
+                        <TaskProvider>
+                          <Tasks />
+                        </TaskProvider>
                       </AuthRoute>
                     }
                   />
