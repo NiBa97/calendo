@@ -182,7 +182,9 @@ const TaskItem = ({
         justifyContent={"space-between"}
         alignItems={"center"}
       >
-        <Text fontSize="lg">{task.name}</Text>
+        <Text fontSize="lg" color={"brand.4"}>
+          {task.name}
+        </Text>
         <HStack gap={1}>
           {showDate && (
             <Text fontSize="xs" color={"brand.4"}>
