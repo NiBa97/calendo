@@ -1,0 +1,73 @@
+.rbc-calendar{
+    max-height: 100%;
+    height:auto;
+    width: 100%;
+}
+.rbc-slot-selection{
+    background-color: #3174AE!important;
+    border:none!important;
+    border-radius: 5px!important;
+}
+.rbc-time-header{
+    margin-right: 0px!important;
+}
+.rbc-time-gutter .rbc-timeslot-group:first-child .rbc-label{
+    opacity: 0!important;
+}
+.rbc-time-gutter .rbc-timeslot-group{
+    border: none !important;
+}
+.rbc-time-gutter .rbc-time-slot{
+    border: none !important;
+    top:-13px;
+    position: relative;
+}
+
+
+.mdxeditor-diff-source-wrapper h1{
+    font-size: 22px;
+    font-weight: bold;
+    width:100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.mdxeditor-diff-source-wrapper h2{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.mdxeditor-diff-source-wrapper h3{
+    font-size: 18px;
+}
+.mdxeditor-diff-source-wrapper span,.mdxeditor-diff-source-wrapper p, .mdxeditor-diff-source-wrapper li {
+    color:white !important;
+}
+.mdxeditor .mdxeditor-rich-text-editor ul li, .mdxeditor .mdxeditor-rich-text-editor ol li{
+    margin-left:20px;
+}
+.mdxeditor .mdxeditor-rich-text-editor ul li[role="checkbox"]{
+    margin-left:0px;
+}
+
+.mdxeditor .mdxeditor-rich-text-editor ul li::before, .mdxeditor .mdxeditor-rich-text-editor ul li::after{
+    margin-top:3px;
+}
+
+.mdxeditor{
+    max-height: 100%;
+    overflow-y: auto;
+}
+.mdxeditor-toolbar{
+   min-height: 44px;
+    
+}
+
+.mdxeditor-popup-container{
+    z-index:9999!important;
+}
+
+.rbc-time-view{
+    border-bottom:none!important;
+    border-right:none!important;
+}
