@@ -3,6 +3,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import ListTasks from "../components/task-list";
 import CreateTask from "../components/create-task";
+import MainCalendar from "../components/calendar/main-calendar";
 
 export default function Tasks() {
   const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: true });
@@ -41,7 +42,7 @@ export default function Tasks() {
         )}
 
         <Panel>
-          <Box h="100%" bg="gray.50" />
+          <MainCalendar></MainCalendar>
         </Panel>
       </PanelGroup>
     </Flex>
