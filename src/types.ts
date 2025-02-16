@@ -24,7 +24,7 @@ export interface Task {
     return {
       id: record.id,
       startDate: record.startDate ? new Date(record.startDate) : undefined,
-      endDate: record.startDate ? new Date(record.startDate) : undefined,
+      endDate: record.endDate ? new Date(record.endDate) : undefined,
       isAllDay: record.isAllDay,
       status: record.status,
       name: record.name,
