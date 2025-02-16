@@ -1,8 +1,7 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { VStack, HStack, Button, Text, Input, IconButton, Divider, Box } from "@chakra-ui/react";
+import { VStack, HStack, Button, Text, Input, IconButton, Box } from "@chakra-ui/react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import moment, { Moment } from "moment";
-import { time } from "console";
 
 interface TimeInputProps {
   value: number;
@@ -39,15 +38,14 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
   };
 
   return (
-    <HStack spacing={4} width="full" position="relative" zIndex={1}>
+    <HStack gap={4} width="full" position="relative" zIndex={1}>
       <Text fontSize="sm" minWidth="80px">
         {label}:
       </Text>
-      <HStack spacing={2} flex={1}>
+      <HStack gap={2} flex={1}>
         <Box position="relative" zIndex={2}>
           <IconButton
             aria-label="Decrease hour"
-            icon={<FaMinus />}
             size="md"
             variant="ghost"
             onClick={decrement}
@@ -56,7 +54,9 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
             _hover={{ bg: "gray.100" }}
             position="relative"
             zIndex={2}
-          />
+          >
+            <FaMinus />
+          </IconButton>
         </Box>
         <Input
           value={inputValue}
@@ -72,7 +72,6 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
         <Box position="relative" zIndex={2}>
           <IconButton
             aria-label="Increase hour"
-            icon={<FaPlus />}
             size="md"
             variant="ghost"
             onClick={increment}
@@ -81,7 +80,9 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
             _hover={{ bg: "gray.100" }}
             position="relative"
             zIndex={2}
-          />
+          >
+            <FaPlus />
+          </IconButton>
         </Box>
       </HStack>
     </HStack>
@@ -108,9 +109,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({ timeRange, setTimeRange 
   ];
 
   return (
-    <VStack spacing={3} p={3} align="stretch" minWidth="250px">
+    <VStack gap={3} p={3} align="stretch" minWidth="250px">
       {/* Time Inputs */}
-      <VStack spacing={2} align="stretch">
+      <VStack gap={2} align="stretch">
         <TimeInput
           label="Start Time"
           value={parseInt(timeRange.start.format("HH"))}
@@ -126,7 +127,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({ timeRange, setTimeRange 
       <Divider />
 
       {/* Presets */}
-      <VStack spacing={2}>
+      <VStack gap={2}>
         {presets.map((preset) => (
           <Button
             key={preset.label}

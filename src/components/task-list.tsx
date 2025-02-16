@@ -171,7 +171,7 @@ const TaskItem = ({
       //     },
       //   }}
     >
-      <Checkbox isChecked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
+      <Checkbox checked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
       <Link
         href={"/webapp/" + task.id}
         cursor="pointer"
