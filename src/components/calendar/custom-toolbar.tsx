@@ -3,7 +3,8 @@ import { Box, Button, ButtonGroup, HStack, Text } from "@chakra-ui/react";
 import { type ToolbarProps } from "react-big-calendar";
 import { FaChevronLeft, FaChevronRight, FaClock } from "react-icons/fa";
 import moment, { Moment } from "moment";
-import { TimePicker } from "../timepicker";
+import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu";
+import { SimpleTimePicker } from "../ui/simple-time-picker";
 
 interface EnhancedToolbarProps extends ToolbarProps {
   setTimeRange: Dispatch<
@@ -40,21 +41,17 @@ const CustomToolbar = ({ label, onNavigate, timeRange, setTimeRange }: EnhancedT
 
         {/* Time Range - Subtle Menu */}
 
-        {/* <Menu closeOnSelect={false}>
-          <MenuButton
-            as={Button}
-            size="sm"
-            variant="ghost"
-            leftIcon={<FaClock />}
-            opacity={0.7}
-            _hover={{ opacity: 1 }}
-          >
-            {moment(timeRange.start, "HH:mm").format("HH:mm")} - {moment(timeRange.end, "HH:mm").format("HH:mm")}
-          </MenuButton>
-          {/* <MenuList bg="brand.1" borderColor="brand.2" p={0}>
+        <MenuRoot closeOnSelect={false}>
+          <MenuTrigger>
+            <Button as={Button} size="sm" variant="ghost" opacity={0.7} _hover={{ opacity: 1 }}>
+              <FaClock />
+              {moment(timeRange.start, "HH:mm").format("HH:mm")} - {moment(timeRange.end, "HH:mm").format("HH:mm")}
+            </Button>
+          </MenuTrigger>
+          <MenuContent bg="brand.1" borderColor="brand.2" p={0}>
             <SimpleTimePicker timeRange={timeRange} setTimeRange={setTimeRange} />
-          </MenuList>
-        </Menu> */}
+          </MenuContent>
+        </MenuRoot>
       </HStack>
     </Box>
   );
