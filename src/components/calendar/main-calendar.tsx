@@ -58,7 +58,13 @@ const eventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolea
   }),
 });
 
-export default function MainCalendar() {
+export default function MainCalendar({
+  isTaskListOpen,
+  toggleTasklist,
+}: {
+  isTaskListOpen: boolean;
+  toggleTasklist: () => void;
+}) {
   const {
     tasks,
     updateTask,
@@ -248,7 +254,13 @@ export default function MainCalendar() {
         components={{
           event: EventComponent as React.ComponentType<EventProps<object>>,
           toolbar: (props: ToolbarProps) => (
-            <CustomToolbar {...props} setTimeRange={setTimeRange} timeRange={timeRange} />
+            <CustomToolbar
+              {...props}
+              setTimeRange={setTimeRange}
+              timeRange={timeRange}
+              isTaskListOpen={isTaskListOpen}
+              toggleTasklist={toggleTasklist}
+            />
           ),
         }}
         eventPropGetter={eventPropGetter as EventPropGetter<object>}

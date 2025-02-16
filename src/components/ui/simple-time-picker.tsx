@@ -38,24 +38,24 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
   };
 
   return (
-    <HStack spacing={4} width="full" position="relative" zIndex={1}>
+    <HStack gap={4} width="full" position="relative" zIndex={1}>
       <Text fontSize="sm" minWidth="80px">
         {label}:
       </Text>
-      <HStack spacing={2} flex={1}>
+      <HStack gap={2} flex={1}>
         <Box position="relative" zIndex={2}>
           <IconButton
             aria-label="Decrease hour"
-            icon={<FaMinus />}
             size="md"
-            variant="ghost"
+            // variant="ghost"
             onClick={decrement}
             height="40px"
             width="40px"
-            _hover={{ bg: "gray.100" }}
             position="relative"
             zIndex={2}
-          />
+          >
+            <FaMinus />
+          </IconButton>
         </Box>
         <Input
           value={inputValue}
@@ -71,16 +71,16 @@ const TimeInput: React.FC<TimeInputProps> = ({ value, onChange, label }) => {
         <Box position="relative" zIndex={2}>
           <IconButton
             aria-label="Increase hour"
-            icon={<FaPlus />}
             size="md"
-            variant="ghost"
+            // variant="ghost"
             onClick={increment}
             height="40px"
             width="40px"
-            _hover={{ bg: "gray.100" }}
             position="relative"
             zIndex={2}
-          />
+          >
+            <FaPlus />
+          </IconButton>
         </Box>
       </HStack>
     </HStack>
@@ -107,9 +107,9 @@ export const SimpleTimePicker: React.FC<SimpleTimePickerProps> = ({ timeRange, s
   ];
 
   return (
-    <VStack spacing={3} p={3} align="stretch" minWidth="250px" divideY={"2px"}>
+    <VStack gap={3} p={3} align="stretch" minWidth="250px" divideY={"2px"}>
       {/* Time Inputs */}
-      <VStack spacing={2} align="stretch">
+      <VStack gap={2} align="stretch">
         <TimeInput
           label="Start Time"
           value={parseInt(timeRange.start.format("HH"))}
@@ -123,13 +123,13 @@ export const SimpleTimePicker: React.FC<SimpleTimePickerProps> = ({ timeRange, s
       </VStack>
 
       {/* Presets */}
-      <VStack spacing={2}>
+      <VStack gap={2} paddingTop={2}>
         {presets.map((preset) => (
           <Button
             key={preset.label}
             size="sm"
             width="full"
-            variant="outline"
+            // variant="outline"
             onClick={() => {
               setTimeRange({ start: preset.start, end: preset.end });
             }}

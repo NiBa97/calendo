@@ -38,14 +38,14 @@ const CreateTask = () => {
   };
 
   return (
-    <Box width={"100%"}>
+    <Box width={"100%"} p={4} mt={"2px"}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleCreateTask();
         }}
       >
-        <HStack p={4}>
+        <HStack>
           <Field.Root id="taskName">
             <InputGroup startElement={<FaPlus />} w={"full"}>
               <Input
