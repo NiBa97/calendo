@@ -1,7 +1,6 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import {
   Calendar,
-  DateRange,
   type EventPropGetter,
   type EventProps,
   type Messages,
@@ -10,12 +9,10 @@ import {
   type View,
   momentLocalizer,
 } from "react-big-calendar";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "./calendar.css";
 import { type SyntheticEvent, useEffect, useState } from "react";
 import { useTasks } from "../../contexts/task-context";
 import CustomMultiDayView from "./custom-view";
@@ -23,6 +20,8 @@ import CalendarPopup from "./popup";
 import { Task } from "../../types";
 import { getLocalStorage, setLocalStorage } from "../../utils/storage";
 import CustomToolbar from "./custom-toolbar";
+import EditTask from "../task-edit";
+
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
@@ -258,7 +257,7 @@ export default function MainCalendar() {
         min={timeRange.start.toDate()}
         max={timeRange.end.toDate()}
       />
-      {/* {selectedEvent && (
+      {selectedEvent && (
         <CalendarPopup
           onClose={() => setSelectedEvent(null)}
           position={{
@@ -266,16 +265,16 @@ export default function MainCalendar() {
             left: selectedEventPos.left,
           }}
         >
-          <TempTask
+          <EditTask
             task={selectedEvent}
             height={popupHeight}
             width={selectedEventPos.width}
             showCloseButton={false}
             showToolbar={false}
             onComplete={() => setSelectedEvent(null)}
-          ></TempTask>
+          ></EditTask>
         </CalendarPopup>
-      )} */}
+      )}
     </Box>
   );
 }
