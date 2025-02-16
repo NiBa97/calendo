@@ -14,6 +14,7 @@
     "@chakra-ui/toast": "^7.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mdxeditor/editor": "^3.22.1",
     "framer-motion": "^6.5.1",
     "lucide-react": "^0.475.0",
     "moment": "^2.30.1",
@@ -22,6 +23,7 @@
     "react": "^19.0.0",
     "react-big-calendar": "^1.17.1",
     "react-dom": "^19.0.0",
+    "react-drawio": "^1.0.3",
     "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^7.1.5"

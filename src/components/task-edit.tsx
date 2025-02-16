@@ -8,6 +8,7 @@ import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import { Checkbox } from "./ui/checkbox";
+import Editor from "./editor/editor";
 
 const EditTask = ({
   task,
@@ -141,6 +142,13 @@ const EditTask = ({
           )}
         </HStack>
       </Box>
+      <Editor
+        markdown={taskState.description}
+        handleChange={handleChange}
+        editorRef={ref}
+        showToolbar={showToolbar}
+        parentId={task.id}
+      ></Editor>
       {/* <EditorComp
         markdown={taskState.description}
         handleChange={handleChange}
