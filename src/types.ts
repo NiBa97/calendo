@@ -1,4 +1,4 @@
-import { TaskRecord } from "./pocketbase-types";
+import { TaskRecord, NoteRecord } from "./pocketbase-types";
 
 export interface Task {
     id: string;
@@ -31,4 +31,24 @@ export interface Task {
       description: record.description ? record.description : ""
     };
   }
+
+export interface Note {
+  id: string;
+  title: string;
+  content?: string;
+  updatedAt?: string | Date;
+}
+
+export function convertNoteRecordToNote(record: NoteRecord): Note {
+  if (!record.title) {
+    throw new Error('NoteRecord must have a title');
+  }
+  
+  return {
+    id: record.id,
+    title: record.title,
+    content: record.content || "",
+  };
+}
+ 
   
