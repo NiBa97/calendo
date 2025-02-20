@@ -35,7 +35,7 @@ import { drawIORefComponentDescriptor, InsertDrawIOButton } from "./draw-io-plug
 interface EditorProps {
   markdown: string;
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
-  handleChange: (field: keyof Task, value: Task[keyof Task]) => void;
+  onChange: (content: string) => void;
   showToolbar?: boolean;
   parentId: string;
   //   parentType: ParentType;
@@ -43,7 +43,7 @@ interface EditorProps {
 const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // Only import this to the next file
-const Editor: FC<EditorProps> = ({ markdown, editorRef, handleChange, showToolbar = true }) => {
+const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true, parentId }) => {
   // parentId, parentType,
   //   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   //   const { addAttachment } = useAttachments();
@@ -191,12 +191,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, handleChange, showToolba
           Drop your file here
         </div>
       )}
-      <MDXEditor
-        plugins={plugins}
-        markdown={markdown}
-        ref={editorRef}
-        onChange={(markdown) => handleChange("description", markdown)}
-      />
+      <MDXEditor plugins={plugins} markdown={markdown} ref={editorRef} onChange={onChange} />
     </Box>
   );
 };
