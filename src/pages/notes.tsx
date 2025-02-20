@@ -2,6 +2,7 @@ import { Box, Flex, useDisclosure } from "@chakra-ui/react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { NoteList } from "../components/note-list";
 import { useParams } from "react-router-dom";
+import NoteEdit from "../components/note-edit";
 
 export default function Notes() {
   const { open: isNoteListOpen, onToggle: toggleNotelist } = useDisclosure({ defaultOpen: true });
@@ -24,7 +25,9 @@ export default function Notes() {
         )}
 
         <Panel>
-          <Box p={4}>{id ? <h1>Displaying note with ID: {id}</h1> : <h1>Please select a note</h1>}</Box>
+          <Box flex={1} height="100%">
+            {id ? <NoteEdit noteId={id} showCloseButton={false} /> : <Box p={4}>Please select a note</Box>}
+          </Box>
         </Panel>
       </PanelGroup>
     </Flex>
