@@ -1,5 +1,4 @@
 import { Box } from "@chakra-ui/react";
-import React from "react";
 import { useEffect, useRef, type ReactNode } from "react";
 
 interface CalendarPopupProps {

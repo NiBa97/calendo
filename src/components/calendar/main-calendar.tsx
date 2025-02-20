@@ -49,7 +49,7 @@ const EventComponent = ({ event }: { event: Task }) => {
   );
 };
 
-const eventPropGetter = (event: Task, start: Date, end: Date, isSelected: boolean) => ({
+const eventPropGetter = (event: Task) => ({
   ...(event.status && {
     className: "completed-task",
   }),

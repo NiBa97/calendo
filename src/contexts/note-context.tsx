@@ -85,6 +85,8 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const restoreNote = async (noteId: string, historyId: string) => {
     try {
+      console.log("restoreNote", noteId, historyId);
+
       // Since PocketBase doesn't have built-in history/restore,
       // you'll need to implement this differently or remove it
       alert("Restore functionality not yet implemented with PocketBase");

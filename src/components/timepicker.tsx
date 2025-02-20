@@ -124,8 +124,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({ timeRange, setTimeRange 
         />
       </VStack>
 
-      <Divider />
-
       {/* Presets */}
       <VStack gap={2}>
         {presets.map((preset) => (

@@ -87,7 +87,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   const handleIsAllDayChangeLocal = (value: boolean) => {
     setIsAllDay(value);
   };
-  const { open, onToggle, onClose } = useDisclosure();
+  const { open, onToggle } = useDisclosure();
   const popoverRef = useRef(null);
   // useOutsideClick({
   //   ref: popoverRef,
@@ -151,7 +151,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
             </Grid>
             <Flex pt={2} width={"100%"} justifyContent={"space-between"}>
               <Text>All Day</Text>
-              <Switch checked={isAllDay} onChange={(e) => handleIsAllDayChangeLocal(e.target.checked)} />
+              <Switch checked={isAllDay} onCheckedChange={(e) => handleIsAllDayChangeLocal(e.checked)} />
             </Flex>
           </PopoverBody>
         </PopoverContent>

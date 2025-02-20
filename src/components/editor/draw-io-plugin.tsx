@@ -4,7 +4,6 @@ import { FaHashtag } from "react-icons/fa";
 import { MdxJsxAttribute } from "mdast-util-mdx";
 
 import { Image, Box, Button, useDisclosure } from "@chakra-ui/react";
-import { useRef } from "react";
 import { DrawIoEmbed } from "react-drawio";
 import { DialogBody, DialogContent, DialogRoot } from "../ui/dialog";
 
@@ -15,19 +14,12 @@ export interface DrawIORefProps {
 
 export const DrawIORef: React.FC<DrawIORefProps> = ({ xml, onSave }) => {
   const { open: isOpen, onOpen, onClose } = useDisclosure();
-  const { open: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
 
   // Function to handle saving
   const handleSave = (newXml: string) => {
     if (onSave) {
       onSave(newXml);
     }
-  };
-
-  // Function to handle confirmed close
-  const handleConfirmedClose = () => {
-    onAlertClose();
-    onClose();
   };
 
   return (
@@ -81,18 +73,6 @@ export const DrawIORef: React.FC<DrawIORefProps> = ({ xml, onSave }) => {
           <DialogBody py={4} background={"transparent"}>
             <DrawIoEmbed xml={xml} onSave={(data) => handleSave(data.xml)} onClose={onClose} />
           </DialogBody>
-        </DialogContent>
-      </DialogRoot>
-      {/* Confirmation Dialog */}
-      <DialogRoot
-        role="alertdialog"
-        open={isAlertOpen}
-        onOpenChange={(open) => {
-          if (!open) onAlertClose();
-        }}
-      >
-        <DialogContent>
-          <DialogBody>Are you sure? Any unsaved changes will be lost.</DialogBody>
         </DialogContent>
       </DialogRoot>
     </>
