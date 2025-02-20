@@ -10,6 +10,15 @@ import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import { Checkbox } from "./ui/checkbox";
 import Editor from "./editor/editor";
 
+interface TaskState {
+  name: string;
+  description: string;
+  status: boolean;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  isAllDay: boolean;
+}
+
 const EditTask = ({
   task,
   height = undefined,
@@ -27,16 +36,23 @@ const EditTask = ({
 }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
   const { updateTask, createTask, setTemporaryTask } = useTasks();
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [taskState, setTaskState] = useState({
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [taskState, setTaskState] = useState<TaskState>({
     name: task?.name ?? "",
     description: task?.description ?? "",
     status: task?.status ?? false,
-    startDate: task?.startDate ? new Date(task.startDate) : null,
-    endDate: task?.endDate ? new Date(task.endDate) : null,
+    startDate: task?.startDate ? new Date(task.startDate) : undefined,
+    endDate: task?.endDate ? new Date(task.endDate) : undefined,
     isAllDay: task?.isAllDay ?? false,
   });
-  const taskStateRef = useRef(taskState);
+  const taskStateRef = useRef<TaskState>({
+    name: "",
+    description: "",
+    status: false,
+    startDate: undefined,
+    endDate: undefined,
+    isAllDay: false,
+  });
 
   ref.current?.setMarkdown(taskState.description);
 
@@ -69,7 +85,7 @@ const EditTask = ({
     void updateTask(task.id, { status: value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async () => {
     if (!task.id && taskState.name.trim()) {
       onComplete?.();
     }
@@ -132,13 +148,14 @@ const EditTask = ({
           {showCloseButton && (
             <IconButton
               aria-label="Close"
-              icon={<FaTimes />}
-              bg={"brand.1"}
+              bg="brand.1"
               onClick={onComplete}
-              color={"brand.4"}
-              size={"lg"}
-              borderRadius={"none"}
-            ></IconButton>
+              color="brand.4"
+              size="lg"
+              borderRadius="none"
+            >
+              <FaTimes />
+            </IconButton>
           )}
         </HStack>
       </Box>
@@ -147,7 +164,6 @@ const EditTask = ({
         onChange={(content) => handleChange("description", content)}
         editorRef={ref}
         showToolbar={showToolbar}
-        parentId={task.id}
       ></Editor>
       {/* <EditorComp
         markdown={taskState.description}

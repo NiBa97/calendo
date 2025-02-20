@@ -28,7 +28,6 @@ import {
 import { Box } from "@chakra-ui/react";
 import React from "react";
 import { type FC } from "react";
-import { Task } from "../../types";
 import { CreateTaskButton, InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
 import { drawIORefComponentDescriptor, InsertDrawIOButton } from "./draw-io-plugin";
 // import { useAttachments } from "~/contexts/attachment-context";
@@ -37,14 +36,12 @@ interface EditorProps {
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
   onChange: (content: string) => void;
   showToolbar?: boolean;
-  parentId: string;
   //   parentType: ParentType;
 }
 const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // Only import this to the next file
-const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true, parentId }) => {
-  // parentId, parentType,
+const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true }) => {
   //   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   //   const { addAttachment } = useAttachments();
   const plugins = [

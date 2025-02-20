@@ -2,8 +2,18 @@ import { Box, Flex, IconButton, Icon, useDisclosure, Text } from "@chakra-ui/rea
 import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiLogOut } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../pocketbaseUtils";
+import { ComponentType } from "react";
 
-const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick }) => {
+interface SidebarItemProps {
+  icon: React.ComponentType;
+  label: string;
+  isOpen: boolean;
+  to: string;
+  isActive: boolean;
+  onClick?: () => void;
+}
+
+const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick }: SidebarItemProps) => {
   const content = (
     <IconButton
       aria-label={label}
@@ -24,7 +34,14 @@ const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick
   return <Box onClick={onClick}>{content}</Box>;
 };
 
-const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }) => {
+interface SidebarProps {
+  isOpen: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  items: SidebarItem[];
+}
+
+const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }: SidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -42,8 +59,10 @@ const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }) => {
         {items.map((item, index) => (
           <SidebarItem
             key={index}
-            {...item}
+            icon={item.icon}
+            label={item.label}
             isOpen={isOpen}
+            to={item.to || ""}
             isActive={item.to === currentPath || (currentPath === "/" && item.to === "/tasks")}
           />
         ))}
@@ -52,11 +71,22 @@ const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }) => {
   );
 };
 
-export default function DashboardLayout({ children }) {
+interface SidebarItem {
+  icon: ComponentType<{}>;
+  label: string;
+  to: string;
+  onClick?: () => void;
+}
+
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { open: isSidebarOpen, onToggle: toggleSidebar } = useDisclosure({ defaultOpen: false });
   const navigate = useNavigate();
 
-  const handlePlaceholderClick = (label) => {
+  const handlePlaceholderClick = (label: string) => {
     console.log(`Clicked ${label} - Add your placeholder action here`);
     // You can add popup logic or other actions here
   };
@@ -65,7 +95,7 @@ export default function DashboardLayout({ children }) {
     logout();
     navigate("/login");
   };
-  const sidebarItems = [
+  const sidebarItems: SidebarItem[] = [
     {
       icon: FiGrid,
       label: "Tasks",
@@ -79,21 +109,25 @@ export default function DashboardLayout({ children }) {
     {
       icon: FiZap,
       label: "Pomo",
+      to: "/pomo",
       onClick: () => handlePlaceholderClick("Pomo"),
     },
     {
       icon: FiUser,
       label: "User",
+      to: "/user",
       onClick: () => handlePlaceholderClick("User"),
     },
     {
       icon: FiLoader,
       label: "Loader",
+      to: "/loader",
       onClick: () => handlePlaceholderClick("Loader"),
     },
     {
       icon: FiLogOut,
       label: "Logout",
+      to: "/logout",
       onClick: () => handleLogout(),
     },
   ];

@@ -20,7 +20,7 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
   const { tasks, setModalTask, updateTask } = useTasks();
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>();
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const task = tasks.find((t) => t.id === taskId);
 
@@ -40,9 +40,8 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
     );
   }
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.stopPropagation();
-    void updateTask(taskId, { status: event.target.checked });
+  const handleCheckboxChange = (checked: boolean) => {
+    void updateTask(taskId, { status: checked });
   };
 
   const handleMouseEnter = (e: React.MouseEvent) => {
@@ -84,7 +83,7 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
         mx={2}
       >
         <Box display="inline-flex" alignItems="center" onClick={(e) => e.stopPropagation()}>
-          <Checkbox size="md" isChecked={task.status} onChange={handleCheckboxChange} />
+          <Checkbox size="md" checked={task.status} onCheckedChange={(e) => handleCheckboxChange(e.checked === true)} />
         </Box>
         <Text as="span" fontSize="sm" color="gray.500" ml={2} textDecoration={task.status ? "line-through" : "none"}>
           {task.name}

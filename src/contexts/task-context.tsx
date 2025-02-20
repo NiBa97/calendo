@@ -1,5 +1,5 @@
 // contexts/TaskContext.tsx
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { useToast } from "@chakra-ui/toast";
 import { convertTaskRecordToTask, Task } from "../types";
 import { getPb } from "../pocketbaseUtils";
@@ -43,7 +43,6 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     const updatedTasks = await taskLoader.loadTasksForRange(date, tasks);
     console.log("Tasks after", updatedTasks);
     if (updatedTasks) {
-      console.log("Updatin!", updateTasks);
       setTasks(updatedTasks);
     }
   };
@@ -118,6 +117,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const restoreTask = async (taskId: string, historyTimestamp: Date, taskData: Partial<Task>) => {
+    console.log("restoreTask", taskId, historyTimestamp, taskData);
     alert("Not yet implemented!");
   };
 

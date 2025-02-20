@@ -63,7 +63,7 @@ const ListTasks: React.FC = () => {
   };
   return (
     <Box width={"100%"} height={"100%"} overflowY={"auto"}>
-      <AccordionRoot overflowX={"hidden"} maxHeight={"100%"} width={"100%"} allowMultiple defaultIndex={[0, 1, 2]}>
+      <AccordionRoot overflowX={"hidden"} maxHeight={"100%"} width={"100%"}>
         <AccordionItem hidden={withoutAssignedDate.length === 0} value="without-date">
           <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
             {/* <AccordionIcon /> */}

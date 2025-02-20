@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaTrash } from "react-icons/fa";
-import { Input, Flex, IconButton, Box, Button } from "@chakra-ui/react";
+import { Input, Flex, Box, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import Editor from "./editor/editor";
 import { useNotes } from "../contexts/note-context";
@@ -136,7 +136,6 @@ const NoteEdit = ({
         onChange={(content) => handleChange("content", content)}
         editorRef={ref}
         showToolbar={showToolbar}
-        parentId={noteId}
       />
     </Flex>
   );
