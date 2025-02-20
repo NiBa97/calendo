@@ -144,7 +144,7 @@ const EditTask = ({
       </Box>
       <Editor
         markdown={taskState.description}
-        handleChange={handleChange}
+        onChange={(content) => handleChange("description", content)}
         editorRef={ref}
         showToolbar={showToolbar}
         parentId={task.id}
