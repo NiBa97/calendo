@@ -8,6 +8,7 @@ import { checkIfLoggedIn } from "./pocketbaseUtils";
 import {} from "react-router-dom";
 import { TaskProvider } from "./contexts/task-context";
 import TaskEditModal from "./components/task-modal";
+import { NoteProvider } from "./contexts/note-context";
 
 const AuthRoute = ({ children }) => {
   return checkIfLoggedIn() ? children : <Navigate to="/login" />;
@@ -24,35 +25,45 @@ export default function App() {
             element={
               <DashboardLayout>
                 <TaskProvider>
-                  <TaskEditModal />
-                  <Routes>
-                    <Route
-                      path="/notes"
-                      element={
-                        <AuthRoute>
-                          <Notes />
-                        </AuthRoute>
-                      }
-                    />
-                    <Route
-                      path="/tasks"
-                      element={
-                        <AuthRoute>
-                          <Tasks />
-                        </AuthRoute>
-                      }
-                    />
-                    <Route
-                      path="/"
-                      element={
-                        <AuthRoute>
-                          <TaskProvider>
+                  <NoteProvider>
+                    <TaskEditModal />
+                    <Routes>
+                      <Route
+                        path="/notes"
+                        element={
+                          <AuthRoute>
+                            <Notes />
+                          </AuthRoute>
+                        }
+                      />
+                      <Route
+                        path="/notes/:id"
+                        element={
+                          <AuthRoute>
+                            <Notes />
+                          </AuthRoute>
+                        }
+                      />
+                      <Route
+                        path="/tasks"
+                        element={
+                          <AuthRoute>
                             <Tasks />
-                          </TaskProvider>
-                        </AuthRoute>
-                      }
-                    />
-                  </Routes>
+                          </AuthRoute>
+                        }
+                      />
+                      <Route
+                        path="/"
+                        element={
+                          <AuthRoute>
+                            <TaskProvider>
+                              <Tasks />
+                            </TaskProvider>
+                          </AuthRoute>
+                        }
+                      />
+                    </Routes>
+                  </NoteProvider>
                 </TaskProvider>
               </DashboardLayout>
             }
