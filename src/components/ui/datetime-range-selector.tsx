@@ -96,8 +96,8 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   return (
     <Box ref={popoverRef}>
       <PopoverRoot autoFocus={false} open={open}>
-        <PopoverTrigger>
-          <Button onClick={onToggle}>
+        <PopoverTrigger asChild>
+          <Box onClick={onToggle}>
             <HStack hidden={!isValidDate}>
               <Icon as={FaCalendar} /> <Text>{moment(startDate).format("DD. MMM")} </Text>
               <Icon as={FaClock} display={isAllDay ? "none" : "block"} />
@@ -108,7 +108,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
             <Box hidden={isValidDate}>
               <Text>Select date...</Text>
             </Box>
-          </Button>
+          </Box>
         </PopoverTrigger>
 
         <PopoverContent bg={"brand.1"} zIndex={99} borderColor={"brand.2"}>
