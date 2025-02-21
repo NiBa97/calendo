@@ -1,11 +1,11 @@
-import { Task } from "@prisma/client";
 import { useRef } from "react";
-import { api } from "~/trpc/react";
-
+import { getPb } from "../pocketbaseUtils";
+import { convertTaskRecordToTask, Task } from "../types";
+import { TaskRecord } from "../pocketbase-types";
 export const useTaskLoader = () => {
     // Use ref for tracking loaded months
     const loadedMonths = useRef<Set<string>>(new Set());
-    const trpc = api.useUtils();
+    const pb = getPb();
     // Convert date to YYYY-MM format
     const getMonthKey = (date: Date): string => {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -65,14 +65,23 @@ export const useTaskLoader = () => {
         const lastMonth = new Date(monthsToLoad[monthsToLoad.length - 1] + '-01');
         lastMonth.setMonth(lastMonth.getMonth() + 1);
         lastMonth.setDate(0); // Last day of the month
-  
-        const newTasks = await trpc.task.getTasksInRange.fetch({
-          rangeStart: firstMonth,
-          rangeEnd: lastMonth,
-        });
+        const newTasks = await pb.collection('task').getFullList({
+          filter: `(startDate != null && endDate != null) && ` +
+                 // Complex date range condition
+                 `(` +
+                   // Task starts within range
+                   `(startDate >= '${firstMonth}' && startDate <= '${lastMonth}') || ` +
+                   // Task ends within range
+                   `(endDate >= '${firstMonth}' && endDate <= '${lastMonth}') || ` +
+                   // Task spans entire range
+                   `(startDate <= '${firstMonth}' && endDate >= '${lastMonth}')` +
+                 `)`,
+          sort: '+startDate',
+        }) as TaskRecord[];
 
-        if (!newTasks) {
-          return tasks;
+        const parsedTasks = newTasks.map((record) => convertTaskRecordToTask(record))
+        if (!parsedTasks || parsedTasks.length === 0) {
+          return undefined;
         }
   
         // Mark these months as loaded
@@ -81,7 +90,7 @@ export const useTaskLoader = () => {
         });
   
         // Return merged tasks
-        return mergeTasks(tasks, newTasks);
+        return mergeTasks(tasks, parsedTasks);
   
       } catch (error) {
         console.error('Failed to load tasks:', error);
