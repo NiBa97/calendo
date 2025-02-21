@@ -49,8 +49,8 @@ const EditTask = ({
     name: "",
     description: "",
     status: false,
-    startDate: undefined,
-    endDate: undefined,
+    startDate: task?.startDate ? new Date(task.startDate) : undefined,
+    endDate: task?.endDate ? new Date(task.endDate) : undefined,
     isAllDay: false,
   });
 
