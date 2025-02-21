@@ -127,7 +127,7 @@ export type TaskRecord = {
 	name?: string
 	startDate?: IsoDateString
 	status?: boolean
-	user?: RecordIdString
+	user?: RecordIdString[]
 }
 
 export type TaskHistoryRecord = {

@@ -1,38 +1,41 @@
 import { useState } from "react";
 import { Box, Button, Field, HStack, Input } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/toast";
+// import { useToast } from "@chakra-ui/toast";
 import { FaPlus } from "react-icons/fa6";
 
 import { useTasks } from "../contexts/task-context";
 import { InputGroup } from "./ui/input-group";
+import { toaster } from "./ui/toaster";
+
 const CreateTask = () => {
   const [taskName, setTaskName] = useState("");
   const { createTask } = useTasks();
-  const toast = useToast();
+  // const toast = useToast();
 
   const handleCreateTask = () => {
     if (!taskName.trim()) {
-      throw new Error("Task name cannot be empty");
+      toaster.create({
+        title: "Error",
+        description: "Task name cannot be empty",
+        type: "error",
+      });
+      return;
     }
 
     createTask({ name: taskName.trim() })
       .then(() => {
         setTaskName("");
-        toast({
-          title: "Task created",
+        toaster.create({
+          title: "Success",
           description: "A new task has been created successfully.",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
+          type: "success",
         });
       })
       .catch((error: Error) => {
-        toast({
+        toaster.create({
           title: "Error",
           description: error.message || "An error occurred while creating the task.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
+          type: "error",
         });
       });
   };
