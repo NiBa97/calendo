@@ -3,7 +3,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import ListTasks from "../components/task-list";
 import CreateTask from "../components/create-task";
 import MainCalendar from "../components/calendar/main-calendar";
-
+import TaskContextMenu from "../components/task-contextmenu";
 export default function Tasks() {
   const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: true });
 
@@ -28,6 +28,7 @@ export default function Tasks() {
           <MainCalendar isTaskListOpen={isTaskListOpen} toggleTasklist={toggleTasklist}></MainCalendar>
         </Panel>
       </PanelGroup>
+      <TaskContextMenu />
     </Flex>
   );
 }
