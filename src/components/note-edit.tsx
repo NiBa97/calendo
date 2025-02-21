@@ -35,23 +35,27 @@ const NoteEdit = ({
   const note = notes.find((n) => n.id === noteId);
 
   const [noteState, setNoteState] = useState({
-    title: note?.title ?? "",
-    content: note?.content ?? "",
+    title: "",
+    content: "",
   });
   const noteStateRef = useRef(noteState);
 
+  // Update state when note changes
   useEffect(() => {
     if (note) {
-      setNoteState({
-        title: note.title,
-        content: note.content ?? "",
-      });
-      noteStateRef.current = {
+      const newState = {
         title: note.title,
         content: note.content ?? "",
       };
+      setNoteState(newState);
+      noteStateRef.current = newState;
+
+      // Force editor to update with new content
+      if (ref.current) {
+        ref.current.setMarkdown(note.content ?? "");
+      }
     }
-  }, [note]);
+  }, [note, noteId]);
 
   const handleSave = async () => {
     if (noteId) {

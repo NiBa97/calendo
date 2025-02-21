@@ -2,10 +2,11 @@ import { Box, Flex, IconButton, Icon, useDisclosure, Text } from "@chakra-ui/rea
 import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiLogOut } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../pocketbaseUtils";
-import { ComponentType } from "react";
+import { OperationStatusIndicator } from "../components/operation-status-indicator";
+import { IconType } from "react-icons";
 
 interface SidebarItemProps {
-  icon: React.ComponentType;
+  icon: IconType;
   label: string;
   isOpen: boolean;
   to: string;
@@ -55,24 +56,30 @@ const Sidebar = ({ isOpen, onMouseEnter, onMouseLeave, items }: SidebarProps) =>
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <Flex direction="column" p={2} gap={2} h="100%" justify="center">
-        {items.map((item, index) => (
-          <SidebarItem
-            key={index}
-            icon={item.icon}
-            label={item.label}
-            isOpen={isOpen}
-            to={item.to || ""}
-            isActive={item.to === currentPath || (currentPath === "/" && item.to === "/tasks")}
-          />
-        ))}
+      <Flex direction="column" p={2} gap={2} h="100%">
+        <Box flex="1">
+          {items.map((item, index) => (
+            <SidebarItem
+              key={index}
+              icon={item.icon}
+              label={item.label}
+              isOpen={isOpen}
+              to={item.to || ""}
+              isActive={item.to === currentPath || (currentPath === "/" && item.to === "/tasks")}
+              onClick={item.onClick}
+            />
+          ))}
+        </Box>
+        <Box>
+          <OperationStatusIndicator />
+        </Box>
       </Flex>
     </Box>
   );
 };
 
 interface SidebarItem {
-  icon: ComponentType<{}>;
+  icon: IconType;
   label: string;
   to: string;
   onClick?: () => void;

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { NoteRecord } from "../pocketbase-types";
 import { getPb } from "../pocketbaseUtils";
 import { Note, convertNoteRecordToNote } from "../types";
+import { useOperationStatus } from "./operation-status-context";
 
 interface NoteContextType {
   notes: Note[];
@@ -28,12 +29,19 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const { setStatus } = useOperationStatus();
 
   useEffect(() => {
+    setStatus("loading");
     pb.collection("note")
       .getFullList()
       .then((records: NoteRecord[]) => {
         setNotes(records.map(convertNoteRecordToNote));
+        setStatus("idle");
+      })
+      .catch((error) => {
+        console.error("Failed to load notes:", error);
+        setStatus("error");
       });
   }, []);
 
@@ -48,21 +56,29 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return matchesSearch; //&& matchesTags;
   });
 
-  const createNote = async (noteData: Partial<Note>): Promise<Note> => {
-    const data = {
-      title: noteData.title || "",
-      content: noteData.content || "",
-      user: pb.authStore.model?.id,
-    };
+  const createNote = async (noteData: Partial<Note>) => {
+    try {
+      setStatus("loading");
+      const data = {
+        title: noteData.title || "",
+        content: noteData.content || "",
+        user: pb.authStore.model?.id,
+      };
 
-    const record = await pb.collection("note").create(data);
-    const newNote = convertNoteRecordToNote(record);
-    setNotes((prevNotes) => [newNote, ...prevNotes]);
-    return newNote;
+      const record = await pb.collection("note").create(data);
+      const newNote = convertNoteRecordToNote(record);
+      setNotes((prevNotes) => [newNote, ...prevNotes]);
+      setStatus("idle");
+      return newNote;
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const updateNote = async (noteId: string, updatedData: Partial<Note>) => {
     try {
+      setStatus("loading");
       const data = {
         title: updatedData.title,
         content: updatedData.content,
@@ -72,30 +88,33 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const record = await pb.collection("note").update(noteId, data);
       const updatedNote = convertNoteRecordToNote(record);
       setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? updatedNote : note)));
+      setStatus("idle");
     } catch (error) {
-      console.log(error);
+      setStatus("error");
       throw error;
     }
   };
 
   const deleteNote = async (noteId: string) => {
-    await pb.collection("note").delete(noteId);
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+    try {
+      setStatus("loading");
+      await pb.collection("note").delete(noteId);
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const restoreNote = async (noteId: string, historyId: string) => {
     try {
+      setStatus("loading");
       console.log("restoreNote", noteId, historyId);
-
-      // Since PocketBase doesn't have built-in history/restore,
-      // you'll need to implement this differently or remove it
       alert("Restore functionality not yet implemented with PocketBase");
-
-      // If you implement it:
-      // const restoredNote = await pb.collection("note").restore(noteId, historyId);
-      // setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? restoredNote : note)));
+      setStatus("idle");
     } catch (error) {
-      console.log(error);
+      setStatus("error");
       throw error;
     }
   };

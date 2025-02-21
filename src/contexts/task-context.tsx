@@ -5,6 +5,7 @@ import { convertTaskRecordToTask, Task } from "../types";
 import { getPb } from "../pocketbaseUtils";
 import { TaskRecord } from "../pocketbase-types";
 import { useTaskLoader } from "../hooks/useTaskLoader";
+import { useOperationStatus } from "./operation-status-context";
 
 interface TaskContextType {
   tasks: Task[];
@@ -36,53 +37,64 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   );
   const toast = useToast();
   const taskLoader = useTaskLoader();
+  const { setStatus } = useOperationStatus();
 
-  // Load tasks for a given date
   const loadTasksForRange = async (date: Date) => {
-    console.log("Tasks before", tasks);
     const updatedTasks = await taskLoader.loadTasksForRange(date, tasks);
-    console.log("Tasks after", updatedTasks);
     if (updatedTasks) {
       setTasks(updatedTasks);
     }
   };
-  console.log("context created", tasks);
+
   useEffect(() => {
-    console.log("Context init");
+    setStatus("loading");
     pb.collection("task")
       .getFullList()
       .then(async (value: TaskRecord[]) => {
-        console.log("tasks...", value);
         taskLoader.resetLoadedMonths();
         setTasks(value.map((record) => convertTaskRecordToTask(record)));
-
         await loadTasksForRange(new Date());
+        setStatus("idle");
+      })
+      .catch((error) => {
+        console.error("Failed to load tasks:", error);
+        setStatus("error");
       });
   }, []);
 
   const createTask = async (taskData: Partial<Task>) => {
-    const currentTime = new Date();
-    const isInPast =
-      taskData.startDate && taskData.endDate && taskData.startDate < currentTime && taskData.endDate < currentTime;
+    try {
+      setStatus("loading");
+      const currentTime = new Date();
+      const isInPast =
+        taskData.startDate && taskData.endDate && taskData.startDate < currentTime && taskData.endDate < currentTime;
 
-    const data = {
-      startDate: taskData.startDate?.toISOString(),
-      endDate: taskData.endDate?.toISOString(),
-      isAllDay: taskData.isAllDay ?? false,
-      status: isInPast ? true : taskData.status ?? false,
-      name: taskData.name,
-      description: taskData.description,
-      user: pb.authStore.record?.id,
-    };
+      console.log("taskData", taskData);
+      const data = {
+        startDate: taskData.startDate?.toISOString(),
+        endDate: taskData.endDate?.toISOString(),
+        isAllDay: taskData.isAllDay ?? false,
+        status: isInPast ? true : taskData.status ?? false,
+        name: taskData.name,
+        description: taskData.description,
+        user: [pb.authStore.record?.id],
+      };
 
-    const record = await pb.collection("task").create(data);
-    const newTask = convertTaskRecordToTask(record);
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-    return newTask;
+      const record = await pb.collection("task").create(data);
+      console.log("record", record);
+      const newTask = convertTaskRecordToTask(record);
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+      setStatus("idle");
+      return newTask;
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const updateTask = async (taskId: string, taskData: Partial<Task>) => {
     try {
+      setStatus("loading");
       const data = {
         startDate: taskData.startDate?.toISOString(),
         endDate: taskData.endDate?.toISOString(),
@@ -90,7 +102,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         status: taskData.status,
         name: taskData.name,
         description: taskData.description,
-        user: pb.authStore.model?.id,
+        user: [pb.authStore.record?.id],
       };
 
       const record = await pb.collection("task").update(taskId, data);
@@ -104,26 +116,35 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setTasks((prevTasks) => prevTasks.map((task) => (task.id === taskId ? updatedTask : task)));
+      setStatus("idle");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: (error as Error).message || "An error occurred while updating the task.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      setStatus("error");
       throw error;
     }
   };
 
   const restoreTask = async (taskId: string, historyTimestamp: Date, taskData: Partial<Task>) => {
-    console.log("restoreTask", taskId, historyTimestamp, taskData);
-    alert("Not yet implemented!");
+    try {
+      setStatus("loading");
+      console.log("restoreTask", taskId, historyTimestamp, taskData);
+      alert("Not yet implemented!");
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const deleteTask = async (taskId: string) => {
-    await await pb.collection("task").delete(taskId);
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    try {
+      setStatus("loading");
+      await pb.collection("task").delete(taskId);
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const contextValue: TaskContextType = {
