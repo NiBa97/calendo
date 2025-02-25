@@ -95,17 +95,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
   const updateTask = async (taskId: string, taskData: Partial<Task>) => {
     try {
       setStatus("loading");
-      const data = {
-        startDate: taskData.startDate?.toISOString(),
-        endDate: taskData.endDate?.toISOString(),
-        isAllDay: taskData.isAllDay,
-        status: taskData.status,
-        name: taskData.name,
-        description: taskData.description,
-        user: [pb.authStore.record?.id],
-      };
 
-      const record = await pb.collection("task").update(taskId, data);
+      console.log("taskData", taskData);
+
+      const record = await pb.collection("task").update(taskId, taskData);
       const updatedTask = convertTaskRecordToTask(record);
 
       toast({

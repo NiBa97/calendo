@@ -25,12 +25,10 @@ function App() {
               <DashboardLayout>
                 <Routes>
                   <Route path="/login" element={<Login />} />
-                  <Route path="/" element={<Tasks />}>
-                    <Route path="tasks" element={<Tasks />} />
-                    <Route path="notes" element={<Notes />} />
-                    <Route path="notes/:id" element={<Notes />} />
-                    <Route index element={<Navigate to="/tasks" replace />} />
-                  </Route>
+                  <Route path="tasks" element={<Tasks />} />
+                  <Route path="notes" element={<Notes />} />
+                  <Route path="notes/:id" element={<Notes />} />
+                  <Route index element={<Navigate to="/tasks" replace />} />
                 </Routes>
               </DashboardLayout>
             </Router>

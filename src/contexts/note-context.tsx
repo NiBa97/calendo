@@ -55,14 +55,13 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return matchesSearch; //&& matchesTags;
   });
-
   const createNote = async (noteData: Partial<Note>) => {
     try {
       setStatus("loading");
       const data = {
         title: noteData.title || "",
         content: noteData.content || "",
-        user: pb.authStore.model?.id,
+        // user: pb.authStore.model?.id,
       };
 
       const record = await pb.collection("note").create(data);

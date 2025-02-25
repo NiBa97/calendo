@@ -46,12 +46,12 @@ const EditTask = ({
     isAllDay: task?.isAllDay ?? false,
   });
   const taskStateRef = useRef<TaskState>({
-    name: "",
-    description: "",
-    status: false,
+    name: task?.name ?? "",
+    description: task?.description ?? "",
+    status: task?.status ?? false,
     startDate: task?.startDate ? new Date(task.startDate) : undefined,
     endDate: task?.endDate ? new Date(task.endDate) : undefined,
-    isAllDay: false,
+    isAllDay: task?.isAllDay ?? false,
   });
 
   ref.current?.setMarkdown(taskState.description);
