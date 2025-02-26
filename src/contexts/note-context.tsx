@@ -1,125 +1,119 @@
 // src/contexts/note-context.tsx
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { type Note, type Tag } from "@prisma/client";
-import { api } from "~/trpc/react";
-import { useToast } from "@chakra-ui/react";
-
-export interface NoteWithTags extends Note {
-  tags: Tag[];
-}
+import { NoteRecord } from "../pocketbase-types";
+import { getPb } from "../pocketbaseUtils";
+import { Note, convertNoteRecordToNote } from "../types";
+import { useOperationStatus } from "./operation-status-context";
 
 interface NoteContextType {
-  notes: NoteWithTags[];
-  filteredNotes: NoteWithTags[];
-  tags: Tag[];
+  notes: Note[];
+  filteredNotes: Note[];
   searchTerm: string;
   selectedTags: string[];
-  selectedNote: NoteWithTags | null;
-  createNote: (noteData: Partial<NoteWithTags>) => Promise<NoteWithTags>;
-  updateNote: (noteId: string, updatedData: Partial<NoteWithTags>) => Promise<void>;
+  selectedNote: Note | null;
+  createNote: (noteData: Partial<Note>) => Promise<Note>;
+  updateNote: (noteId: string, updatedData: Partial<Note>) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   restoreNote: (noteId: string, historyId: string) => Promise<void>;
   setSearchTerm: (term: string) => void;
   setSelectedTags: (tags: string[]) => void;
-  setSelectedNote: (note: NoteWithTags | null) => void;
+  setSelectedNote: (note: Note | null) => void;
 }
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
 
 export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notes, setNotes] = useState<NoteWithTags[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
+  const pb = getPb();
+  const [notes, setNotes] = useState<Note[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedNote, setSelectedNote] = useState<NoteWithTags | null>(null);
-
-  const toast = useToast();
-
-  const { data: fetchedNotes } = api.note.getAllForUser.useQuery();
-  const { data: fetchedTags } = api.note.getAllTags.useQuery();
-  const { mutateAsync: createMutation } = api.note.create.useMutation();
-  const { mutateAsync: updateMutation } = api.note.update.useMutation();
-  const { mutateAsync: deleteMutation } = api.note.delete.useMutation();
-  const { mutateAsync: restoreMutation } = api.note.restore.useMutation();
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const { setStatus } = useOperationStatus();
 
   useEffect(() => {
-    if (fetchedNotes) setNotes(fetchedNotes);
-  }, [fetchedNotes]);
-
-  useEffect(() => {
-    if (fetchedTags) setTags(fetchedTags);
-  }, [fetchedTags]);
+    setStatus("loading");
+    pb.collection("note")
+      .getFullList()
+      .then((records: NoteRecord[]) => {
+        setNotes(records.map(convertNoteRecordToNote));
+        setStatus("idle");
+      })
+      .catch((error) => {
+        console.error("Failed to load notes:", error);
+        setStatus("error");
+      });
+  }, []);
 
   const filteredNotes = notes.filter((note) => {
     const matchesSearch =
       searchTerm === "" ||
-      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      note.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.content?.toLowerCase().includes(searchTerm.toLowerCase());
+    // const matchesTags =
+    //   selectedTags.length === 0 || selectedTags.every((tag) => note.tags.some((noteTag) => noteTag.name === tag));
 
-    const matchesTags =
-      selectedTags.length === 0 || selectedTags.every((tag) => note.tags.some((noteTag) => noteTag.name === tag));
-
-    return matchesSearch && matchesTags;
+    return matchesSearch; //&& matchesTags;
   });
+  const createNote = async (noteData: Partial<Note>) => {
+    try {
+      setStatus("loading");
+      const data = {
+        title: noteData.title || "",
+        content: noteData.content || "",
+        // user: pb.authStore.model?.id,
+      };
 
-  const createNote = async (noteData: Partial<NoteWithTags>): Promise<NoteWithTags> => {
-    const dataWithDefaults = noteData as {
-      title: string;
-      content?: string;
-      tags?: string[];
-    };
-
-    const newNote = await createMutation(dataWithDefaults);
-    setNotes((prevNotes) => [newNote, ...prevNotes]);
-    return newNote;
+      const record = await pb.collection("note").create(data);
+      const newNote = convertNoteRecordToNote(record);
+      setNotes((prevNotes) => [newNote, ...prevNotes]);
+      setStatus("idle");
+      return newNote;
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
-  const updateNote = async (noteId: string, updatedData: Partial<NoteWithTags>) => {
-    const dataWithDefaults = updatedData as {
-      title?: string;
-      content?: string;
-      tags?: string[];
-    };
-
+  const updateNote = async (noteId: string, updatedData: Partial<Note>) => {
     try {
-      const updatedNote = await updateMutation({ id: noteId, ...dataWithDefaults });
+      setStatus("loading");
+      const data = {
+        title: updatedData.title,
+        content: updatedData.content,
+        user: pb.authStore.model?.id,
+      };
+
+      const record = await pb.collection("note").update(noteId, data);
+      const updatedNote = convertNoteRecordToNote(record);
       setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? updatedNote : note)));
+      setStatus("idle");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred while updating the note.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      setStatus("error");
       throw error;
     }
   };
 
   const deleteNote = async (noteId: string) => {
-    await deleteMutation({ id: noteId });
-    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+    try {
+      setStatus("loading");
+      await pb.collection("note").delete(noteId);
+      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
   };
 
   const restoreNote = async (noteId: string, historyId: string) => {
     try {
-      const restoredNote = await restoreMutation({ noteId, historyId });
-      setNotes((prevNotes) => prevNotes.map((note) => (note.id === noteId ? restoredNote : note)));
-      toast({
-        title: "Note restored",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      setStatus("loading");
+      console.log("restoreNote", noteId, historyId);
+      alert("Restore functionality not yet implemented with PocketBase");
+      setStatus("idle");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred while restoring the note.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      setStatus("error");
       throw error;
     }
   };
@@ -129,7 +123,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         notes,
         filteredNotes,
-        tags,
+        // tags,
         searchTerm,
         selectedTags,
         selectedNote,
