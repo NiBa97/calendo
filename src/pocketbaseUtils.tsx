@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase";
-const pb = new PocketBase("http://192.168.0.84:8080/");
+const pb = new PocketBase("https://pocketbase-calendo.niklas-bauer.dev");
 export function checkIfLoggedIn(): boolean {
   return pb.authStore.isValid;
 }
