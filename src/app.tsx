@@ -10,33 +10,35 @@ import { NoteProvider } from "./contexts/note-context";
 import { OperationStatusProvider } from "./contexts/operation-status-context";
 import { Toaster } from "./components/ui/toaster";
 
-const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  return checkIfLoggedIn() ? children : <Navigate to="/login" />;
+const ProtectedApp = () => {
+  return (
+    <OperationStatusProvider>
+      <TaskProvider>
+        <NoteProvider>
+          <Toaster />
+          <DashboardLayout>
+            <Routes>
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="notes" element={<Notes />} />
+              <Route path="notes/:id" element={<Notes />} />
+              <Route path="*" element={<Navigate to="/tasks" replace />} />
+            </Routes>
+          </DashboardLayout>
+          <TaskEditModal />
+        </NoteProvider>
+      </TaskProvider>
+    </OperationStatusProvider>
+  );
 };
 
 function App() {
   return (
-    <AuthRoute>
-      <OperationStatusProvider>
-        <TaskProvider>
-          <NoteProvider>
-            <Toaster />
-            <Router>
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="tasks" element={<Tasks />} />
-                  <Route path="notes" element={<Notes />} />
-                  <Route path="notes/:id" element={<Notes />} />
-                  <Route index element={<Navigate to="/tasks" replace />} />
-                </Routes>
-              </DashboardLayout>
-            </Router>
-            <TaskEditModal />
-          </NoteProvider>
-        </TaskProvider>
-      </OperationStatusProvider>
-    </AuthRoute>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/*" element={checkIfLoggedIn() ? <ProtectedApp /> : <Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 }
 
