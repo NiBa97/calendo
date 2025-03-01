@@ -5,12 +5,6 @@ import { type MDXEditorMethods } from "@mdxeditor/editor";
 import Editor from "./editor/editor";
 import { useNotes } from "../contexts/note-context";
 
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-}
-
 interface NoteEditProps {
   noteId: string;
   height?: number | string;
@@ -34,32 +28,36 @@ const NoteEdit = ({
 
   const note = notes.find((n) => n.id === noteId);
 
-  const [noteState, setNoteState] = useState({
+  const noteDataRef = useRef({
     title: "",
     content: "",
   });
-  const noteStateRef = useRef(noteState);
 
-  // Update state when note changes
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
   useEffect(() => {
     if (note) {
-      const newState = {
-        title: note.title,
-        content: note.content ?? "",
-      };
-      setNoteState(newState);
-      noteStateRef.current = newState;
+      const newTitle = note.title;
+      const newContent = note.content ?? "";
 
-      // Force editor to update with new content
+      setTitle(newTitle);
+      setContent(newContent);
+
+      noteDataRef.current = {
+        title: newTitle,
+        content: newContent,
+      };
+
       if (ref.current) {
-        ref.current.setMarkdown(note.content ?? "");
+        ref.current.setMarkdown(newContent);
       }
     }
   }, [note, noteId]);
 
   const handleSave = async () => {
     if (noteId) {
-      await updateNote(noteId, noteStateRef.current);
+      await updateNote(noteId, noteDataRef.current);
     }
   };
 
@@ -72,12 +70,14 @@ const NoteEdit = ({
     }, 2000);
   };
 
-  const handleChange = (field: keyof Note, value: string) => {
-    noteStateRef.current = { ...noteStateRef.current, [field]: value };
-    setNoteState((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
+  const handleTitleChange = (newTitle: string) => {
+    noteDataRef.current.title = newTitle;
+    setTitle(newTitle);
+    debounceSave();
+  };
+
+  const handleContentChange = (newContent: string) => {
+    noteDataRef.current.content = newContent;
     debounceSave();
   };
 
@@ -119,8 +119,8 @@ const NoteEdit = ({
             type="text"
             size="lg"
             fontWeight="600"
-            value={noteState.title}
-            onChange={(e) => handleChange("title", e.target.value)}
+            value={title}
+            onChange={(e) => handleTitleChange(e.target.value)}
             _focus={{ border: "none", outline: "none", boxShadow: "none" }}
             borderRadius="none"
           />
@@ -135,12 +135,7 @@ const NoteEdit = ({
         </Flex>
       </Box>
 
-      <Editor
-        markdown={noteState.content}
-        onChange={(content) => handleChange("content", content)}
-        editorRef={ref}
-        showToolbar={showToolbar}
-      />
+      <Editor markdown={content} onChange={handleContentChange} editorRef={ref} showToolbar={showToolbar} />
     </Flex>
   );
 };
