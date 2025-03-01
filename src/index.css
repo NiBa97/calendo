@@ -369,3 +369,11 @@ a {
   border-bottom:none!important;
   border-right:none!important;
 }
+
+ul{
+  list-style-type: disc;
+}
+
+ol{
+  list-style-type: decimal;
+}
