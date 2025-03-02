@@ -1,4 +1,4 @@
-import { HStack, Text, Badge, Box, Link } from "@chakra-ui/react";
+import { HStack, Text, Badge, Box } from "@chakra-ui/react";
 import { useTasks } from "../contexts/task-context";
 import { useEffect, useState } from "react";
 import moment from "moment";
@@ -61,16 +61,36 @@ const ListTasks: React.FC = () => {
     event.preventDefault();
     setContextInformation({ x: event.clientX, y: event.clientY, task: task });
   };
+  const [accordionValue, setAccordionValue] = useState<string[]>([
+    "without-date",
+    "overdue-tasks",
+    "todo-today",
+    "completed-today",
+  ]);
+  const toggleAccordion = (value: string) => {
+    if (accordionValue.includes(value)) {
+      setAccordionValue(accordionValue.filter((v) => v !== value));
+    } else {
+      setAccordionValue([...accordionValue, value]);
+    }
+  };
   return (
     <Box width={"100%"} height={"100%"} overflowY={"auto"}>
-      <AccordionRoot overflowX={"hidden"} maxHeight={"100%"} width={"100%"}>
-        <AccordionItem hidden={withoutAssignedDate.length === 0} value="without-date">
+      <AccordionRoot overflowX={"hidden"} maxHeight={"100%"} width={"100%"} multiple value={accordionValue}>
+        <AccordionItem
+          hidden={withoutAssignedDate.length === 0}
+          value="without-date"
+          borderBottom="none"
+          mb={2}
+          onClick={() => toggleAccordion("without-date")}
+        >
           <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
-            {/* <AccordionIcon /> */}
-            <Text>No Date Assigned</Text>
-            <Badge colorScheme="red">{withoutAssignedDate.length}</Badge>
+            <Text fontWeight="600">No Date Assigned</Text>
+            <Badge colorScheme="red" borderRadius="full" px={2}>
+              {withoutAssignedDate.length}
+            </Badge>
           </AccordionItemTrigger>
-          <AccordionItemContent width="100%">
+          <AccordionItemContent width="100%" p={2}>
             {withoutAssignedDate.map((task) => (
               <TaskItem
                 task={task}
@@ -82,13 +102,20 @@ const ListTasks: React.FC = () => {
             ))}
           </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem hidden={overdueTasks.length === 0} value="overdue-tasks">
+        <AccordionItem
+          hidden={overdueTasks.length === 0}
+          value="overdue-tasks"
+          borderBottom="none"
+          mb={2}
+          onClick={() => toggleAccordion("overdue-tasks")}
+        >
           <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
-            {/* <AccordionIcon /> */}
-            <Text>Overdue Tasks</Text>
-            <Badge colorScheme="red">{overdueTasks.length}</Badge>
+            <Text fontWeight="600">Overdue Tasks</Text>
+            <Badge colorScheme="red" borderRadius="full" px={2}>
+              {overdueTasks.length}
+            </Badge>
           </AccordionItemTrigger>
-          <AccordionItemContent width="100%">
+          <AccordionItemContent width="100%" p={2}>
             {overdueTasks.map((task) => (
               <TaskItem
                 task={task}
@@ -100,13 +127,20 @@ const ListTasks: React.FC = () => {
             ))}
           </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem value="todo-today">
+        <AccordionItem
+          hidden={todayTasks.length === 0}
+          value="todo-today"
+          borderBottom="none"
+          mb={2}
+          onClick={() => toggleAccordion("todo-today")}
+        >
           <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
-            {/* <AccordionIcon /> */}
-            <Text>Today Tasks</Text>
-            <Badge colorScheme="green">{todayTasks.length}</Badge>
+            <Text fontWeight="600">Today Tasks</Text>
+            <Badge colorScheme="green" borderRadius="full" px={2}>
+              {todayTasks.length}
+            </Badge>
           </AccordionItemTrigger>
-          <AccordionItemContent width="100%" gap={4}>
+          <AccordionItemContent width="100%" p={2} outline="none">
             {todayTasks.map((task) => (
               <TaskItem
                 task={task}
@@ -118,13 +152,20 @@ const ListTasks: React.FC = () => {
             ))}
           </AccordionItemContent>
         </AccordionItem>
-        <AccordionItem hidden={completedToday.length === 0} value="completed-today">
+        <AccordionItem
+          hidden={completedToday.length === 0}
+          value="completed-today"
+          borderBottom="none"
+          mb={2}
+          onClick={() => toggleAccordion("completed-today")}
+        >
           <AccordionItemTrigger width="100%" justifyContent={"space-between"}>
-            {/* <AccordionIcon /> */}
-            <Text>Completed Tasks</Text>
-            <Badge colorScheme="gray">{completedToday.length}</Badge>
+            <Text fontWeight="600">Completed Tasks</Text>
+            <Badge colorScheme="gray" borderRadius="full" px={2}>
+              {completedToday.length}
+            </Badge>
           </AccordionItemTrigger>
-          <AccordionItemContent width="100%">
+          <AccordionItemContent width="100%" p={2}>
             {completedToday.map((task) => (
               <TaskItem
                 task={task}
@@ -156,67 +197,100 @@ const TaskItem = ({
   return (
     <HStack
       width={"100%"}
-      p={2}
+      p={3}
       my={2}
       bg={"brand.3"}
-      border={"none"}
+      borderRadius={"8px"}
+      boxShadow={"md"}
+      className="task-item"
       draggable
       onDragStart={(event) => onDragStart(task, event)}
       onContextMenu={(event) => onContextMenu(task, event)}
-      //   _hover={{
-      //     ".showFullscreenBox": {
-      //       visibility: "visible",
-      //       display: "block",
-      //       opacity: 1,
-      //     },
-      //   }}
+      transition="all 0.2s ease-in-out"
+      position="relative"
+      _hover={{
+        "& .fullscreen-icon": {
+          opacity: 1,
+        },
+      }}
     >
-      <Checkbox checked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })}></Checkbox>
-      <Link
-        href={"/webapp/" + task.id}
+      <Checkbox
+        checked={task.status}
+        onChange={() => void updateTask(task.id, { status: !task.status })}
+        className="task-checkbox"
+        colorScheme="teal"
+        size="lg"
+      />
+      <Box
         cursor="pointer"
         width={"100%"}
-        _hover={{ cursor: "pointer" }}
+        _hover={{ textDecoration: "none" }}
         display={"flex"}
         flexDirection={"row"}
         justifyContent={"space-between"}
         alignItems={"center"}
+        position="relative"
       >
-        <Text fontSize="lg" color={"brand.4"}>
+        <Text
+          fontSize="lg"
+          color={"brand.4"}
+          textDecoration={task.status ? "line-through" : "none"}
+          opacity={task.status ? 0.7 : 1}
+        >
           {task.name}
         </Text>
-        <HStack gap={1}>
+        <HStack gap={2} alignItems="center">
           {showDate && (
-            <Text fontSize="xs" color={"brand.4"}>
+            <Text fontSize="xs" color={"brand.4"} opacity={task.status ? 0.7 : 1}>
               {task.startDate && task.endDate ? `${moment(task.startDate).format("DD/MM/YYYY")}` : "No Date Assigned"}
             </Text>
           )}
-          <Text fontSize="md" color={"brand.4"}>
+          <Text fontSize="md" color={"brand.4"} opacity={task.status ? 0.7 : 1} fontWeight="medium">
             {task.isAllDay
               ? "All Day"
               : task.startDate && task.endDate
               ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
               : "No Date Assigned"}
-          </Text>{" "}
-          <Box
-            className="showFullscreenBox"
-            display={"none"}
-            transition="visibility 0s, display 0.2s linear"
-            _hover={{
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              borderRadius: "5px",
-            }}
-            p={"4px"}
-            onClick={(e) => {
-              setModalTask(task);
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
-            <FaExpand />
-          </Box>
+          </Text>
         </HStack>
-      </Link>
+      </Box>
+
+      {/* Fullscreen icon that only appears on hover */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        opacity="0"
+        className="fullscreen-icon"
+        zIndex="1"
+      >
+        <Box
+          bg="rgba(0, 0, 0, 0.5)"
+          w="100%"
+          h="100%"
+          p="2"
+          onClick={(e) => {
+            setModalTask(task);
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          _hover={{
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+          }}
+          cursor="pointer"
+          alignItems="center"
+          justifyContent="center"
+          display="flex"
+          zIndex="99"
+        >
+          <FaExpand color="white" cursor="pointer" />
+        </Box>
+      </Box>
     </HStack>
   );
 };
