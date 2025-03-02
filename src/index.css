@@ -377,3 +377,13 @@ ul{
 ol{
   list-style-type: decimal;
 }
+
+.task-checkbox{
+  margin-right: 10px;
+  border-color: var(--chakra-colors-brand-4) !important;
+}
+
+.task-checkbox:checked{
+  background-color: var(--chakra-colors-brand-3) !important;
+  border-color: var(--chakra-colors-brand-4) !important;
+}

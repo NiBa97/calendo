@@ -41,10 +41,23 @@ const EventComponent = ({ event }: { event: Task }) => {
       p={2}
       borderLeft={isOverdue ? "4px solid red" : ""}
       onContextMenu={onContextMenu}
-      justifyContent={"center"}
+      justifyContent={"space-between"}
       alignItems={"center"}
     >
-      <Text>{event.name}</Text>
+      <Text
+        fontWeight={600}
+        textDecoration={event.status ? "line-through" : "none"}
+        overflow="hidden"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
+      >
+        {event.name}
+      </Text>
+      {!event.isAllDay && (
+        <Text fontSize="xs" opacity={0.9}>
+          {moment(event.startDate).format("HH:mm")} - {moment(event.endDate).format("HH:mm")}
+        </Text>
+      )}
     </Flex>
   );
 };
@@ -219,7 +232,7 @@ export default function MainCalendar({
   };
 
   return (
-    <Box h="full">
+    <Box h="full" pl={2}>
       <style>{`
           .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
           .rbc-timeslot-group { min-height:20px!important; }

@@ -116,6 +116,8 @@ const EditTask = ({
       bg={"brand.1"}
       maxHeight={"100%"}
       overflow={"hidden"}
+      borderRadius="md"
+      boxShadow="md"
     >
       <Box
         as="form"
@@ -123,21 +125,26 @@ const EditTask = ({
         width={"100%"}
         borderBottom={showCloseButton ? "none" : "2px solid"}
         borderColor={"brand.2"}
+        p={2}
       >
-        <HStack>
+        <HStack gap={1}>
           <Checkbox
             size={"lg"}
             checked={taskState.status}
             onChange={() => handleStatusChange(!taskState.status)}
-            top={1}
-            left={1}
+            borderColor="brand.4"
+            colorScheme="teal"
+            _checked={{
+              bg: "brand.3",
+              borderColor: "brand.4",
+            }}
           ></Checkbox>
           <Input
-            placeholder="Add new unscheduled task"
+            placeholder="Add task title"
             bg={"brand.1"}
             border={"none"}
             type="text"
-            size={"lg"}
+            fontSize={"xl"}
             fontWeight={"600"}
             value={taskState.name}
             _focus={{ border: "none", outline: "none", boxShadow: "none" }}
@@ -153,27 +160,23 @@ const EditTask = ({
               color="brand.4"
               size="lg"
               borderRadius="none"
+              _hover={{
+                bg: "brand.2",
+              }}
             >
               <FaTimes />
             </IconButton>
           )}
         </HStack>
       </Box>
-      <Editor
-        markdown={taskState.description}
-        onChange={(content) => handleChange("description", content)}
-        editorRef={ref}
-        showToolbar={showToolbar}
-      ></Editor>
-      {/* <EditorComp
-        markdown={taskState.description}
-        handleChange={handleChange}
-        editorRef={ref}
-        // onChange={(markdown) => handleChange("description", markdown)}
-        showToolbar={showToolbar}
-        parentId={task.id}
-        parentType={ParentType.TASK}
-      /> */}
+      <Box flex="1" overflow="auto" borderBottom="2px solid" borderColor="brand.2">
+        <Editor
+          markdown={taskState.description}
+          onChange={(content) => handleChange("description", content)}
+          editorRef={ref}
+          showToolbar={showToolbar}
+        ></Editor>
+      </Box>
       <Flex
         justifyContent={"space-between"}
         alignItems={"center"}
@@ -181,8 +184,7 @@ const EditTask = ({
         bottom={0}
         borderTop={"2px solid"}
         borderColor={"brand.2"}
-        paddingX={2}
-        paddingY={2}
+        p={3}
       >
         <DateTimeRangeSelector task={task} />
 

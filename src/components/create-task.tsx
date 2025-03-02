@@ -4,7 +4,6 @@ import { Box, Button, Field, HStack, Input } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa6";
 
 import { useTasks } from "../contexts/task-context";
-import { InputGroup } from "./ui/input-group";
 import { toaster } from "./ui/toaster";
 
 const CreateTask = () => {
@@ -41,27 +40,50 @@ const CreateTask = () => {
   };
 
   return (
-    <Box width={"100%"} p={4} mt={"2px"}>
+    <Box width={"100%"} my={"3"} borderColor="brand.2">
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleCreateTask();
         }}
       >
-        <HStack>
-          <Field.Root id="taskName">
-            <InputGroup startElement={<FaPlus />} w={"full"}>
-              <Input
-                placeholder="Add new unscheduled task"
-                bg="brand.2"
-                border="none"
-                type="text"
-                value={taskName}
-                onChange={(e) => setTaskName(e.target.value)}
-              />
-            </InputGroup>
+        <HStack gap={3}>
+          <Field.Root id="taskName" width="full">
+            <Input
+              placeholder="Add new unscheduled task"
+              bg="brand.2"
+              border="none"
+              type="text"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+              size="md"
+              borderRadius="md"
+              color="white"
+              _placeholder={{
+                color: "white",
+                opacity: 0.5,
+              }}
+              _focus={{
+                boxShadow: "0 0 0 1px #00ADB5",
+              }}
+            />
           </Field.Root>
-          <Button onClick={handleCreateTask}>Create</Button>
+          <Button
+            onClick={handleCreateTask}
+            bg="brand.3"
+            color="brand.4"
+            _hover={{
+              bg: "teal.500",
+              transform: "translateY(-1px)",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+            }}
+            _active={{
+              bg: "teal.600",
+              transform: "translateY(0)",
+            }}
+          >
+            <FaPlus style={{ marginRight: "8px" }} /> Create
+          </Button>
         </HStack>
       </form>
     </Box>

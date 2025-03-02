@@ -94,7 +94,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   //   handler: onClose,
   // });
   return (
-    <Box ref={popoverRef}>
+    <Box ref={popoverRef} bg={"brand.2"} p={2} borderRadius={"md"}>
       <PopoverRoot autoFocus={false} open={open}>
         <PopoverTrigger asChild>
           <Box onClick={onToggle}>
