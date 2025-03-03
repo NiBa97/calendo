@@ -13,6 +13,7 @@ export enum Collections {
 	Superusers = "_superusers",
 	Attachment = "attachment",
 	Note = "note",
+	NoteChange = "noteChange",
 	Pomodoro = "pomodoro",
 	Task = "task",
 	TaskHistory = "taskHistory",
@@ -110,6 +111,15 @@ export type NoteRecord = {
 	user?: RecordIdString[]
 }
 
+export type NoteChangeRecord = {
+	contentPatch?: HTMLString
+	created?: IsoDateString
+	id: string
+	note?: RecordIdString
+	title?: string
+	user?: RecordIdString[]
+}
+
 export type PomodoroRecord = {
 	created?: IsoDateString
 	duration: number
@@ -173,6 +183,7 @@ export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemF
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
 export type AttachmentResponse<Texpand = unknown> = Required<AttachmentRecord> & BaseSystemFields<Texpand>
 export type NoteResponse<Texpand = unknown> = Required<NoteRecord> & BaseSystemFields<Texpand>
+export type NoteChangeResponse<Texpand = unknown> = Required<NoteChangeRecord> & BaseSystemFields<Texpand>
 export type PomodoroResponse<Texpand = unknown> = Required<PomodoroRecord> & BaseSystemFields<Texpand>
 export type TaskResponse<Texpand = unknown> = Required<TaskRecord> & BaseSystemFields<Texpand>
 export type TaskHistoryResponse<Texpand = unknown> = Required<TaskHistoryRecord> & BaseSystemFields<Texpand>
@@ -189,6 +200,7 @@ export type CollectionRecords = {
 	_superusers: SuperusersRecord
 	attachment: AttachmentRecord
 	note: NoteRecord
+	noteChange: NoteChangeRecord
 	pomodoro: PomodoroRecord
 	task: TaskRecord
 	taskHistory: TaskHistoryRecord
@@ -204,6 +216,7 @@ export type CollectionResponses = {
 	_superusers: SuperusersResponse
 	attachment: AttachmentResponse
 	note: NoteResponse
+	noteChange: NoteChangeResponse
 	pomodoro: PomodoroResponse
 	task: TaskResponse
 	taskHistory: TaskHistoryResponse
@@ -222,6 +235,7 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: '_superusers'): RecordService<SuperusersResponse>
 	collection(idOrName: 'attachment'): RecordService<AttachmentResponse>
 	collection(idOrName: 'note'): RecordService<NoteResponse>
+	collection(idOrName: 'noteChange'): RecordService<NoteChangeResponse>
 	collection(idOrName: 'pomodoro'): RecordService<PomodoroResponse>
 	collection(idOrName: 'task'): RecordService<TaskResponse>
 	collection(idOrName: 'taskHistory'): RecordService<TaskHistoryResponse>
