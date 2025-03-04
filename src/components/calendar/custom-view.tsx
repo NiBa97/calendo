@@ -61,7 +61,11 @@ CustomMultiDayView.navigate = (date: Date, action: NavigateAction) => {
 };
 
 CustomMultiDayView.title = (date: Date) => {
-  return `${date.toLocaleDateString()}`;
+  return new Intl.DateTimeFormat(navigator.language || "en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
 };
 
 export default CustomMultiDayView;
