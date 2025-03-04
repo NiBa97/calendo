@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaHistory } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
-import { Input, Flex, IconButton, Box, HStack } from "@chakra-ui/react";
+import { Input, Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import { Checkbox } from "./ui/checkbox";
 import Editor from "./editor/editor";
+import TaskChangelog from "./task-changelog";
 
 interface TaskState {
   name: string;
@@ -53,6 +54,7 @@ const EditTask = ({
     endDate: task?.endDate ? new Date(task.endDate) : undefined,
     isAllDay: task?.isAllDay ?? false,
   });
+  const [showChangelog, setShowChangelog] = useState(false);
 
   ref.current?.setMarkdown(taskState.description);
 
@@ -187,10 +189,19 @@ const EditTask = ({
         p={3}
       >
         <DateTimeRangeSelector task={task} />
-
-        {/* <TaskChangelog taskId={task.id} /> */}
+        <Button
+          aria-label="History"
+          bg="brand.1"
+          onClick={() => setShowChangelog(true)}
+          color="brand.4"
+          size="lg"
+          borderRadius="none"
+        >
+          <FaHistory />
+        </Button>
       </Flex>
       {/* <AttachmentList parentId={task.id} parentType={ParentType.TASK} /> */}
+      <TaskChangelog isOpen={showChangelog} onClose={() => setShowChangelog(false)} taskId={task.id} />
     </Flex>
   );
 };
