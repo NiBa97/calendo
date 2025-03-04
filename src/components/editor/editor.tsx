@@ -24,6 +24,8 @@ import {
   BlockTypeSelect,
   InsertImage,
   jsxPlugin,
+  DiffSourceToggleWrapper,
+  CodeMirrorEditor,
 } from "@mdxeditor/editor";
 import { Box } from "@chakra-ui/react";
 import React from "react";
@@ -55,9 +57,23 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
     tablePlugin(),
     thematicBreakPlugin(),
     frontmatterPlugin(),
-    codeBlockPlugin({ defaultCodeBlockLanguage: "txt" }),
-    codeMirrorPlugin({ codeBlockLanguages: { js: "JavaScript", css: "CSS", txt: "text", tsx: "TypeScript" } }),
-    diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "boo" }),
+    codeBlockPlugin({
+      defaultCodeBlockLanguage: "text",
+
+      codeBlockEditorDescriptors: [
+        {
+          priority: -10,
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          match: (_) => true,
+          Editor: CodeMirrorEditor,
+        },
+      ],
+    }),
+    codeMirrorPlugin({
+      autoLoadLanguageSupport: true,
+      codeBlockLanguages: { js: "JavaScript", css: "CSS", txt: "text", tsx: "TypeScript" },
+    }),
+    diffSourcePlugin({ viewMode: "rich-text" }),
     markdownShortcutPlugin(),
   ];
   if (showToolbar) {
@@ -76,6 +92,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
             <Separator />
             <BlockTypeSelect />
             <InsertImage />
+            <DiffSourceToggleWrapper>-</DiffSourceToggleWrapper>
           </>
         ),
       })

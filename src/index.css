@@ -387,3 +387,8 @@ ol{
   background-color: var(--chakra-colors-brand-3) !important;
   border-color: var(--chakra-colors-brand-4) !important;
 }
+
+/* Hide the diff mode button */
+button[aria-label="Diff mode"] {
+  display: none !important;
+}
