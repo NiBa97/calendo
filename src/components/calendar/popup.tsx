@@ -11,8 +11,15 @@ export default function CalendarPopup({ onClose, position, children }: CalendarP
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: Event) {
+    function handleClickOutside(event: MouseEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) {
+        // Ignore clicks if they are in a portal/dialog
+        const target = event.target as HTMLElement;
+        // Check if the click is inside a portal or dialog
+        if (target.closest('[role="dialog"]') || target.closest("[data-chakra-portal]")) {
+          return;
+        }
+
         onClose();
       }
     }
