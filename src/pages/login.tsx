@@ -22,7 +22,7 @@ export default function Login() {
     try {
       await pb.collection("users").authWithPassword(formData.email, formData.password);
       if (pb.authStore.isValid) {
-        navigate("/");
+        navigate("/", { replace: true });
       }
     } catch (error) {
       setError("Invalid email or password. Please try again.");
