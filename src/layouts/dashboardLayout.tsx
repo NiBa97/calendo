@@ -11,7 +11,7 @@ interface SidebarItemProps {
   isOpen: boolean;
   to: string;
   isActive: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick }: SidebarItemProps) => {
@@ -32,7 +32,7 @@ const SidebarItem = ({ icon: IconComponent, label, isOpen, to, isActive, onClick
   if (to) {
     return <Link to={to}>{content}</Link>;
   }
-  return <Box onClick={onClick}>{content}</Box>;
+  return <Box onClick={(e) => onClick?.(e)}>{content}</Box>;
 };
 
 interface SidebarProps {
@@ -82,7 +82,7 @@ interface SidebarItem {
   icon: IconType;
   label: string;
   to: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 interface DashboardLayoutProps {
@@ -98,7 +98,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     // You can add popup logic or other actions here
   };
 
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log("test");
+    e.preventDefault();
+    e.stopPropagation();
+
     logout();
     navigate("/login");
   };
@@ -134,8 +138,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     {
       icon: FiLogOut,
       label: "Logout",
-      to: "/logout",
-      onClick: () => handleLogout(),
+      to: "",
+      onClick: (e) => handleLogout(e),
     },
   ];
 
