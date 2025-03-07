@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../pocketbaseUtils";
 import { OperationStatusIndicator } from "../components/operation-status-indicator";
 import { IconType } from "react-icons";
+import ProfileDialog from "../components/settings/mainDialog";
 
 interface SidebarItemProps {
   icon: IconType;
@@ -91,6 +92,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { open: isSidebarOpen, onToggle: toggleSidebar } = useDisclosure({ defaultOpen: false });
+  const profileDisclosure = useDisclosure();
   const navigate = useNavigate();
 
   const handlePlaceholderClick = (label: string) => {
@@ -125,9 +127,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     },
     {
       icon: FiUser,
-      label: "User",
-      to: "/user",
-      onClick: () => handlePlaceholderClick("User"),
+      label: "Profile",
+      to: "",
+      onClick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        profileDisclosure.onOpen();
+      },
     },
     {
       icon: FiLoader,
@@ -149,6 +155,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Flex direction="column" flex={1}>
         {children}
       </Flex>
+      <ProfileDialog isOpen={profileDisclosure.open} onClose={profileDisclosure.onClose} />
     </Flex>
   );
 }
