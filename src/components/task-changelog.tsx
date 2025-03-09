@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, VStack, Text, Flex, Heading, Badge, Portal } from "@chakra-ui/react";
+import { Box, Button, VStack, Text, Flex, Heading, Badge } from "@chakra-ui/react";
 import { getPb } from "../pocketbaseUtils";
 import { TaskHistoryRecord } from "../pocketbase-types";
 import { useTasks } from "../contexts/task-context";
@@ -138,262 +138,260 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
 
   // Use Portal to ensure the dialog is rendered at the root level
   return (
-    <Portal>
-      <DialogRoot
-        open={isOpen}
-        onOpenChange={(e) => {
-          console.log("onOpenChange", e);
-          if (!e.open) onClose();
+    <DialogRoot
+      open={isOpen}
+      onOpenChange={(e) => {
+        console.log("onOpenChange", e);
+        if (!e.open) onClose();
+      }}
+    >
+      <DialogContent
+        bg={"transparent"}
+        color={"brand.4"}
+        height={"90vh"}
+        width={"90vw"}
+        maxH={"90vh"}
+        maxW={"90vw"}
+        onClick={(e) => {
+          e.stopPropagation();
         }}
       >
-        <DialogContent
-          bg={"transparent"}
-          color={"brand.4"}
+        <DialogBody
           height={"90vh"}
           width={"90vw"}
-          maxH={"90vh"}
-          maxW={"90vw"}
+          p={0}
           onClick={(e) => {
             e.stopPropagation();
           }}
         >
-          <DialogBody
+          <Box
+            bg={"#0d1117"}
+            color={"#e6edf3"}
             height={"90vh"}
             width={"90vw"}
-            p={0}
+            p={6}
+            overflowY="auto"
             onClick={(e) => {
               e.stopPropagation();
             }}
           >
-            <Box
-              bg={"#0d1117"}
-              color={"#e6edf3"}
-              height={"90vh"}
-              width={"90vw"}
-              p={6}
-              overflowY="auto"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
+            <Flex
+              justifyContent="space-between"
+              alignItems="center"
+              mb={6}
+              pb={2}
+              borderBottomWidth="1px"
+              borderColor="gray.700"
             >
-              <Flex
-                justifyContent="space-between"
-                alignItems="center"
-                mb={6}
-                pb={2}
-                borderBottomWidth="1px"
-                borderColor="gray.700"
-              >
-                <Flex alignItems="center">
-                  <FaHistory size={20} />
-                  <Heading size="lg" ml={2}>
-                    Task Change History
-                  </Heading>
-                </Flex>
-                <Button
-                  colorScheme="blue"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClose();
-                  }}
-                  size="sm"
-                  borderRadius="md"
-                >
-                  Close
-                </Button>
+              <Flex alignItems="center">
+                <FaHistory size={20} />
+                <Heading size="lg" ml={2}>
+                  Task Change History
+                </Heading>
               </Flex>
+              <Button
+                colorScheme="blue"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                size="sm"
+                borderRadius="md"
+              >
+                Close
+              </Button>
+            </Flex>
 
-              {isLoading ? (
-                <Text>Loading change history...</Text>
-              ) : versions.length <= 1 ? (
-                <Flex direction="column" alignItems="center" justifyContent="center" h="50vh" color="gray.400">
-                  <FaHistory size={40} />
-                  <Text mt={4} fontSize="lg">
-                    No changes recorded for this task
-                  </Text>
-                </Flex>
-              ) : (
-                <VStack gap={6} align="stretch">
-                  {versions.map((version, index) => {
-                    // For each version, we want to show what changed from the next version in history
-                    const nextVersionInHistory = index < versions.length - 1 ? versions[index + 1] : null;
+            {isLoading ? (
+              <Text>Loading change history...</Text>
+            ) : versions.length <= 1 ? (
+              <Flex direction="column" alignItems="center" justifyContent="center" h="50vh" color="gray.400">
+                <FaHistory size={40} />
+                <Text mt={4} fontSize="lg">
+                  No changes recorded for this task
+                </Text>
+              </Flex>
+            ) : (
+              <VStack gap={6} align="stretch">
+                {versions.map((version, index) => {
+                  // For each version, we want to show what changed from the next version in history
+                  const nextVersionInHistory = index < versions.length - 1 ? versions[index + 1] : null;
 
-                    // Get fields that changed between this version and the next one in history
-                    const changedFields = nextVersionInHistory
-                      ? getChangedFields(nextVersionInHistory, version)
-                      : ["name", "description", "status", "startDate", "endDate", "isAllDay"];
+                  // Get fields that changed between this version and the next one in history
+                  const changedFields = nextVersionInHistory
+                    ? getChangedFields(nextVersionInHistory, version)
+                    : ["name", "description", "status", "startDate", "endDate", "isAllDay"];
 
-                    return (
-                      <Box
-                        key={index}
-                        borderWidth="1px"
-                        borderRadius="md"
+                  return (
+                    <Box
+                      key={index}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      borderColor="gray.700"
+                      bg="#161b22"
+                      overflow="hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Flex
+                        justifyContent="space-between"
+                        alignItems="center"
+                        bg="#0d1117"
+                        p={3}
+                        borderBottomWidth="1px"
                         borderColor="gray.700"
-                        bg="#161b22"
-                        overflow="hidden"
-                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Flex
-                          justifyContent="space-between"
-                          alignItems="center"
-                          bg="#0d1117"
-                          p={3}
-                          borderBottomWidth="1px"
-                          borderColor="gray.700"
-                        >
-                          <Flex alignItems="center">
-                            <Badge
-                              colorScheme={index === 0 ? "green" : index === versions.length - 1 ? "purple" : "blue"}
-                              fontSize="0.8em"
-                              px={2}
-                              py={1}
-                              borderRadius="md"
-                            >
-                              {index === 0
-                                ? "Current Version"
-                                : index === versions.length - 1
-                                ? "Original Version"
-                                : `Previous Version ${versions.length - index}`}
-                            </Badge>
-                            <Text ml={3} fontWeight="medium" fontSize="sm">
-                              {formatDate(version.date)}
-                            </Text>
-                          </Flex>
-
-                          {index > 0 && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                console.log("Revert button clicked for index:", index);
-                                handleRevertToVersion(index);
-                              }}
-                              variant="outline"
-                              bg="brand.4"
-                              _hover={{ bg: "brand.3", color: "white" }}
-                            >
-                              Revert to this version
-                            </Button>
-                          )}
+                        <Flex alignItems="center">
+                          <Badge
+                            colorScheme={index === 0 ? "green" : index === versions.length - 1 ? "purple" : "blue"}
+                            fontSize="0.8em"
+                            px={2}
+                            py={1}
+                            borderRadius="md"
+                          >
+                            {index === 0
+                              ? "Current Version"
+                              : index === versions.length - 1
+                              ? "Original Version"
+                              : `Previous Version ${versions.length - index}`}
+                          </Badge>
+                          <Text ml={3} fontWeight="medium" fontSize="sm">
+                            {formatDate(version.date)}
+                          </Text>
                         </Flex>
 
-                        <Box p={4}>
-                          <VStack gap={4} align="stretch">
-                            {/* Only show fields that changed */}
-                            {changedFields.length === 0 ? (
-                              <Text fontStyle="italic" color="gray.500">
-                                No changes in this version
-                              </Text>
-                            ) : (
-                              <>
-                                {/* Task Name */}
-                                {changedFields.includes("name") && (
-                                  <Box>
-                                    <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                      Task Name:
-                                    </Text>
-                                    <Box
-                                      p={3}
-                                      borderRadius="md"
-                                      bg="rgba(0,0,0,0.5)"
-                                      borderWidth="1px"
-                                      borderColor="gray.700"
-                                    >
-                                      <Text fontFamily="monospace">{version.name}</Text>
-                                    </Box>
-                                  </Box>
-                                )}
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              console.log("Revert button clicked for index:", index);
+                              handleRevertToVersion(index);
+                            }}
+                            variant="outline"
+                            bg="brand.4"
+                            _hover={{ bg: "brand.3", color: "white" }}
+                          >
+                            Revert to this version
+                          </Button>
+                        )}
+                      </Flex>
 
-                                {/* Task Status */}
-                                {changedFields.includes("status") && (
-                                  <Box>
-                                    <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                      Status:
-                                    </Text>
-                                    <Box
-                                      p={3}
-                                      borderRadius="md"
-                                      bg="rgba(0,0,0,0.5)"
-                                      borderWidth="1px"
-                                      borderColor="gray.700"
-                                    >
-                                      <Badge colorScheme={version.status ? "green" : "red"}>
-                                        {version.status ? "Completed" : "Not Completed"}
-                                      </Badge>
-                                    </Box>
+                      <Box p={4}>
+                        <VStack gap={4} align="stretch">
+                          {/* Only show fields that changed */}
+                          {changedFields.length === 0 ? (
+                            <Text fontStyle="italic" color="gray.500">
+                              No changes in this version
+                            </Text>
+                          ) : (
+                            <>
+                              {/* Task Name */}
+                              {changedFields.includes("name") && (
+                                <Box>
+                                  <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                    Task Name:
+                                  </Text>
+                                  <Box
+                                    p={3}
+                                    borderRadius="md"
+                                    bg="rgba(0,0,0,0.5)"
+                                    borderWidth="1px"
+                                    borderColor="gray.700"
+                                  >
+                                    <Text fontFamily="monospace">{version.name}</Text>
                                   </Box>
-                                )}
+                                </Box>
+                              )}
 
-                                {/* Task Schedule - only show if any schedule-related field changed */}
-                                {(changedFields.includes("startDate") ||
-                                  changedFields.includes("endDate") ||
-                                  changedFields.includes("isAllDay")) && (
-                                  <Box>
-                                    <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                      Schedule:
-                                    </Text>
-                                    <Box
-                                      p={3}
-                                      borderRadius="md"
-                                      bg="rgba(0,0,0,0.5)"
-                                      borderWidth="1px"
-                                      borderColor="gray.700"
-                                    >
-                                      <VStack align="start" gap={1}>
-                                        {changedFields.includes("isAllDay") && (
-                                          <Text fontFamily="monospace">
-                                            All Day: <Badge>{version.isAllDay ? "Yes" : "No"}</Badge>
-                                          </Text>
-                                        )}
-                                        {changedFields.includes("startDate") && (
-                                          <Text fontFamily="monospace">Start: {formatDateTime(version.startDate)}</Text>
-                                        )}
-                                        {changedFields.includes("endDate") && (
-                                          <Text fontFamily="monospace">End: {formatDateTime(version.endDate)}</Text>
-                                        )}
-                                      </VStack>
-                                    </Box>
+                              {/* Task Status */}
+                              {changedFields.includes("status") && (
+                                <Box>
+                                  <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                    Status:
+                                  </Text>
+                                  <Box
+                                    p={3}
+                                    borderRadius="md"
+                                    bg="rgba(0,0,0,0.5)"
+                                    borderWidth="1px"
+                                    borderColor="gray.700"
+                                  >
+                                    <Badge colorScheme={version.status ? "green" : "red"}>
+                                      {version.status ? "Completed" : "Not Completed"}
+                                    </Badge>
                                   </Box>
-                                )}
+                                </Box>
+                              )}
 
-                                {/* Task Description */}
-                                {changedFields.includes("description") && (
-                                  <Box>
-                                    <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                      Description:
-                                    </Text>
-                                    <Box
-                                      p={3}
-                                      borderRadius="md"
-                                      bg="rgba(0,0,0,0.5)"
-                                      borderWidth="1px"
-                                      borderColor="gray.700"
-                                      maxHeight="200px"
-                                      overflowY="auto"
-                                      fontFamily="monospace"
-                                      fontSize="sm"
-                                      whiteSpace="pre-wrap"
-                                    >
-                                      {version.description || "No description"}
-                                    </Box>
+                              {/* Task Schedule - only show if any schedule-related field changed */}
+                              {(changedFields.includes("startDate") ||
+                                changedFields.includes("endDate") ||
+                                changedFields.includes("isAllDay")) && (
+                                <Box>
+                                  <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                    Schedule:
+                                  </Text>
+                                  <Box
+                                    p={3}
+                                    borderRadius="md"
+                                    bg="rgba(0,0,0,0.5)"
+                                    borderWidth="1px"
+                                    borderColor="gray.700"
+                                  >
+                                    <VStack align="start" gap={1}>
+                                      {changedFields.includes("isAllDay") && (
+                                        <Text fontFamily="monospace">
+                                          All Day: <Badge>{version.isAllDay ? "Yes" : "No"}</Badge>
+                                        </Text>
+                                      )}
+                                      {changedFields.includes("startDate") && (
+                                        <Text fontFamily="monospace">Start: {formatDateTime(version.startDate)}</Text>
+                                      )}
+                                      {changedFields.includes("endDate") && (
+                                        <Text fontFamily="monospace">End: {formatDateTime(version.endDate)}</Text>
+                                      )}
+                                    </VStack>
                                   </Box>
-                                )}
-                              </>
-                            )}
-                          </VStack>
-                        </Box>
+                                </Box>
+                              )}
+
+                              {/* Task Description */}
+                              {changedFields.includes("description") && (
+                                <Box>
+                                  <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                    Description:
+                                  </Text>
+                                  <Box
+                                    p={3}
+                                    borderRadius="md"
+                                    bg="rgba(0,0,0,0.5)"
+                                    borderWidth="1px"
+                                    borderColor="gray.700"
+                                    maxHeight="200px"
+                                    overflowY="auto"
+                                    fontFamily="monospace"
+                                    fontSize="sm"
+                                    whiteSpace="pre-wrap"
+                                  >
+                                    {version.description || "No description"}
+                                  </Box>
+                                </Box>
+                              )}
+                            </>
+                          )}
+                        </VStack>
                       </Box>
-                    );
-                  })}
-                </VStack>
-              )}
-            </Box>
-          </DialogBody>
-        </DialogContent>
-      </DialogRoot>
-    </Portal>
+                    </Box>
+                  );
+                })}
+              </VStack>
+            )}
+          </Box>
+        </DialogBody>
+      </DialogContent>
+    </DialogRoot>
   );
 };
 
