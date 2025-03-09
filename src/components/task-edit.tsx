@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { FaTimes, FaHistory } from "react-icons/fa";
+import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { Input, Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
@@ -10,6 +10,8 @@ import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import { Checkbox } from "./ui/checkbox";
 import Editor from "./editor/editor";
 import TaskChangelog from "./task-changelog";
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
+import { ShareMenu } from "./share-menu";
 
 interface TaskState {
   name: string;
@@ -101,7 +103,6 @@ const EditTask = ({
     }));
     debounceSave();
   };
-
   useEffect(() => {
     return () => {
       if (debounceTimeout.current) {
@@ -189,16 +190,27 @@ const EditTask = ({
         p={3}
       >
         <DateTimeRangeSelector task={task} />
-        <Button
-          aria-label="History"
-          bg="brand.1"
-          onClick={() => setShowChangelog(true)}
-          color="brand.4"
-          size="lg"
-          borderRadius="none"
-        >
-          <FaHistory />
-        </Button>
+        <MenuRoot>
+          <MenuTrigger asChild>
+            <Button
+              aria-label="More options"
+              bg="brand.1"
+              color="brand.4"
+              size="lg"
+              borderRadius="none"
+              _hover={{ bg: "brand.2" }}
+            >
+              <FaEllipsisV />
+            </Button>
+          </MenuTrigger>
+          <MenuContent zIndex={1000}>
+            <MenuItem onClick={() => setShowChangelog(true)} value="history">
+              <FaHistory style={{ marginRight: "8px" }} />
+              View History
+            </MenuItem>
+            <ShareMenu objectId={task.id} objectType="task" currentUsers={task.user} />
+          </MenuContent>
+        </MenuRoot>
       </Flex>
       {/* <AttachmentList parentId={task.id} parentType={ParentType.TASK} /> */}
       <TaskChangelog isOpen={showChangelog} onClose={() => setShowChangelog(false)} taskId={task.id} />

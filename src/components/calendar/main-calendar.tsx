@@ -21,6 +21,7 @@ import { Task } from "../../types";
 import { getLocalStorage, setLocalStorage } from "../../utils/storage";
 import CustomToolbar from "./custom-toolbar";
 import EditTask from "../task-edit";
+import { FaUsers } from "react-icons/fa6";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
@@ -50,7 +51,11 @@ const EventComponent = ({ event }: { event: Task }) => {
         overflow="hidden"
         textOverflow="ellipsis"
         whiteSpace="nowrap"
+        display={"flex"}
+        alignItems={"center"}
+        gap={2}
       >
+        {event.user && event.user.length > 1 && <FaUsers />}
         {event.name}
       </Text>
       {!event.isAllDay && (

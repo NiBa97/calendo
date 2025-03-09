@@ -8,6 +8,7 @@ export interface Task {
     status: boolean;
     name: string;
     description: string;
+    user: string[];
   }
 
   export function convertTaskRecordToTask(record: TaskRecord): Task {
@@ -25,18 +26,20 @@ export interface Task {
       id: record.id,
       startDate: record.startDate ? new Date(record.startDate) : undefined,
       endDate: record.endDate ? new Date(record.endDate) : undefined,
-      isAllDay: record.isAllDay,
-      status: record.status,
-      name: record.name,
-      description: record.description ? record.description : ""
-    };
-  }
+    isAllDay: record.isAllDay,
+    status: record.status,
+    name: record.name,
+    description: record.description ? record.description : "",
+    user: record.user ?? [],
+  };
+}
 
 export interface Note {
   id: string;
   title: string;
   content?: string;
   updatedAt?: string | Date;
+  user: string[];
 }
 
 export function convertNoteRecordToNote(record: NoteRecord): Note {
@@ -48,6 +51,7 @@ export function convertNoteRecordToNote(record: NoteRecord): Note {
     id: record.id,
     title: record.title,
     content: record.content || "",
+    user: record.user ?? [],
   };
 }
  
