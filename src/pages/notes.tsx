@@ -8,11 +8,13 @@ export default function Notes() {
   const { id } = useParams(); // This will get the note ID from the URL
 
   return (
-    <Flex direction="column" flex={1}>
+    <Flex direction="column" flex={1} h="100vh" overflow="hidden">
       {/* Resizable Columns */}
       <PanelGroup direction="horizontal" style={{ height: "100%" }}>
-        <Panel defaultSize={50} minSize={20}>
-          <NoteList />
+        <Panel defaultSize={30} minSize={20}>
+          <Box h="100%" overflow="auto">
+            <NoteList />
+          </Box>
         </Panel>
 
         <PanelResizeHandle style={{ width: "8px", cursor: "col-resize" }}>
@@ -20,7 +22,7 @@ export default function Notes() {
         </PanelResizeHandle>
 
         <Panel>
-          <Box flex={1} height="100%">
+          <Box flex={1} height="100%" overflow="auto">
             {id ? <NoteEdit noteId={id} showCloseButton={false} /> : <Box p={4}>Please select a note</Box>}
           </Box>
         </Panel>
