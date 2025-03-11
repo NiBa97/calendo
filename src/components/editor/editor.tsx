@@ -46,6 +46,7 @@ const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/
 const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true }) => {
   //   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   //   const { addAttachment } = useAttachments();
+
   const plugins = [
     jsxPlugin({ jsxComponentDescriptors: [taskRefComponentDescriptor, drawIORefComponentDescriptor] }),
     listsPlugin(),
@@ -58,8 +59,6 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
     thematicBreakPlugin(),
     frontmatterPlugin(),
     codeBlockPlugin({
-      defaultCodeBlockLanguage: "text",
-
       codeBlockEditorDescriptors: [
         {
           priority: -10,
@@ -205,7 +204,13 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
           Drop your file here
         </div>
       )}
-      <MDXEditor plugins={plugins} markdown={markdown} ref={editorRef} onChange={onChange} />
+      <MDXEditor
+        plugins={plugins}
+        markdown={markdown}
+        ref={editorRef}
+        onChange={onChange}
+        className="dark-theme dark-editor"
+      />
     </Box>
   );
 };
