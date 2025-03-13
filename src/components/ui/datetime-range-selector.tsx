@@ -15,6 +15,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
   const [startTime, setStartTime] = useState(task.startDate ? moment(task.startDate).format("HH:mm") : "00:00");
   const [endDate, setEndDate] = useState(moment(task.endDate).format("YYYY-MM-DD"));
   const [endTime, setEndTime] = useState(task.endDate ? moment(task.endDate).format("HH:mm") : "00:00");
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isValidDate: boolean =
     startTime.includes(":") && endTime.includes(":") && !isNaN(Date.parse(startDate)) && !isNaN(Date.parse(endDate));
@@ -54,19 +55,38 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
         returnCompleteStartDate().getTime() !== task.startDate?.getTime() ||
         returnCompleteEndDate().getTime() !== task.endDate?.getTime())
     ) {
-      const timeoutId = setTimeout(
-        () => alert("calling updateTask"),
-        void updateTask(task.id, {
-          startDate: returnCompleteStartDate(),
-          endDate: returnCompleteEndDate(),
-          isAllDay: isAllDay,
-        }),
-        1000
-      );
-      return () => clearTimeout(timeoutId);
+      debounceSave();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, endTime, startDate, endDate, isAllDay]);
+
+  const handleSave = () => {
+    updateTask(task.id, {
+      startDate: returnCompleteStartDate(),
+      endDate: returnCompleteEndDate(),
+      isAllDay: isAllDay,
+    });
+  };
+
+  const debounceSave = () => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      handleSave();
+    }, 1000);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+        handleSave();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleStartDateChangeLocal = (value: string) => {
     setStartDate(value);
@@ -111,7 +131,7 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
           </Box>
         </PopoverTrigger>
 
-        <PopoverContent bg={"brand.1"} zIndex={99} borderColor={"brand.2"}>
+        <PopoverContent bg={"brand.1"} borderColor={"brand.2"}>
           <PopoverBody>
             <Grid templateColumns={isAllDay ? "auto 2fr" : "auto 2fr auto"} gap={2} alignItems="center">
               <Text>Start</Text>
