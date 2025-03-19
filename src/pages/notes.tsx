@@ -1,9 +1,8 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { NoteList } from "../components/note-list";
 import { useParams } from "react-router-dom";
 import NoteEdit from "../components/note-edit";
-
+import { NoteList } from "../components/note-list";
 export default function Notes() {
   const { id } = useParams(); // This will get the note ID from the URL
 
