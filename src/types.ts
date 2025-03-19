@@ -38,7 +38,8 @@ export interface Note {
   id: string;
   title: string;
   content?: string;
-  updatedAt?: string | Date;
+  updated: Date | undefined;
+  created: Date ;
   user: string[];
 }
 
@@ -52,6 +53,8 @@ export function convertNoteRecordToNote(record: NoteRecord): Note {
     title: record.title,
     content: record.content || "",
     user: record.user ?? [],
+    updated: record.updated ? new Date(record.updated) : undefined,
+    created: new Date(record.created!) ,
   };
 }
  
