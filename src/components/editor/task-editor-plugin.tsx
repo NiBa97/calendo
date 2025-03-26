@@ -11,6 +11,7 @@ import { useTasks } from "../../contexts/task-context";
 import EditTask from "../task-edit";
 import { Checkbox } from "../ui/checkbox";
 import { Task } from "../../types";
+import TitlePreview from "../ui/title-preview";
 
 interface TaskRefProps {
   taskId: string;
@@ -85,9 +86,7 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
         <Box display="inline-flex" alignItems="center" onClick={(e) => e.stopPropagation()}>
           <Checkbox size="md" checked={task.status} onCheckedChange={(e) => handleCheckboxChange(e.checked === true)} />
         </Box>
-        <Text as="span" fontSize="sm" color="gray.500" ml={2} textDecoration={task.status ? "line-through" : "none"}>
-          {task.name}
-        </Text>
+        <TitlePreview title={task.name} lineThrough={task.status} />
       </Box>
 
       {showPopup && (

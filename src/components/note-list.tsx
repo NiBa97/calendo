@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { Note } from "../types";
 import { InputGroup } from "./ui/input-group";
+import TitlePreview from "./ui/title-preview";
 
 export const NoteList = () => {
   const { notes, searchTerm, setSearchTerm, createNote } = useNotes();
@@ -122,9 +123,7 @@ export const NoteList = () => {
                   <Icon as={sizeIndicator.icon} boxSize={5} aria-label={sizeIndicator.tooltip} color="brand.1" />
                 </Table.Cell>
                 <Table.Cell>
-                  <Text color="brand.1" fontWeight="bold" fontSize="lg">
-                    {note.title}
-                  </Text>
+                  <TitlePreview title={note.title} />
                   <Text color="brand.1" fontSize="sm">
                     Updated {formatDate(note.updated)}
                   </Text>

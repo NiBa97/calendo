@@ -6,6 +6,7 @@ import { FaExpand } from "react-icons/fa6";
 import { Task } from "../types";
 import { Checkbox } from "./ui/checkbox";
 import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "./ui/accordion";
+import TitlePreview from "./ui/title-preview";
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
@@ -231,14 +232,7 @@ const TaskItem = ({
         alignItems={"center"}
         position="relative"
       >
-        <Text
-          fontSize="lg"
-          color={"brand.4"}
-          textDecoration={task.status ? "line-through" : "none"}
-          opacity={task.status ? 0.7 : 1}
-        >
-          {task.name}
-        </Text>
+        <TitlePreview title={task.name} lineThrough={task.status} />
         <HStack gap={2} alignItems="center">
           {showDate && (
             <Text fontSize="xs" color={"brand.4"} opacity={task.status ? 0.7 : 1}>
