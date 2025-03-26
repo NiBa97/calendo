@@ -9,8 +9,8 @@ import { Box, Text } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 import { useTasks } from "../../contexts/task-context";
 import EditTask from "../task-edit";
-import { Checkbox } from "../ui/checkbox";
 import { Task } from "../../types";
+import TaskCheckbox from "../ui/task-checkbox";
 import TitlePreview from "../ui/title-preview";
 
 interface TaskRefProps {
@@ -82,10 +82,9 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
         onMouseLeave={handleMouseLeave}
         _hover={{ bg: "brand.3" }}
         mx={2}
+        gap={2}
       >
-        <Box display="inline-flex" alignItems="center" onClick={(e) => e.stopPropagation()}>
-          <Checkbox size="md" checked={task.status} onCheckedChange={(e) => handleCheckboxChange(e.checked === true)} />
-        </Box>
+        <TaskCheckbox checked={task.status} onChange={() => handleCheckboxChange(!task.status)} />
         <TitlePreview title={task.name} lineThrough={task.status} />
       </Box>
 

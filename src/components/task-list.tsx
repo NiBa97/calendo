@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { FaExpand } from "react-icons/fa6";
 import { Task } from "../types";
-import { Checkbox } from "./ui/checkbox";
 import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "./ui/accordion";
 import TitlePreview from "./ui/title-preview";
+import TaskCheckbox from "./ui/task-checkbox";
+
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
   const [stateTasks, setStateTasks] = useState(tasks);
@@ -215,13 +216,7 @@ const TaskItem = ({
         },
       }}
     >
-      <Checkbox
-        checked={task.status}
-        onChange={() => void updateTask(task.id, { status: !task.status })}
-        className="task-checkbox"
-        colorScheme="teal"
-        size="lg"
-      />
+      <TaskCheckbox checked={task.status} onChange={() => void updateTask(task.id, { status: !task.status })} />
       <Box
         cursor="pointer"
         width={"100%"}

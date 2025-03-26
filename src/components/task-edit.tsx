@@ -7,12 +7,12 @@ import { Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
-import { Checkbox } from "./ui/checkbox";
 import Editor from "./editor/editor";
 import TaskChangelog from "./task-changelog";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 import { ShareMenu } from "./share-menu";
 import TitleInput from "./ui/title-input";
+import TaskCheckbox from "./ui/task-checkbox";
 
 interface TaskState {
   name: string;
@@ -132,17 +132,7 @@ const EditTask = ({
         p={2}
       >
         <HStack gap={1}>
-          <Checkbox
-            size={"lg"}
-            checked={taskState.status}
-            onChange={() => handleStatusChange(!taskState.status)}
-            borderColor="brand.4"
-            colorScheme="teal"
-            _checked={{
-              bg: "brand.3",
-              borderColor: "brand.4",
-            }}
-          ></Checkbox>
+          <TaskCheckbox checked={taskState.status} onChange={(checked) => handleStatusChange(checked)} />
           <TitleInput
             placeholder="Add task title"
             value={taskState.name}
