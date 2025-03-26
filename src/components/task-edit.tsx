@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
-import { Input, Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
+import { Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
@@ -12,6 +12,7 @@ import Editor from "./editor/editor";
 import TaskChangelog from "./task-changelog";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 import { ShareMenu } from "./share-menu";
+import TitleInput from "./ui/title-input";
 
 interface TaskState {
   name: string;
@@ -142,17 +143,10 @@ const EditTask = ({
               borderColor: "brand.4",
             }}
           ></Checkbox>
-          <Input
+          <TitleInput
             placeholder="Add task title"
-            bg={"brand.1"}
-            border={"none"}
-            type="text"
-            fontSize={"xl"}
-            fontWeight={"600"}
             value={taskState.name}
-            _focus={{ border: "none", outline: "none", boxShadow: "none" }}
-            onChange={(e) => handleChange("name", e.target.value)}
-            borderRadius={"none"}
+            onChange={(value) => handleChange("name", value)}
             autoFocus={taskState.name === ""}
           />
           {showCloseButton && (

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaTrash, FaHistory } from "react-icons/fa";
-import { Input, Flex, Box, Button } from "@chakra-ui/react";
+import { Flex, Box, Button } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import Editor from "./editor/editor";
 import { useNotes } from "../contexts/note-context";
 import NoteChangelog from "./note-changelog";
+import TitleInput from "./ui/title-input";
 
 interface NoteEditProps {
   noteId: string;
@@ -114,18 +115,7 @@ const NoteEdit = ({
     >
       <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2">
         <Flex alignItems="center">
-          <Input
-            placeholder="Note title"
-            bg="brand.1"
-            border="none"
-            type="text"
-            size="lg"
-            fontWeight="600"
-            value={title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            _focus={{ border: "none", outline: "none", boxShadow: "none" }}
-            borderRadius="none"
-          />
+          <TitleInput placeholder="Note title" value={title} onChange={handleTitleChange} />
           <Button aria-label="Delete" bg="brand.1" onClick={handleDelete} color="brand.4" size="lg" borderRadius="none">
             <FaTrash />
           </Button>
