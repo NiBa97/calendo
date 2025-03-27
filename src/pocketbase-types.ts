@@ -12,9 +12,11 @@ export enum Collections {
 	Otps = "_otps",
 	Superusers = "_superusers",
 	Attachment = "attachment",
+	Connection = "connection",
 	Note = "note",
 	NoteChange = "noteChange",
 	Pomodoro = "pomodoro",
+	Tag = "tag",
 	Task = "task",
 	TaskHistory = "taskHistory",
 	Todo = "todo",
@@ -101,11 +103,21 @@ export type AttachmentRecord = {
 	updated?: IsoDateString
 }
 
+export type ConnectionRecord = {
+	confirmed?: boolean
+	created?: IsoDateString
+	id: string
+	updated?: IsoDateString
+	user1?: RecordIdString
+	user2?: RecordIdString
+}
+
 export type NoteRecord = {
 	attachments?: RecordIdString[]
 	content?: HTMLString
 	created?: IsoDateString
 	id: string
+	tags?: RecordIdString[]
 	title?: string
 	updated?: IsoDateString
 	user?: RecordIdString[]
@@ -128,15 +140,25 @@ export type PomodoroRecord = {
 	user?: RecordIdString
 }
 
+export type TagRecord = {
+	color?: string
+	created?: IsoDateString
+	id: string
+	name?: string
+	updated?: IsoDateString
+	user?: RecordIdString[]
+}
+
 export type TaskRecord = {
 	created?: IsoDateString
 	description?: HTMLString
 	endDate?: IsoDateString
 	id: string
 	isAllDay?: boolean
-	name?: string
+	name: string
 	startDate?: IsoDateString
 	status?: boolean
+	tags?: RecordIdString[]
 	user?: RecordIdString[]
 }
 
@@ -182,9 +204,11 @@ export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemF
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
 export type AttachmentResponse<Texpand = unknown> = Required<AttachmentRecord> & BaseSystemFields<Texpand>
+export type ConnectionResponse<Texpand = unknown> = Required<ConnectionRecord> & BaseSystemFields<Texpand>
 export type NoteResponse<Texpand = unknown> = Required<NoteRecord> & BaseSystemFields<Texpand>
 export type NoteChangeResponse<Texpand = unknown> = Required<NoteChangeRecord> & BaseSystemFields<Texpand>
 export type PomodoroResponse<Texpand = unknown> = Required<PomodoroRecord> & BaseSystemFields<Texpand>
+export type TagResponse<Texpand = unknown> = Required<TagRecord> & BaseSystemFields<Texpand>
 export type TaskResponse<Texpand = unknown> = Required<TaskRecord> & BaseSystemFields<Texpand>
 export type TaskHistoryResponse<Texpand = unknown> = Required<TaskHistoryRecord> & BaseSystemFields<Texpand>
 export type TodoResponse<Texpand = unknown> = Required<TodoRecord> & BaseSystemFields<Texpand>
@@ -199,9 +223,11 @@ export type CollectionRecords = {
 	_otps: OtpsRecord
 	_superusers: SuperusersRecord
 	attachment: AttachmentRecord
+	connection: ConnectionRecord
 	note: NoteRecord
 	noteChange: NoteChangeRecord
 	pomodoro: PomodoroRecord
+	tag: TagRecord
 	task: TaskRecord
 	taskHistory: TaskHistoryRecord
 	todo: TodoRecord
@@ -215,9 +241,11 @@ export type CollectionResponses = {
 	_otps: OtpsResponse
 	_superusers: SuperusersResponse
 	attachment: AttachmentResponse
+	connection: ConnectionResponse
 	note: NoteResponse
 	noteChange: NoteChangeResponse
 	pomodoro: PomodoroResponse
+	tag: TagResponse
 	task: TaskResponse
 	taskHistory: TaskHistoryResponse
 	todo: TodoResponse
@@ -234,9 +262,11 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: '_otps'): RecordService<OtpsResponse>
 	collection(idOrName: '_superusers'): RecordService<SuperusersResponse>
 	collection(idOrName: 'attachment'): RecordService<AttachmentResponse>
+	collection(idOrName: 'connection'): RecordService<ConnectionResponse>
 	collection(idOrName: 'note'): RecordService<NoteResponse>
 	collection(idOrName: 'noteChange'): RecordService<NoteChangeResponse>
 	collection(idOrName: 'pomodoro'): RecordService<PomodoroResponse>
+	collection(idOrName: 'tag'): RecordService<TagResponse>
 	collection(idOrName: 'task'): RecordService<TaskResponse>
 	collection(idOrName: 'taskHistory'): RecordService<TaskHistoryResponse>
 	collection(idOrName: 'todo'): RecordService<TodoResponse>
