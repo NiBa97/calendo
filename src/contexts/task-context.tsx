@@ -3,7 +3,6 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useToast } from "@chakra-ui/toast";
 import { convertTaskRecordToTask, Task } from "../types";
 import { getPb } from "../pocketbaseUtils";
-import { TaskRecord } from "../pocketbase-types";
 import { useTaskLoader } from "../hooks/useTaskLoader";
 import { useOperationStatus } from "./operation-status-context";
 
@@ -22,6 +21,8 @@ interface TaskContextType {
   modalTask: Task | null;
   setModalTask: (task: Task | null) => void;
   loadTasksForRange: (date: Date) => Promise<void>;
+  addTagToTask: (taskId: string, tagId: string) => Promise<void>;
+  removeTagFromTask: (taskId: string, tagId: string) => Promise<void>;
 }
 
 export const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -50,11 +51,16 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     setStatus("loading");
     pb.collection("task")
       .getFullList()
-      .then(async (value: TaskRecord[]) => {
+      .then(async (value) => {
         taskLoader.resetLoadedMonths();
-        setTasks(value.map((record) => convertTaskRecordToTask(record)));
-        await loadTasksForRange(new Date());
-        setStatus("idle");
+        try {
+          setTasks(value.map(convertTaskRecordToTask));
+          await loadTasksForRange(new Date());
+          setStatus("idle");
+        } catch (error) {
+          console.error("Error converting task records:", error);
+          setStatus("error");
+        }
       })
       .catch((error) => {
         console.error("Failed to load tasks:", error);
@@ -77,11 +83,13 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         status: isInPast ? true : taskData.status ?? false,
         name: taskData.name,
         description: taskData.description,
+        tags: taskData.tags || [],
         user: [pb.authStore.record?.id],
       };
 
       const record = await pb.collection("task").create(data);
       console.log("record", record);
+
       const newTask = convertTaskRecordToTask(record);
       setTasks((prevTasks) => [...prevTasks, newTask]);
       setStatus("idle");
@@ -99,6 +107,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       console.log("taskData", taskData);
 
       const record = await pb.collection("task").update(taskId, taskData);
+
       const updatedTask = convertTaskRecordToTask(record);
 
       toast({
@@ -140,6 +149,40 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addTagToTask = async (taskId: string, tagId: string) => {
+    try {
+      setStatus("loading");
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) throw new Error("Task not found");
+
+      const updatedTags = [...(task.tags || [])];
+      if (!updatedTags.includes(tagId)) {
+        updatedTags.push(tagId);
+      }
+
+      await updateTask(taskId, { tags: updatedTags });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
+  const removeTagFromTask = async (taskId: string, tagId: string) => {
+    try {
+      setStatus("loading");
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task) throw new Error("Task not found");
+
+      const updatedTags = (task.tags || []).filter((id) => id !== tagId);
+      await updateTask(taskId, { tags: updatedTags });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
   const contextValue: TaskContextType = {
     tasks,
     createTask,
@@ -155,6 +198,8 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     setModalTask,
     restoreTask,
     loadTasksForRange,
+    addTagToTask,
+    removeTagFromTask,
   };
 
   return <TaskContext.Provider value={contextValue}>{children}</TaskContext.Provider>;

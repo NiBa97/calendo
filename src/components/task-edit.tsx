@@ -13,6 +13,7 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 import { ShareMenu } from "./share-menu";
 import TitleInput from "./ui/title-input";
 import TaskCheckbox from "./ui/task-checkbox";
+import { TagSelector, TagBadges } from "./tag-selector";
 
 interface TaskState {
   name: string;
@@ -39,7 +40,7 @@ const EditTask = ({
   showToolbar?: boolean;
 }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
-  const { updateTask, createTask, setTemporaryTask } = useTasks();
+  const { updateTask, createTask, setTemporaryTask, addTagToTask, removeTagFromTask } = useTasks();
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [taskState, setTaskState] = useState<TaskState>({
     name: task?.name ?? "",
@@ -156,6 +157,18 @@ const EditTask = ({
           )}
         </HStack>
       </Box>
+
+      <Box p={2} borderBottom="1px solid" borderColor="brand.2">
+        <Flex align="center" justify="space-between">
+          <TagBadges tagIds={task.tags || []} onRemove={(tagId) => removeTagFromTask(task.id, tagId)} />
+          <TagSelector
+            selectedTags={task.tags || []}
+            onTagSelect={(tagId) => addTagToTask(task.id, tagId)}
+            onTagRemove={(tagId) => removeTagFromTask(task.id, tagId)}
+          />
+        </Flex>
+      </Box>
+
       <Box flex="1" overflow="auto" borderBottom="2px solid" borderColor="brand.2">
         <Editor
           markdown={taskState.description}

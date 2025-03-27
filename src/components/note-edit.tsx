@@ -6,6 +6,7 @@ import Editor from "./editor/editor";
 import { useNotes } from "../contexts/note-context";
 import NoteChangelog from "./note-changelog";
 import TitleInput from "./ui/title-input";
+import { TagSelector, TagBadges } from "./tag-selector";
 
 interface NoteEditProps {
   noteId: string;
@@ -25,7 +26,7 @@ const NoteEdit = ({
   onComplete,
 }: NoteEditProps) => {
   const ref = React.useRef<MDXEditorMethods>(null);
-  const { notes, updateNote, deleteNote } = useNotes();
+  const { notes, updateNote, deleteNote, addTagToNote, removeTagFromNote } = useNotes();
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const note = notes.find((n) => n.id === noteId);
@@ -134,6 +135,17 @@ const NoteEdit = ({
               <FaTimes />
             </Button>
           )}
+        </Flex>
+      </Box>
+
+      <Box p={2} borderBottom="1px solid" borderColor="brand.2">
+        <Flex align="center" justify="space-between">
+          <TagBadges tagIds={note.tags} onRemove={(tagId) => removeTagFromNote(noteId, tagId)} />
+          <TagSelector
+            selectedTags={note.tags}
+            onTagSelect={(tagId) => addTagToNote(noteId, tagId)}
+            onTagRemove={(tagId) => removeTagFromNote(noteId, tagId)}
+          />
         </Flex>
       </Box>
 
