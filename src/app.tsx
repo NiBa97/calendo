@@ -8,6 +8,7 @@ import { TaskProvider } from "./contexts/task-context";
 import TaskEditModal from "./components/task-modal";
 import { NoteProvider } from "./contexts/note-context";
 import { OperationStatusProvider } from "./contexts/operation-status-context";
+import { TagProvider } from "./contexts/tag-context";
 import { Toaster } from "./components/ui/toaster";
 
 const ProtectedApp = () => {
@@ -15,16 +16,18 @@ const ProtectedApp = () => {
     <OperationStatusProvider>
       <TaskProvider>
         <NoteProvider>
-          <Toaster />
-          <DashboardLayout>
-            <Routes>
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="notes" element={<Notes />} />
-              <Route path="notes/:id" element={<Notes />} />
-              <Route path="*" element={<Navigate to="/tasks" replace />} />
-            </Routes>
-          </DashboardLayout>
-          <TaskEditModal />
+          <TagProvider>
+            <Toaster />
+            <DashboardLayout>
+              <Routes>
+                <Route path="tasks" element={<Tasks />} />
+                <Route path="notes" element={<Notes />} />
+                <Route path="notes/:id" element={<Notes />} />
+                <Route path="*" element={<Navigate to="/tasks" replace />} />
+              </Routes>
+            </DashboardLayout>
+            <TaskEditModal />
+          </TagProvider>
         </NoteProvider>
       </TaskProvider>
     </OperationStatusProvider>

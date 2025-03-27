@@ -1,7 +1,6 @@
 // src/contexts/note-context.tsx
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { NoteRecord } from "../pocketbase-types";
 import { getPb } from "../pocketbaseUtils";
 import { Note, convertNoteRecordToNote } from "../types";
 import { useOperationStatus } from "./operation-status-context";
@@ -19,6 +18,8 @@ interface NoteContextType {
   setSearchTerm: (term: string) => void;
   setSelectedTags: (tags: string[]) => void;
   setSelectedNote: (note: Note | null) => void;
+  addTagToNote: (noteId: string, tagId: string) => Promise<void>;
+  removeTagFromNote: (noteId: string, tagId: string) => Promise<void>;
 }
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
@@ -35,7 +36,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setStatus("loading");
     pb.collection("note")
       .getFullList()
-      .then((records: NoteRecord[]) => {
+      .then((records) => {
         setNotes(records.map(convertNoteRecordToNote));
         setStatus("idle");
       })
@@ -50,10 +51,10 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       searchTerm === "" ||
       note.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.content?.toLowerCase().includes(searchTerm.toLowerCase());
-    // const matchesTags =
-    //   selectedTags.length === 0 || selectedTags.every((tag) => note.tags.some((noteTag) => noteTag.name === tag));
 
-    return matchesSearch; //&& matchesTags;
+    const matchesTags = selectedTags.length === 0 || selectedTags.some((tagId) => note.tags?.includes(tagId));
+
+    return matchesSearch && matchesTags;
   });
   const createNote = async (noteData: Partial<Note>) => {
     try {
@@ -61,6 +62,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = {
         title: noteData.title || "",
         content: noteData.content || "",
+        tags: noteData.tags || [],
         // user: pb.authStore.model?.id,
       };
 
@@ -81,6 +83,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = {
         title: updatedData.title,
         content: updatedData.content,
+        tags: updatedData.tags,
         user: pb.authStore.model?.id,
       };
 
@@ -118,6 +121,40 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addTagToNote = async (noteId: string, tagId: string) => {
+    try {
+      setStatus("loading");
+      const note = notes.find((n) => n.id === noteId);
+      if (!note) throw new Error("Note not found");
+
+      const updatedTags = [...(note.tags || [])];
+      if (!updatedTags.includes(tagId)) {
+        updatedTags.push(tagId);
+      }
+
+      await updateNote(noteId, { tags: updatedTags });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
+  const removeTagFromNote = async (noteId: string, tagId: string) => {
+    try {
+      setStatus("loading");
+      const note = notes.find((n) => n.id === noteId);
+      if (!note) throw new Error("Note not found");
+
+      const updatedTags = (note.tags || []).filter((id) => id !== tagId);
+      await updateNote(noteId, { tags: updatedTags });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
   return (
     <NoteContext.Provider
       value={{
@@ -134,6 +171,8 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSearchTerm,
         setSelectedTags,
         setSelectedNote,
+        addTagToNote,
+        removeTagFromNote,
       }}
     >
       {children}
