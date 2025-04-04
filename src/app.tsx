@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import DashboardLayout from "./layouts/dashboardLayout";
 import Notes from "./pages/notes";
 import Tasks from "./pages/tasks";
+import List from "./pages/list";
 import Login from "./pages/login";
 import { checkIfLoggedIn } from "./pocketbaseUtils";
 import { TaskProvider } from "./contexts/task-context";
@@ -21,8 +22,10 @@ const ProtectedApp = () => {
             <DashboardLayout>
               <Routes>
                 <Route path="tasks" element={<Tasks />} />
+                <Route path="tasks/:id" element={<Tasks />} />
                 <Route path="notes" element={<Notes />} />
                 <Route path="notes/:id" element={<Notes />} />
+                <Route path="list" element={<List />} />
                 <Route path="*" element={<Navigate to="/tasks" replace />} />
               </Routes>
             </DashboardLayout>
