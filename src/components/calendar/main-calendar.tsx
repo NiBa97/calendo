@@ -19,9 +19,12 @@ import CustomMultiDayView from "./custom-view";
 import CalendarPopup from "./popup";
 import { Task } from "../../types";
 import { getLocalStorage, setLocalStorage } from "../../utils/storage";
+import { getContrastColor } from "../../utils/colors";
 import CustomToolbar from "./custom-toolbar";
 import EditTask from "../task-edit";
 import { FaUsers } from "react-icons/fa6";
+import { useTags } from "../../contexts/tag-context";
+import { Badge } from "@chakra-ui/react";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
@@ -29,52 +32,148 @@ const DnDCalendar = withDragAndDrop(Calendar);
 const EventComponent = ({ event }: { event: Task }) => {
   const isOverdue = moment(event.endDate).isBefore(moment().startOf("day")) && !event.status;
   const { setContextInformation } = useTasks();
+  const { tags } = useTags();
+
+  const durationMinutes =
+    event.startDate && event.endDate ? moment(event.endDate).diff(moment(event.startDate), "minutes") : 0;
+
+  const eventTags = tags.filter((tag) => event.tags?.includes(tag.id));
+
+  let backgroundColor = "transparent";
+  let textColor = "brand.4";
+
+  if (eventTags.length === 1) {
+    backgroundColor = eventTags[0].color;
+    textColor = getContrastColor(eventTags[0].color);
+  }
+
+  const isVerySmallEvent = durationMinutes <= 15;
+  const isSmallEvent = durationMinutes <= 30;
+  const isMediumEvent = durationMinutes <= 60;
+
+  const shouldShowTags = !isSmallEvent && eventTags.length > 0;
+  const shouldShowTime = !isVerySmallEvent && !event.isAllDay;
+
+  const getDisplayTitle = () => {
+    const name = event.name;
+
+    if (isVerySmallEvent && name.length > 12) {
+      return name.substring(0, 10) + "...";
+    }
+
+    if (isSmallEvent && name.length > 20) {
+      return name.substring(0, 18) + "...";
+    }
+
+    return name;
+  };
+
   const onContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     setContextInformation({ x: e.clientX, y: e.clientY, task: event });
   };
 
+  if (isVerySmallEvent) {
+    return (
+      <Flex
+        width="100%"
+        height="100%"
+        color={textColor}
+        p={1}
+        bg={backgroundColor}
+        borderLeft={isOverdue ? "4px solid red" : ""}
+        onContextMenu={onContextMenu}
+        alignItems="center"
+        title={event.name}
+      >
+        <Text fontWeight={600} textDecoration={event.status ? "line-through" : "none"} fontSize="sm" lineHeight="1">
+          {event.user && event.user.length > 1 && (
+            <FaUsers size="0.7em" style={{ display: "inline", marginRight: "2px" }} />
+          )}
+          {getDisplayTitle()}
+        </Text>
+      </Flex>
+    );
+  }
+
   return (
     <Flex
       width="100%"
       height="100%"
-      color="brand.4"
-      p={2}
+      color={textColor}
+      p={isSmallEvent ? 1 : 2}
+      bg={backgroundColor}
       borderLeft={isOverdue ? "4px solid red" : ""}
       onContextMenu={onContextMenu}
-      justifyContent={"space-between"}
-      alignItems={"center"}
+      flexDirection="column"
+      justifyContent="space-between"
+      title={event.name}
     >
-      <Text
-        fontWeight={600}
-        textDecoration={event.status ? "line-through" : "none"}
-        overflow="hidden"
-        textOverflow="ellipsis"
-        whiteSpace="nowrap"
-        display={"flex"}
-        alignItems={"center"}
-        gap={2}
-      >
-        {event.user && event.user.length > 1 && <FaUsers />}
-        {event.name}
-      </Text>
-      {!event.isAllDay && (
-        <Text fontSize="xs" opacity={0.9}>
-          {moment(event.startDate).format("HH:mm")} - {moment(event.endDate).format("HH:mm")}
+      <Flex justifyContent="space-between" alignItems="center" width="100%" gap={1}>
+        <Text
+          fontWeight={600}
+          textDecoration={event.status ? "line-through" : "none"}
+          overflow="hidden"
+          textOverflow="ellipsis"
+          whiteSpace="nowrap"
+          display="flex"
+          alignItems="center"
+          gap={1}
+          maxWidth={shouldShowTime ? "70%" : "100%"}
+          fontSize={"sm"}
+          lineHeight={isSmallEvent ? "1.1" : "normal"}
+        >
+          {event.user && event.user.length > 1 && (
+            <FaUsers size={isSmallEvent ? "0.7em" : "0.8em"} style={{ flexShrink: 0 }} />
+          )}
+          {getDisplayTitle()}
         </Text>
+
+        {shouldShowTime && (
+          <Text fontSize={isSmallEvent ? "2xs" : "xs"} opacity={0.9} flexShrink={0} lineHeight="1">
+            {moment(event.startDate).format("HH:mm")}
+            {!isSmallEvent && ` - ${moment(event.endDate).format("HH:mm")}`}
+          </Text>
+        )}
+      </Flex>
+
+      {shouldShowTags && (
+        <Flex mt={isSmallEvent ? 0.5 : 1} flexWrap="wrap" gap={isSmallEvent ? 0.5 : 1}>
+          {eventTags.slice(0, isMediumEvent ? 2 : 3).map((tag) => (
+            <Badge
+              key={tag.id}
+              borderRadius="full"
+              px={1}
+              py={0}
+              fontSize={isSmallEvent ? "0.5em" : "0.6em"}
+              bg={backgroundColor === tag.color ? "whiteAlpha.300" : tag.color}
+              color={backgroundColor === tag.color ? textColor : getContrastColor(tag.color)}
+            >
+              {isSmallEvent && tag.name.length > 5 ? tag.name.substring(0, 3) + "..." : tag.name}
+            </Badge>
+          ))}
+          {eventTags.length > (isMediumEvent ? 2 : 3) && (
+            <Badge borderRadius="full" px={1} py={0} fontSize={isSmallEvent ? "0.5em" : "0.6em"} bg="blackAlpha.200">
+              +{eventTags.length - (isMediumEvent ? 2 : 3)}
+            </Badge>
+          )}
+        </Flex>
       )}
     </Flex>
   );
 };
 
-const eventPropGetter = (event: Task) => ({
-  ...(event.status && {
-    className: "completed-task",
-  }),
-  ...(!event.status && {
-    className: "uncompleted-task",
-  }),
-});
+const eventPropGetter = (event: Task) => {
+  const style: React.CSSProperties = {
+    borderRadius: "3px",
+  };
+
+  if (event.status) {
+    return { className: "completed-task", style };
+  }
+
+  return { className: "uncompleted-task", style };
+};
 
 export default function MainCalendar({
   isTaskListOpen,
@@ -231,7 +330,7 @@ export default function MainCalendar({
 
     setSelectedEvent(event as Task);
   };
-  const handleDoubleClickEvent = (event: object, _e: SyntheticEvent<HTMLElement, Event>) => {
+  const handleDoubleClickEvent = (event: object) => {
     setSelectedEvent(null);
     setModalTask(event as Task);
   };
