@@ -132,9 +132,14 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatedTags.push(tagId);
       }
 
+      // Optimistically update the UI first
+      setNotes((prevNotes) => prevNotes.map((n) => (n.id === noteId ? { ...n, tags: updatedTags } : n)));
+
+      // Then update in the backend
       await updateNote(noteId, { tags: updatedTags });
       setStatus("idle");
     } catch (error) {
+      // Revert the optimistic update on error
       setStatus("error");
       throw error;
     }
@@ -147,6 +152,11 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!note) throw new Error("Note not found");
 
       const updatedTags = (note.tags || []).filter((id) => id !== tagId);
+
+      // Optimistically update the UI first
+      setNotes((prevNotes) => prevNotes.map((n) => (n.id === noteId ? { ...n, tags: updatedTags } : n)));
+
+      // Then update in the backend
       await updateNote(noteId, { tags: updatedTags });
       setStatus("idle");
     } catch (error) {
