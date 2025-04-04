@@ -9,14 +9,42 @@ interface TagSelectorProps {
   selectedTags: string[];
   onTagSelect: (tagId: string) => void;
   onTagRemove: (tagId: string) => void;
+  isOpen?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
-export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSelect, onTagRemove }) => {
+export const TagSelector: React.FC<TagSelectorProps> = ({
+  selectedTags,
+  onTagSelect,
+  onTagRemove,
+  isOpen: externalOpen,
+  onOpenChange,
+}) => {
   const { tags, createTag } = useTags();
   const [searchQuery, setSearchQuery] = useState("");
   const { open, onOpen, onClose } = useDisclosure();
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState("#00ADB5"); // Default color
+
+  // Determine if we're using internal or external state for the dialog
+  const isControlled = externalOpen !== undefined;
+  const isDialogOpen = isControlled ? externalOpen : open;
+
+  const handleOpen = () => {
+    if (isControlled) {
+      onOpenChange?.(true);
+    } else {
+      onOpen();
+    }
+  };
+
+  const handleClose = () => {
+    if (isControlled) {
+      onOpenChange?.(false);
+    } else {
+      onClose();
+    }
+  };
 
   const filteredTags = tags.filter((tag) => {
     const query = searchQuery.toLowerCase();
@@ -44,22 +72,34 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSel
       onTagSelect(newTag.id);
       setNewTagName("");
       setNewTagColor("#00ADB5");
-      onClose();
+      handleClose();
     } catch (error) {
       console.error("Failed to create tag:", error);
     }
   };
 
+  // Handler for when a tag is selected
+  const handleTagSelect = (tagId: string, isSelected: boolean) => {
+    if (isSelected) {
+      onTagRemove(tagId);
+    } else {
+      onTagSelect(tagId);
+      handleClose(); // Close the dialog after selecting a tag
+    }
+  };
+
   return (
     <>
-      <Button onClick={onOpen} size="sm" colorScheme="blue" variant="outline">
-        <Box as={FaTags} mr={1} /> Manage Tags
-      </Button>
+      {!isControlled && (
+        <Button onClick={handleOpen} size="sm" variant="outline">
+          <Box as={FaTags} mr={1} /> Manage Tags
+        </Button>
+      )}
 
       <DialogRoot
-        open={open}
+        open={isDialogOpen}
         onOpenChange={(e) => {
-          if (!e.open) onClose();
+          if (!e.open) handleClose();
         }}
       >
         <DialogContent bg="brand.1" color="brand.4" maxW="sm">
@@ -86,7 +126,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSel
                 </Box>
               </Box>
 
-              <Box maxH="200px" overflowY="auto">
+              <Flex maxH="200px" overflowY="auto" direction={"column"} gap={2}>
                 {sortedTags.length === 0 ? (
                   <Text p={2}>No tags found</Text>
                 ) : (
@@ -102,7 +142,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSel
                         bg={isSelected ? "brand.2" : "transparent"}
                         _hover={{ bg: "brand.2" }}
                         cursor="pointer"
-                        onClick={() => (isSelected ? onTagRemove(tag.id) : onTagSelect(tag.id))}
+                        onClick={() => handleTagSelect(tag.id, isSelected)}
                       >
                         <Flex align="center">
                           <Box bg={tag.color} width="16px" height="16px" borderRadius="full" mr={2} />
@@ -122,7 +162,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSel
                     );
                   })
                 )}
-              </Box>
+              </Flex>
 
               <Box borderTop="1px solid" borderColor="brand.2" pt={3}>
                 <Text fontWeight="medium" mb={2}>
@@ -151,7 +191,7 @@ export const TagSelector: React.FC<TagSelectorProps> = ({ selectedTags, onTagSel
             </Flex>
           </DialogBody>
           <DialogFooter borderTop="1px solid" borderColor="brand.2">
-            <Button variant="ghost" onClick={onClose}>
+            <Button variant="ghost" onClick={handleClose}>
               Close
             </Button>
           </DialogFooter>
@@ -170,10 +210,8 @@ export const TagBadges: React.FC<{
 
   const selectedTags = tags.filter((tag) => tagIds.includes(tag.id));
 
-  if (selectedTags.length === 0) return null;
-
   return (
-    <Flex wrap="wrap" gap={2} mt={2}>
+    <Flex wrap="wrap" gap={2}>
       {selectedTags.map((tag) => (
         <Badge
           key={tag.id}

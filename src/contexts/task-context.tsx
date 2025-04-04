@@ -160,9 +160,14 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         updatedTags.push(tagId);
       }
 
+      // Optimistically update the UI first
+      setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...t, tags: updatedTags } : t)));
+
+      // Then update in the backend
       await updateTask(taskId, { tags: updatedTags });
       setStatus("idle");
     } catch (error) {
+      // Revert the optimistic update on error
       setStatus("error");
       throw error;
     }
@@ -175,6 +180,11 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       if (!task) throw new Error("Task not found");
 
       const updatedTags = (task.tags || []).filter((id) => id !== tagId);
+
+      // Optimistically update the UI first
+      setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...t, tags: updatedTags } : t)));
+
+      // Then update in the backend
       await updateTask(taskId, { tags: updatedTags });
       setStatus("idle");
     } catch (error) {

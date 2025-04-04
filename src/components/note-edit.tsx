@@ -1,66 +1,85 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaTimes, FaTrash, FaHistory } from "react-icons/fa";
-import { Flex, Box, Button } from "@chakra-ui/react";
-import { type MDXEditorMethods } from "@mdxeditor/editor";
+import { useState, useEffect, useRef } from "react";
+import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV } from "react-icons/fa";
+import { Box, Button, Flex } from "@chakra-ui/react";
 import Editor from "./editor/editor";
-import { useNotes } from "../contexts/note-context";
-import NoteChangelog from "./note-changelog";
 import TitleInput from "./ui/title-input";
+import { useNotes } from "../contexts/note-context";
 import { TagSelector, TagBadges } from "./tag-selector";
+import NoteChangelog from "./note-changelog";
+import { MDXEditorMethods } from "@mdxeditor/editor";
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 interface NoteEditProps {
   noteId: string;
-  height?: number | string;
-  width?: number | string;
+  width?: string | number;
+  height?: string | number;
+  onComplete?: () => void;
   showCloseButton?: boolean;
   showToolbar?: boolean;
-  onComplete?: () => void;
 }
 
 const NoteEdit = ({
   noteId,
-  height = undefined,
-  width = undefined,
-  showCloseButton = true,
-  showToolbar = true,
+  width,
+  height,
   onComplete,
+  showCloseButton = false,
+  showToolbar = true,
 }: NoteEditProps) => {
-  const ref = React.useRef<MDXEditorMethods>(null);
   const { notes, updateNote, deleteNote, addTagToNote, removeTagFromNote } = useNotes();
-  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const note = notes.find((n) => n.id === noteId);
+  const [title, setTitle] = useState(note?.title || "");
+  const [content, setContent] = useState(note?.content || "");
+  const [localTags, setLocalTags] = useState<string[]>(note?.tags || []);
+  const [showChangelog, setShowChangelog] = useState(false);
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ref = useRef<MDXEditorMethods>(null);
 
-  const noteDataRef = useRef({
-    title: "",
-    content: "",
-  });
-
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  // Update local tags whenever note.tags changes
+  useEffect(() => {
+    if (note?.tags) {
+      setLocalTags(note.tags);
+    }
+  }, [note?.tags]);
 
   useEffect(() => {
     if (note) {
-      const newTitle = note.title;
-      const newContent = note.content ?? "";
-
-      setTitle(newTitle);
-      setContent(newContent);
-
-      noteDataRef.current = {
-        title: newTitle,
-        content: newContent,
-      };
-
-      if (ref.current) {
-        ref.current.setMarkdown(newContent);
-      }
+      setTitle(note.title || "");
+      setContent(note.content || "");
     }
-  }, [note, noteId]);
+  }, [note]);
+
+  useEffect(() => {
+    return () => {
+      // Save on unmount if needed
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+        handleSave();
+      }
+    };
+  }, [title, content]);
+
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    debounceSave();
+  };
+
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+    debounceSave();
+  };
 
   const handleSave = async () => {
-    if (noteId) {
-      await updateNote(noteId, noteDataRef.current);
+    if (note) {
+      try {
+        await updateNote(noteId, {
+          title,
+          content,
+        });
+      } catch (error) {
+        console.error("Failed to save note:", error);
+      }
     }
   };
 
@@ -69,87 +88,115 @@ const NoteEdit = ({
       clearTimeout(debounceTimeout.current);
     }
     debounceTimeout.current = setTimeout(() => {
-      void handleSave();
+      handleSave();
     }, 2000);
   };
 
-  const handleTitleChange = (newTitle: string) => {
-    noteDataRef.current.title = newTitle;
-    setTitle(newTitle);
-    debounceSave();
-  };
-
-  const handleContentChange = (newContent: string) => {
-    noteDataRef.current.content = newContent;
-    debounceSave();
-  };
-
   const handleDelete = async () => {
-    if (noteId) {
-      await deleteNote(noteId);
-      onComplete?.();
+    if (confirm("Are you sure you want to delete this note?")) {
+      try {
+        await deleteNote(noteId);
+      } catch (error) {
+        console.error("Failed to delete note:", error);
+      }
     }
   };
-  const [showChangelog, setShowChangelog] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-        void handleSave();
-      }
-    };
-  }, []);
+  // Handle tag selection with local state update
+  const handleTagSelect = (tagId: string) => {
+    const updatedTags = [...localTags];
+    if (!updatedTags.includes(tagId)) {
+      updatedTags.push(tagId);
+      setLocalTags(updatedTags);
+    }
+    addTagToNote(noteId, tagId);
+    setIsTagDialogOpen(false);
+  };
 
-  if (!note) {
-    return <Box p={4}>Note not found</Box>;
-  }
+  // Handle tag removal with local state update
+  const handleTagRemove = (tagId: string) => {
+    const updatedTags = localTags.filter((id) => id !== tagId);
+    setLocalTags(updatedTags);
+    removeTagFromNote(noteId, tagId);
+  };
+
+  if (!note) return null;
 
   return (
-    <Flex
-      direction="column"
-      width={width ?? "100%"}
-      height={height ?? "100%"}
-      bg="brand.1"
-      maxHeight="100%"
-      overflow="hidden"
-    >
-      <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2">
-        <Flex alignItems="center">
-          <TitleInput placeholder="Note title" value={title} onChange={handleTitleChange} />
-          <Button aria-label="Delete" bg="brand.1" onClick={handleDelete} color="brand.4" size="lg" borderRadius="none">
-            <FaTrash />
-          </Button>
-          <Button
-            aria-label="History"
-            bg="brand.1"
-            onClick={() => setShowChangelog(true)}
-            color="brand.4"
-            size="lg"
-            borderRadius="none"
-          >
-            <FaHistory />
-          </Button>
-          {showCloseButton && (
-            <Button aria-label="Close" bg="brand.1" onClick={onComplete} color="brand.4" size="lg" borderRadius="none">
-              <FaTimes />
-            </Button>
-          )}
-        </Flex>
-      </Box>
+    <>
+      <Flex
+        direction="column"
+        width={width ?? "100%"}
+        height={height ?? "100%"}
+        bg="brand.1"
+        maxHeight="100%"
+        overflow="hidden"
+      >
+        <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2">
+          <Flex alignItems="center">
+            <TitleInput placeholder="Note title" value={title} onChange={handleTitleChange} />
+            <MenuRoot>
+              <MenuTrigger asChild>
+                <Button
+                  aria-label="More options"
+                  bg="brand.1"
+                  color="brand.4"
+                  size="lg"
+                  borderRadius="none"
+                  _hover={{ bg: "brand.2" }}
+                >
+                  <FaEllipsisV />
+                </Button>
+              </MenuTrigger>
+              <MenuContent zIndex={1000}>
+                <MenuItem onClick={() => setIsTagDialogOpen(true)} value="tags">
+                  <FaTags style={{ marginRight: "8px" }} />
+                  Manage Tags
+                </MenuItem>
+                <MenuItem onClick={handleDelete} value="delete">
+                  <FaTrash style={{ marginRight: "8px" }} />
+                  Delete Note
+                </MenuItem>
+                <MenuItem onClick={() => setShowChangelog(true)} value="history">
+                  <FaHistory style={{ marginRight: "8px" }} />
+                  View History
+                </MenuItem>
+              </MenuContent>
+            </MenuRoot>
+            {showCloseButton && (
+              <Button
+                aria-label="Close"
+                bg="brand.1"
+                onClick={onComplete}
+                color="brand.4"
+                size="lg"
+                borderRadius="none"
+              >
+                <FaTimes />
+              </Button>
+            )}
+          </Flex>
+        </Box>
 
-      <Box p={2} borderBottom="1px solid" borderColor="brand.2">
-        <Flex align="center" justify="space-between">
-          <TagBadges tagIds={note.tags} onRemove={(tagId) => removeTagFromNote(noteId, tagId)} />
-          <TagSelector
-            selectedTags={note.tags}
-            onTagSelect={(tagId) => addTagToNote(noteId, tagId)}
-            onTagRemove={(tagId) => removeTagFromNote(noteId, tagId)}
-          />
-        </Flex>
-      </Box>
+        {localTags.length > 0 && (
+          <Box p={2} borderBottom="1px solid" borderColor="brand.2">
+            <Flex align="center" justify="space-between">
+              <TagBadges tagIds={localTags} onRemove={handleTagRemove} />
+            </Flex>
+          </Box>
+        )}
 
-      <Editor markdown={content} onChange={handleContentChange} editorRef={ref} showToolbar={showToolbar} />
+        <Editor markdown={content} onChange={handleContentChange} editorRef={ref} showToolbar={showToolbar} />
+      </Flex>
+
+      <TagSelector
+        selectedTags={localTags}
+        onTagSelect={handleTagSelect}
+        onTagRemove={handleTagRemove}
+        isOpen={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+      />
+
       <NoteChangelog
         isOpen={showChangelog}
         onClose={() => setShowChangelog(false)}
@@ -157,7 +204,7 @@ const NoteEdit = ({
         originalContent={content}
         originalTitle={title}
       />
-    </Flex>
+    </>
   );
 };
 
