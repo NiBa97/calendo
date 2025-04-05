@@ -42,7 +42,7 @@ export default function List() {
   // Get context data
   const { notes } = useNotes();
   const { tasks, setModalTask } = useTasks();
-  const { setSelectedNote } = useNotes();
+  const { createNote, setSelectedNote } = useNotes();
   const { tags } = useTags();
 
   // Local state for filters
@@ -191,7 +191,19 @@ export default function List() {
   };
 
   // Handle creating new note from list page
-  const handleCreateNote = () => {
+  const handleCreateNote = async () => {
+    try {
+      const data = {
+        title: "New Note",
+        content: "",
+      };
+      const newNote = await createNote(data);
+      if (newNote?.id) {
+        setSelectedNote(newNote);
+      }
+    } catch (error) {
+      console.log(error);
+    }
     // Create an empty note and open in dialog
   };
 
