@@ -3,13 +3,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaEllipsisV, FaTags } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
-import { Flex, IconButton, Box, HStack, Button } from "@chakra-ui/react";
+import { Flex, IconButton, Box, HStack, Button, Portal, Menu } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import Editor from "./editor/editor";
 import TaskChangelog from "./task-changelog";
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 import { ShareMenu } from "./share-menu";
 import TitleInput from "./ui/title-input";
 import TaskCheckbox from "./ui/task-checkbox";
@@ -26,10 +25,12 @@ interface TaskState {
 
 const EditTask = ({
   task,
+
   height = undefined,
   width = undefined,
   showCloseButton = true,
   showToolbar = true,
+  contentDialogRef = null,
   onComplete,
 }: {
   task: Task;
@@ -38,8 +39,10 @@ const EditTask = ({
   onComplete?: () => void;
   showCloseButton?: boolean;
   showToolbar?: boolean;
+  contentDialogRef?: React.MutableRefObject<HTMLDivElement | null> | null;
 }) => {
   const ref = React.useRef<MDXEditorMethods>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const { updateTask, createTask, setTemporaryTask, addTagToTask, removeTagFromTask } = useTasks();
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [taskState, setTaskState] = useState<TaskState>({
@@ -155,7 +158,6 @@ const EditTask = ({
           width={"100%"}
           borderBottom={showCloseButton ? "none" : "2px solid"}
           borderColor={"brand.2"}
-          p={2}
         >
           <HStack gap={1}>
             <TaskCheckbox checked={taskState.status} onChange={(checked) => handleStatusChange(checked)} />
@@ -207,10 +209,11 @@ const EditTask = ({
           borderTop={"2px solid"}
           borderColor={"brand.2"}
           p={3}
+          ref={contentRef}
         >
           <DateTimeRangeSelector task={task} />
-          <MenuRoot>
-            <MenuTrigger asChild>
+          <Menu.Root>
+            <Menu.Trigger asChild>
               <Button
                 aria-label="More options"
                 bg="brand.1"
@@ -221,22 +224,30 @@ const EditTask = ({
               >
                 <FaEllipsisV />
               </Button>
-            </MenuTrigger>
-            <MenuContent zIndex={1000}>
-              <MenuItem onClick={() => setIsTagDialogOpen(true)} value="tags">
-                <FaTags style={{ marginRight: "8px" }} />
-                Manage Tags
-              </MenuItem>
-              <MenuItem onClick={() => setShowChangelog(true)} value="history">
-                <FaHistory style={{ marginRight: "8px" }} />
-                View History
-              </MenuItem>
-              <ShareMenu objectId={task.id} objectType="task" currentUsers={task.user} />
-            </MenuContent>
-          </MenuRoot>
+            </Menu.Trigger>
+            <Portal container={contentDialogRef ?? undefined}>
+              <Menu.Positioner>
+                <Menu.Content>
+                  <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags">
+                    <FaTags style={{ marginRight: "8px" }} />
+                    Manage Tags
+                  </Menu.Item>
+                  <Menu.Item onClick={() => setShowChangelog(true)} value="history">
+                    <FaHistory style={{ marginRight: "8px" }} />
+                    View History
+                  </Menu.Item>
+                  <ShareMenu
+                    contentDialogRef={contentRef}
+                    objectId={task.id}
+                    objectType="task"
+                    currentUsers={task.user}
+                  />
+                </Menu.Content>
+              </Menu.Positioner>
+            </Portal>
+          </Menu.Root>
         </Flex>
       </Flex>
-
       <TagSelector
         selectedTags={localTags}
         onTagSelect={handleTagSelect}
@@ -244,7 +255,6 @@ const EditTask = ({
         isOpen={isTagDialogOpen}
         onOpenChange={setIsTagDialogOpen}
       />
-
       <TaskChangelog isOpen={showChangelog} onClose={() => setShowChangelog(false)} taskId={task.id} />
     </>
   );
