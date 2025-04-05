@@ -11,6 +11,7 @@ import { NoteProvider } from "./contexts/note-context";
 import { OperationStatusProvider } from "./contexts/operation-status-context";
 import { TagProvider } from "./contexts/tag-context";
 import { Toaster } from "./components/ui/toaster";
+import NoteEditModal from "./components/note-modal";
 
 const ProtectedApp = () => {
   return (
@@ -30,6 +31,7 @@ const ProtectedApp = () => {
               </Routes>
             </DashboardLayout>
             <TaskEditModal />
+            <NoteEditModal />
           </TagProvider>
         </NoteProvider>
       </TaskProvider>
