@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { getPb } from "../pocketbaseUtils";
-import { MenuContent, MenuItem, MenuRoot, MenuTriggerItem } from "./ui/menu";
-import { FaShareAlt, FaSearch } from "react-icons/fa";
-import { Box, Input, Text, Flex } from "@chakra-ui/react";
+import { FaShareAlt, FaSearch, FaChevronRight } from "react-icons/fa";
+import { Box, Input, Text, Flex, Portal, Menu, HStack } from "@chakra-ui/react";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
 
@@ -10,6 +9,8 @@ interface ShareMenuProps {
   objectId: string;
   objectType: "task" | "note";
   currentUsers: string[];
+
+  contentDialogRef?: React.MutableRefObject<HTMLDivElement | null> | null;
 }
 interface User {
   id: string;
@@ -17,7 +18,12 @@ interface User {
   email: string;
   avatar?: string;
 }
-export const ShareMenu: React.FC<ShareMenuProps> = ({ objectId, objectType, currentUsers }) => {
+export const ShareMenu: React.FC<ShareMenuProps> = ({
+  objectId,
+  objectType,
+  currentUsers,
+  contentDialogRef = null,
+}) => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,84 +112,91 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({ objectId, objectType, curr
     }
   };
   return (
-    <MenuRoot positioning={{ placement: "right-start", gutter: 2 }}>
-      <MenuTriggerItem value="share">
-        <FaShareAlt /> Share
-      </MenuTriggerItem>
-      <MenuContent>
-        <Box position="relative" mb={2}>
-          <Input
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            pr="2rem"
-            bg="brand.1"
-            color="brand.4"
-            borderColor="brand.3"
-            _hover={{ borderColor: "brand.4" }}
-            _focus={{ borderColor: "brand.4" }}
-            onClick={(e) => e.stopPropagation()}
-          />
-          <Box position="absolute" right="0.5rem" top="50%" transform="translateY(-50%)">
-            <FaSearch color="var(--chakra-colors-brand-3)" />
-          </Box>
-        </Box>
+    <Menu.Root positioning={{ placement: "right-start", gutter: 2 }}>
+      <Menu.TriggerItem asChild>
+        <Flex justifyContent={"space-between"}>
+          <HStack>
+            <FaShareAlt style={{ marginRight: "8px" }} /> Share{" "}
+          </HStack>
+          <FaChevronRight />
+        </Flex>
+      </Menu.TriggerItem>
 
-        <Box maxH="300px" overflowY="auto">
-          {isLoading ? (
-            <Text p={2}>Loading users...</Text>
-          ) : sortedUsers.length === 0 ? (
-            <Text p={2}>No users found</Text>
-          ) : (
-            sortedUsers.map((user) => {
-              const isShared = currentUsers.includes(user.id);
-              return (
-                <MenuItem key={user.id} value={user.id} onClick={() => handleUserSelect(user.id)}>
-                  <Flex align="center" justify="space-between" width="100%">
-                    <Flex align="center">
-                      <Box
-                        bg={isShared ? "green.500" : "brand.3"}
-                        borderRadius="full"
-                        width="24px"
-                        height="24px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        mr={2}
-                        color="white"
-                        fontSize="sm"
-                      >
-                        {user.name.charAt(0).toUpperCase()}
-                      </Box>
-                      <Box>
-                        <Text fontSize="sm" fontWeight="medium">
-                          {user.name}
-                        </Text>
-                        <Text fontSize="xs" color="brand.3">
-                          {user.email}
-                        </Text>
-                      </Box>
+      <Portal container={contentDialogRef ?? undefined}>
+        <Menu.Positioner>
+          <Menu.Content>
+            <Box position="relative" mb={2}>
+              <Input
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                pr="2rem"
+                bg="brand.1"
+                color="brand.4"
+                borderColor="brand.3"
+                _hover={{ borderColor: "brand.4" }}
+                _focus={{ borderColor: "brand.4" }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <Box position="absolute" right="0.5rem" top="50%" transform="translateY(-50%)">
+                <FaSearch color="var(--chakra-colors-brand-3)" />
+              </Box>
+            </Box>
+            {isLoading ? (
+              <Text p={2}>Loading users...</Text>
+            ) : sortedUsers.length === 0 ? (
+              <Text p={2}>No users found</Text>
+            ) : (
+              sortedUsers.map((user) => {
+                const isShared = currentUsers.includes(user.id);
+                return (
+                  <Menu.Item key={user.id} value={user.id} onClick={() => handleUserSelect(user.id)}>
+                    <Flex align="center" justify="space-between" width="100%">
+                      <Flex align="center">
+                        <Box
+                          bg={isShared ? "green.500" : "brand.3"}
+                          borderRadius="full"
+                          width="24px"
+                          height="24px"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          mr={2}
+                          color="white"
+                          fontSize="sm"
+                        >
+                          {user.name.charAt(0).toUpperCase()}
+                        </Box>
+                        <Box>
+                          <Text fontSize="sm" fontWeight="medium">
+                            {user.name}
+                          </Text>
+                          <Text fontSize="xs" color="brand.3">
+                            {user.email}
+                          </Text>
+                        </Box>
+                      </Flex>
+                      {isShared && (
+                        <Box
+                          bg="green.100"
+                          color="green.700"
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                          fontSize="xs"
+                          fontWeight="medium"
+                        >
+                          Shared
+                        </Box>
+                      )}
                     </Flex>
-                    {isShared && (
-                      <Box
-                        bg="green.100"
-                        color="green.700"
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        fontSize="xs"
-                        fontWeight="medium"
-                      >
-                        Shared
-                      </Box>
-                    )}
-                  </Flex>
-                </MenuItem>
-              );
-            })
-          )}
-        </Box>
-      </MenuContent>
-    </MenuRoot>
+                  </Menu.Item>
+                );
+              })
+            )}
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
   );
 };
