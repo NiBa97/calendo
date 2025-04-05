@@ -24,8 +24,6 @@ import {
   MenuRadioItem,
   MenuRadioItemGroup,
 } from "../components/ui/menu";
-import NoteEdit from "../components/note-edit";
-import { DialogRoot, DialogContent } from "../components/ui/dialog";
 
 // Combined type for list items (notes and tasks)
 type ListItem = {
@@ -44,11 +42,8 @@ export default function List() {
   // Get context data
   const { notes } = useNotes();
   const { tasks, setModalTask } = useTasks();
+  const { setSelectedNote } = useNotes();
   const { tags } = useTags();
-
-  // State for note popup
-  const [selectedNoteId, setSelectedNoteId] = useState<string>("");
-  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
 
   // Local state for filters
   const [titleFilter, setTitleFilter] = useState(searchParams.get("title") || "");
@@ -172,8 +167,10 @@ export default function List() {
       }
     } else {
       // Open note in dialog
-      setSelectedNoteId(item.id);
-      setIsNoteDialogOpen(true);
+      const note = notes.find((t) => t.id === item.id);
+      if (note) {
+        setSelectedNote(note);
+      }
     }
   };
 
@@ -196,8 +193,6 @@ export default function List() {
   // Handle creating new note from list page
   const handleCreateNote = () => {
     // Create an empty note and open in dialog
-    setSelectedNoteId("");
-    setIsNoteDialogOpen(true);
   };
 
   return (
@@ -433,17 +428,6 @@ export default function List() {
           </Table.Body>
         </Table.Root>
       </Box>
-
-      {/* Note Edit Dialog */}
-      <DialogRoot open={isNoteDialogOpen} onOpenChange={({ open }) => setIsNoteDialogOpen(open)}>
-        <DialogContent maxW="1200px" w="90%" h="90vh" p={0}>
-          <NoteEdit
-            noteId={selectedNoteId || ""}
-            showCloseButton={true}
-            onComplete={() => setIsNoteDialogOpen(false)}
-          />
-        </DialogContent>
-      </DialogRoot>
     </Box>
   );
 }

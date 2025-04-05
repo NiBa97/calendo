@@ -18,6 +18,11 @@ interface NoteEditProps {
   showToolbar?: boolean;
 }
 
+interface NoteState {
+  title: string;
+  content: string;
+}
+
 const NoteEdit = ({
   noteId,
   width,
@@ -35,6 +40,10 @@ const NoteEdit = ({
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<MDXEditorMethods>(null);
+  const noteStateRef = useRef<NoteState>({
+    title: note?.title || "",
+    content: note?.content || "",
+  });
 
   // Update local tags whenever note.tags changes
   useEffect(() => {
@@ -47,6 +56,10 @@ const NoteEdit = ({
     if (note) {
       setTitle(note.title || "");
       setContent(note.content || "");
+      noteStateRef.current = {
+        title: note.title || "",
+        content: note.content || "",
+      };
     }
   }, [note]);
 
@@ -58,25 +71,24 @@ const NoteEdit = ({
         handleSave();
       }
     };
-  }, [title, content]);
+  }, []);
 
   const handleTitleChange = (newTitle: string) => {
     setTitle(newTitle);
+    noteStateRef.current = { ...noteStateRef.current, title: newTitle };
     debounceSave();
   };
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
+    noteStateRef.current = { ...noteStateRef.current, content: newContent };
     debounceSave();
   };
 
   const handleSave = async () => {
     if (note) {
       try {
-        await updateNote(noteId, {
-          title,
-          content,
-        });
+        await updateNote(noteId, noteStateRef.current);
       } catch (error) {
         console.error("Failed to save note:", error);
       }
@@ -89,7 +101,7 @@ const NoteEdit = ({
     }
     debounceTimeout.current = setTimeout(() => {
       handleSave();
-    }, 2000);
+    }, 5000);
   };
 
   const handleDelete = async () => {
