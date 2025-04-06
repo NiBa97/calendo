@@ -272,10 +272,16 @@ export default function List() {
           </MenuTrigger>
           <MenuContent>
             <MenuItemGroup title="Status">
-              <MenuRadioItemGroup value={statusFilter} onChange={handleStatusFilterChange}>
-                <MenuRadioItem value="all">All Status</MenuRadioItem>
-                <MenuRadioItem value="open">Open</MenuRadioItem>
-                <MenuRadioItem value="closed">Closed</MenuRadioItem>
+              <MenuRadioItemGroup value={statusFilter} onValueChange={(e) => setStatusFilter(e.value)}>
+                <MenuRadioItem value="all" _checked={{ fontWeight: "bold" }}>
+                  All Status
+                </MenuRadioItem>
+                <MenuRadioItem value="open" _checked={{ fontWeight: "bold" }}>
+                  Open
+                </MenuRadioItem>
+                <MenuRadioItem value="closed" _checked={{ fontWeight: "bold" }}>
+                  Closed
+                </MenuRadioItem>
               </MenuRadioItemGroup>
             </MenuItemGroup>
           </MenuContent>
