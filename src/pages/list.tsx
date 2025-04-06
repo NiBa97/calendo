@@ -10,6 +10,8 @@ import {
   FaCheckCircle,
   FaBook,
   FaCheckSquare,
+  FaUserFriends,
+  FaLock,
 } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
@@ -34,6 +36,7 @@ type ListItem = {
   created: Date;
   updated?: Date;
   tags: string[];
+  shared: boolean;
 };
 
 export default function List() {
@@ -53,12 +56,6 @@ export default function List() {
     searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
 
-  const handleStatusFilterChange = (value: string | unknown) => {
-    if (typeof value === "string") {
-      setStatusFilter(value);
-    }
-  };
-
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
@@ -73,6 +70,7 @@ export default function List() {
 
   // Convert notes and tasks to a unified list item format
   const allItems = useMemo(() => {
+    console.log(tasks);
     const noteItems: ListItem[] = notes.map((note) => ({
       id: note.id,
       title: note.title || "Untitled Note",
@@ -80,6 +78,7 @@ export default function List() {
       created: note.created,
       updated: note.updated,
       tags: note.tags || [],
+      shared: note.user?.length > 1 || false,
     }));
 
     const taskItems: ListItem[] = tasks.map((task) => ({
@@ -90,6 +89,7 @@ export default function List() {
       created: task.startDate ? new Date(task.startDate) : new Date(),
       updated: task.endDate ? new Date(task.endDate) : undefined,
       tags: task.tags || [],
+      shared: task.user?.length > 1 || false,
     }));
 
     return [...noteItems, ...taskItems];
@@ -363,7 +363,6 @@ export default function List() {
 
           <Button
             size="xs"
-            variant="outline"
             onClick={() => {
               setTitleFilter("");
               setTypeFilter("all");
@@ -387,19 +386,21 @@ export default function List() {
           <Table.ColumnGroup>
             <Table.Column w="1" />
             <Table.Column />
+            <Table.Column w="80px" />
             <Table.Column w="200px" />
           </Table.ColumnGroup>
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader>Type</Table.ColumnHeader>
               <Table.ColumnHeader>Title</Table.ColumnHeader>
+              <Table.ColumnHeader>Shared</Table.ColumnHeader>
               <Table.ColumnHeader>Created</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {sortedItems.length === 0 ? (
               <Table.Row>
-                <Table.Cell colSpan={3}>
+                <Table.Cell colSpan={4}>
                   <Flex justify="center" py={8} color="gray.500">
                     No items match your filters
                   </Flex>
@@ -435,6 +436,13 @@ export default function List() {
                         </Box>
                       )}
                     </Flex>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {item.shared ? (
+                      <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />
+                    ) : (
+                      <Icon as={FaLock} color="gray.400" boxSize={5} aria-label="Not shared" />
+                    )}
                   </Table.Cell>
                   <Table.Cell color="gray.600">{formatDate(item.created)}</Table.Cell>
                 </Table.Row>
