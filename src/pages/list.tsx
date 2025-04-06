@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Box, Flex, Heading, Input, Button, HStack, VStack, Text, Badge, Icon, Table } from "@chakra-ui/react";
+import { Box, Flex, Heading, Input, Button, HStack, VStack, Text, Badge, Icon, Table, Menu } from "@chakra-ui/react";
 import {
   FaSearch,
   FaFilter,
@@ -52,13 +52,6 @@ export default function List() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
-
-  // Handle radio group changes
-  const handleTypeFilterChange = (value: string | unknown) => {
-    if (typeof value === "string") {
-      setTypeFilter(value);
-    }
-  };
 
   const handleStatusFilterChange = (value: string | unknown) => {
     if (typeof value === "string") {
@@ -253,13 +246,17 @@ export default function List() {
             </Button>
           </MenuTrigger>
           <MenuContent>
-            <MenuItemGroup title="Item Type">
-              <MenuRadioItemGroup value={typeFilter} onChange={handleTypeFilterChange}>
-                <MenuRadioItem value="all">All Items</MenuRadioItem>
-                <MenuRadioItem value="notes">Notes</MenuRadioItem>
-                <MenuRadioItem value="tasks">Tasks</MenuRadioItem>
-              </MenuRadioItemGroup>
-            </MenuItemGroup>
+            <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => setTypeFilter(e.value)}>
+              <Menu.RadioItem value="all" key="all" _checked={{ fontWeight: "bold" }}>
+                All Items
+              </Menu.RadioItem>
+              <Menu.RadioItem value="notes" key="notes" _checked={{ fontWeight: "bold" }}>
+                Notes
+              </Menu.RadioItem>
+              <Menu.RadioItem value="tasks" key="tasks" _checked={{ fontWeight: "bold" }}>
+                Tasks
+              </Menu.RadioItem>
+            </Menu.RadioItemGroup>
           </MenuContent>
         </MenuRoot>
 
