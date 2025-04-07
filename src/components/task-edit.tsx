@@ -158,8 +158,9 @@ const EditTask = ({
           width={"100%"}
           borderBottom={showCloseButton ? "none" : "2px solid"}
           borderColor={"brand.2"}
+          px={4}
         >
-          <HStack gap={1}>
+          <HStack gap={0}>
             <TaskCheckbox checked={taskState.status} onChange={(checked) => handleStatusChange(checked)} />
             <TitleInput
               placeholder="Add task title"
