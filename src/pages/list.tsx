@@ -1,31 +1,30 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Box, Flex, Heading, Input, Button, HStack, VStack, Text, Badge, Icon, Table, Menu } from "@chakra-ui/react";
 import {
-  FaSearch,
-  FaFilter,
-  FaTags,
-  FaCaretDown,
-  FaCircle,
-  FaCheckCircle,
-  FaBook,
-  FaCheckSquare,
-  FaUserFriends,
-  FaLock,
-} from "react-icons/fa";
+  Box,
+  Flex,
+  Heading,
+  Input,
+  Button,
+  HStack,
+  VStack,
+  Text,
+  Badge,
+  Icon,
+  Menu,
+  Grid,
+  GridItem,
+  Container,
+} from "@chakra-ui/react";
+import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare, FaUserFriends } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
 import { useTags } from "../contexts/tag-context";
 import { TagBadges } from "../components/tag-selector";
 import { InputGroup } from "../components/ui/input-group";
-import {
-  MenuRoot,
-  MenuTrigger,
-  MenuContent,
-  MenuItemGroup,
-  MenuRadioItem,
-  MenuRadioItemGroup,
-} from "../components/ui/menu";
+import { MenuRoot, MenuTrigger, MenuContent } from "../components/ui/menu";
+import TaskCheckbox from "../components/ui/task-checkbox";
+import TitlePreview from "../components/ui/title-preview";
 
 // Combined type for list items (notes and tasks)
 type ListItem = {
@@ -35,6 +34,7 @@ type ListItem = {
   status?: boolean;
   created: Date;
   updated?: Date;
+  dueDate?: Date;
   tags: string[];
   shared: boolean;
 };
@@ -51,7 +51,7 @@ export default function List() {
   // Local state for filters
   const [titleFilter, setTitleFilter] = useState(searchParams.get("title") || "");
   const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "all");
-  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "open");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
@@ -70,11 +70,11 @@ export default function List() {
 
   // Convert notes and tasks to a unified list item format
   const allItems = useMemo(() => {
-    console.log(tasks);
     const noteItems: ListItem[] = notes.map((note) => ({
       id: note.id,
       title: note.title || "Untitled Note",
       isTask: false,
+      status: false,
       created: note.created,
       updated: note.updated,
       tags: note.tags || [],
@@ -86,8 +86,8 @@ export default function List() {
       title: task.name || "Untitled Task",
       isTask: true,
       status: task.status,
-      created: task.startDate ? new Date(task.startDate) : new Date(),
-      updated: task.endDate ? new Date(task.endDate) : undefined,
+      created: task.created,
+      dueDate: task.startDate ? new Date(task.startDate) : undefined,
       tags: task.tags || [],
       shared: task.user?.length > 1 || false,
     }));
@@ -105,18 +105,12 @@ export default function List() {
       const matchesType =
         typeFilter === "all" || (typeFilter === "notes" && !item.isTask) || (typeFilter === "tasks" && item.isTask);
 
-      // Filter by status (for tasks only)
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "open" && (!item.isTask || !item.status)) ||
-        (statusFilter === "closed" && item.isTask && item.status);
-
       // Filter by tags
       const matchesTags = selectedTagIds.length === 0 || selectedTagIds.some((tagId) => item.tags.includes(tagId));
 
-      return matchesTitle && matchesType && matchesStatus && matchesTags;
+      return matchesTitle && matchesType && matchesTags;
     });
-  }, [allItems, titleFilter, typeFilter, statusFilter, selectedTagIds]);
+  }, [allItems, titleFilter, typeFilter, selectedTagIds]);
 
   // Sort by created date (changed from updated date)
   const sortedItems = useMemo(() => {
@@ -135,38 +129,6 @@ export default function List() {
     });
   };
 
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) {
-      return `today`;
-    } else if (diffInDays === 1) {
-      return `yesterday`;
-    } else if (diffInDays < 30) {
-      return `${diffInDays} days ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-
-  // Handle item click - open appropriate popup
-  const handleItemClick = (item: ListItem) => {
-    if (item.isTask) {
-      // Find the task object to open in modal
-      const task = tasks.find((t) => t.id === item.id);
-      if (task) {
-        setModalTask(task);
-      }
-    } else {
-      // Open note in dialog
-      const note = notes.find((t) => t.id === item.id);
-      if (note) {
-        setSelectedNote(note);
-      }
-    }
-  };
-
   // Handle creating new task from list page
   const handleCreateTask = () => {
     // Create an empty task in modal
@@ -176,6 +138,7 @@ export default function List() {
       description: "",
       startDate: new Date(),
       endDate: new Date(),
+      created: new Date(),
       isAllDay: false,
       status: false,
       user: [],
@@ -197,26 +160,11 @@ export default function List() {
     } catch (error) {
       console.log(error);
     }
-    // Create an empty note and open in dialog
   };
 
   return (
-    <Box p={4} maxW="1200px" mx="auto">
-      <Flex justifyContent="space-between" alignItems="center" mb={4}>
-        <Heading size="lg">All Items</Heading>
-        <HStack>
-          <Button colorScheme="blue" onClick={handleCreateNote}>
-            <Icon as={FaBook} mr={2} />
-            New Note
-          </Button>
-          <Button colorScheme="green" onClick={handleCreateTask}>
-            <Icon as={FaCheckSquare} mr={2} />
-            New Task
-          </Button>
-        </HStack>
-      </Flex>
-
-      {/* Filters */}
+    <Container p={4} maxW="3xl" mx="auto" w="3xl">
+      <Heading size="lg">All Items</Heading>
       <Flex
         direction={{ base: "column", md: "row" }}
         gap={3}
@@ -226,7 +174,7 @@ export default function List() {
         borderRadius="md"
         flexWrap="wrap"
       >
-        <InputGroup endElement={<FaSearch />} flex={{ base: "1", md: "2" }}>
+        <InputGroup startElement={<FaSearch />} flex={{ base: "1", md: "2" }}>
           <Input
             placeholder="Filter by title..."
             value={titleFilter}
@@ -234,102 +182,23 @@ export default function List() {
             bg="white"
           />
         </InputGroup>
-
-        <MenuRoot>
-          <MenuTrigger asChild>
-            <Button variant="outline">
-              <Flex align="center">
-                <Icon as={FaFilter} mr={2} />
-                Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
-                <Icon as={FaCaretDown} ml={2} />
-              </Flex>
-            </Button>
-          </MenuTrigger>
-          <MenuContent>
-            <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => setTypeFilter(e.value)}>
-              <Menu.RadioItem value="all" key="all" _checked={{ fontWeight: "bold" }}>
-                All Items
-              </Menu.RadioItem>
-              <Menu.RadioItem value="notes" key="notes" _checked={{ fontWeight: "bold" }}>
-                Notes
-              </Menu.RadioItem>
-              <Menu.RadioItem value="tasks" key="tasks" _checked={{ fontWeight: "bold" }}>
-                Tasks
-              </Menu.RadioItem>
-            </Menu.RadioItemGroup>
-          </MenuContent>
-        </MenuRoot>
-
-        <MenuRoot>
-          <MenuTrigger asChild>
-            <Button variant="outline">
-              <Flex align="center">
-                <Icon as={statusFilter === "closed" ? FaCheckCircle : FaCircle} mr={2} />
-                {statusFilter === "all" ? "All Status" : statusFilter === "open" ? "Open" : "Closed"}
-                <Icon as={FaCaretDown} ml={2} />
-              </Flex>
-            </Button>
-          </MenuTrigger>
-          <MenuContent>
-            <MenuItemGroup title="Status">
-              <MenuRadioItemGroup value={statusFilter} onValueChange={(e) => setStatusFilter(e.value)}>
-                <MenuRadioItem value="all" _checked={{ fontWeight: "bold" }}>
-                  All Status
-                </MenuRadioItem>
-                <MenuRadioItem value="open" _checked={{ fontWeight: "bold" }}>
-                  Open
-                </MenuRadioItem>
-                <MenuRadioItem value="closed" _checked={{ fontWeight: "bold" }}>
-                  Closed
-                </MenuRadioItem>
-              </MenuRadioItemGroup>
-            </MenuItemGroup>
-          </MenuContent>
-        </MenuRoot>
-
-        <MenuRoot>
-          <MenuTrigger asChild>
-            <Button variant="outline">
-              <Flex align="center">
-                <Icon as={FaTags} mr={2} />
-                Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
-                <Icon as={FaCaretDown} ml={2} />
-              </Flex>
-            </Button>
-          </MenuTrigger>
-          <MenuContent minW="250px">
-            <Box p={3}>
-              <Text fontWeight="medium" mb={2}>
-                Filter by Tags
-              </Text>
-              <VStack align="stretch" maxH="200px" overflowY="auto">
-                {tags.length === 0 ? (
-                  <Text color="gray.500">No tags found</Text>
-                ) : (
-                  tags.map((tag) => (
-                    <Flex
-                      key={tag.id}
-                      align="center"
-                      p={2}
-                      borderRadius="md"
-                      cursor="pointer"
-                      bg={selectedTagIds.includes(tag.id) ? "gray.100" : "transparent"}
-                      _hover={{ bg: "gray.50" }}
-                      onClick={() => handleTagClick(tag.id)}
-                    >
-                      <Box w="12px" h="12px" borderRadius="full" bg={tag.color} mr={2} />
-                      <Text>{tag.name}</Text>
-                    </Flex>
-                  ))
-                )}
-              </VStack>
-            </Box>
-          </MenuContent>
-        </MenuRoot>
+        <HStack>
+          <Button colorScheme="blue" onClick={handleCreateNote}>
+            <Icon as={FaBook} mr={2} />
+            New Note
+          </Button>
+          <Button colorScheme="green" onClick={handleCreateTask}>
+            <Icon as={FaCheckSquare} mr={2} />
+            New Task
+          </Button>
+          <Button colorScheme="red" onClick={() => alert("not implemented")}>
+            <Icon as={FaTags} mr={2} />
+            Tags
+          </Button>
+        </HStack>
       </Flex>
 
-      {/* Active filters display */}
-      {(titleFilter || typeFilter !== "all" || statusFilter !== "all" || selectedTagIds.length > 0) && (
+      {(titleFilter || typeFilter !== "all" || selectedTagIds.length > 0) && (
         <Flex wrap="wrap" gap={2} mb={4}>
           <Text color="gray.600" fontWeight="medium">
             Active filters:
@@ -347,18 +216,6 @@ export default function List() {
             </Badge>
           )}
 
-          {statusFilter !== "all" && (
-            <Badge
-              colorScheme={statusFilter === "closed" ? "green" : "yellow"}
-              borderRadius="full"
-              px={2}
-              display="flex"
-              alignItems="center"
-            >
-              Status: {statusFilter === "closed" ? "Closed" : "Open"}
-            </Badge>
-          )}
-
           {selectedTagIds.length > 0 && <TagBadges tagIds={selectedTagIds} onRemove={handleTagClick} size="sm" />}
 
           <Button
@@ -366,7 +223,6 @@ export default function List() {
             onClick={() => {
               setTitleFilter("");
               setTypeFilter("all");
-              setStatusFilter("all");
               setSelectedTagIds([]);
             }}
           >
@@ -375,82 +231,207 @@ export default function List() {
         </Flex>
       )}
 
-      {/* Results count */}
-      <Text mb={4} color="gray.600">
-        {sortedItems.length} item{sortedItems.length !== 1 ? "s" : ""} found
-      </Text>
+      <Flex justifyContent="space-between">
+        <Box>
+          <Button
+            onClick={() => {
+              setStatusFilter("open");
+            }}
+          >
+            Open
+            <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
+              {sortedItems.filter((item) => item.status == false).length}
+            </Text>
+          </Button>
+          <Button
+            onClick={() => {
+              setStatusFilter("closed");
+            }}
+          >
+            Closed
+            <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
+              {sortedItems.filter((item) => item.status == true).length}
+            </Text>
+          </Button>
+        </Box>
+        <Box>
+          <MenuRoot>
+            <MenuTrigger asChild>
+              <Button>
+                <Flex align="center">
+                  <Icon as={FaFilter} mr={2} />
+                  Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
+                  <Icon as={FaCaretDown} ml={2} />
+                </Flex>
+              </Button>
+            </MenuTrigger>
+            <MenuContent>
+              <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => setTypeFilter(e.value)}>
+                <Menu.RadioItem value="all" key="all" _checked={{ fontWeight: "bold" }}>
+                  All Items
+                </Menu.RadioItem>
+                <Menu.RadioItem value="notes" key="notes" _checked={{ fontWeight: "bold" }}>
+                  Notes
+                </Menu.RadioItem>
+                <Menu.RadioItem value="tasks" key="tasks" _checked={{ fontWeight: "bold" }}>
+                  Tasks
+                </Menu.RadioItem>
+              </Menu.RadioItemGroup>
+            </MenuContent>
+          </MenuRoot>
 
-      {/* List */}
-      <Box borderWidth="1px" borderRadius="md" overflow="hidden">
-        <Table.Root interactive>
-          <Table.ColumnGroup>
-            <Table.Column w="1" />
-            <Table.Column />
-            <Table.Column w="80px" />
-            <Table.Column w="200px" />
-          </Table.ColumnGroup>
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader>Type</Table.ColumnHeader>
-              <Table.ColumnHeader>Title</Table.ColumnHeader>
-              <Table.ColumnHeader>Shared</Table.ColumnHeader>
-              <Table.ColumnHeader>Created</Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {sortedItems.length === 0 ? (
-              <Table.Row>
-                <Table.Cell colSpan={4}>
-                  <Flex justify="center" py={8} color="gray.500">
-                    No items match your filters
-                  </Flex>
-                </Table.Cell>
-              </Table.Row>
-            ) : (
-              sortedItems.map((item) => (
-                <Table.Row
-                  key={item.id}
-                  _hover={{ bg: "gray.50" }}
-                  cursor="pointer"
-                  onClick={() => handleItemClick(item)}
-                >
-                  <Table.Cell>
-                    {item.isTask ? (
-                      <Icon
-                        as={item.status ? FaCheckCircle : FaCircle}
-                        color={item.status ? "green.500" : "yellow.500"}
-                        boxSize={5}
-                      />
-                    ) : (
-                      <Icon as={FaBook} color="blue.500" boxSize={5} />
-                    )}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Flex direction="column">
-                      <Text fontWeight="medium" color="black">
-                        {item.title}
-                      </Text>
-                      {item.tags.length > 0 && (
-                        <Box mt={1}>
-                          <TagBadges tagIds={item.tags} size="sm" />
-                        </Box>
-                      )}
-                    </Flex>
-                  </Table.Cell>
-                  <Table.Cell>
-                    {item.shared ? (
-                      <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />
-                    ) : (
-                      <Icon as={FaLock} color="gray.400" boxSize={5} aria-label="Not shared" />
-                    )}
-                  </Table.Cell>
-                  <Table.Cell color="gray.600">{formatDate(item.created)}</Table.Cell>
-                </Table.Row>
-              ))
-            )}
-          </Table.Body>
-        </Table.Root>
+          <MenuRoot>
+            <MenuTrigger asChild>
+              <Button>
+                <Flex align="center">
+                  <Icon as={FaTags} mr={2} />
+                  Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
+                  <Icon as={FaCaretDown} ml={2} />
+                </Flex>
+              </Button>
+            </MenuTrigger>
+            <MenuContent minW="250px">
+              <Box p={3}>
+                <Text fontWeight="medium" mb={2}>
+                  Filter by Tags
+                </Text>
+                <VStack align="stretch" maxH="200px" overflowY="auto">
+                  {tags.length === 0 ? (
+                    <Text color="gray.500">No tags found</Text>
+                  ) : (
+                    tags.map((tag) => (
+                      <Flex
+                        key={tag.id}
+                        align="center"
+                        p={2}
+                        borderRadius="md"
+                        cursor="pointer"
+                        bg={selectedTagIds.includes(tag.id) ? "gray.100" : "transparent"}
+                        _hover={{ bg: "gray.50" }}
+                        onClick={() => handleTagClick(tag.id)}
+                      >
+                        <Box w="12px" h="12px" borderRadius="full" bg={tag.color} mr={2} />
+                        <Text>{tag.name}</Text>
+                      </Flex>
+                    ))
+                  )}
+                </VStack>
+              </Box>
+            </MenuContent>
+          </MenuRoot>
+        </Box>
+      </Flex>
+      <Box borderWidth="1px" borderRadius="md" overflow="hidden" borderTopRadius={0}>
+        {sortedItems.length === 0 ? (
+          <Flex justify="center" py={8} color="gray.500">
+            No items match your filters
+          </Flex>
+        ) : (
+          sortedItems
+            .filter((item) => item.status == (statusFilter == "open" ? false : true))
+            .map((item) => <ListItem item={item}></ListItem>)
+        )}
       </Box>
-    </Box>
+    </Container>
   );
 }
+
+const ListItem = ({ item }: { item: ListItem }) => {
+  const { tasks, setModalTask, updateTask } = useTasks();
+  const { notes, setSelectedNote } = useNotes();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleTaskStatusChange = async (taskId: string, newStatus: boolean) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      await updateTask(task.id, {
+        ...task,
+        status: newStatus,
+      });
+    }
+  };
+
+  // Handle item click - open appropriate popup
+  const handleItemClick = (item: ListItem) => {
+    if (item.isTask) {
+      // Find the task object to open in modal
+      const task = tasks.find((t) => t.id === item.id);
+      if (task) {
+        setModalTask(task);
+      }
+    } else {
+      // Open note in dialog
+      const note = notes.find((t) => t.id === item.id);
+      if (note) {
+        setSelectedNote(note);
+      }
+    }
+  };
+
+  return (
+    <Grid
+      templateColumns="20px 1fr 80px 150px"
+      gap={4}
+      px={4}
+      py={2}
+      borderBottom="1px solid"
+      borderColor="gray.200"
+      _hover={{ bg: "gray.50" }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      alignItems="center"
+    >
+      <GridItem>
+        {item.isTask ? (
+          <TaskCheckbox
+            checked={item.status}
+            onChange={(e) => handleTaskStatusChange(item.id, e)}
+            onClick={(e) => e.stopPropagation()}
+            colorScheme={item.status ? "green" : "gray"}
+          />
+        ) : (
+          <Icon as={FaBook} color="blue.500" boxSize={5} />
+        )}
+      </GridItem>
+      <GridItem>
+        <Flex>
+          <TitlePreview
+            title={item.title}
+            onClick={() => handleItemClick(item)}
+            lineThrough={item.status}
+            contrast={isHovered ? "dark" : "bright"}
+            mr={2}
+            _hover={{ textDecoration: "underline", cursor: "pointer" }}
+          />
+          {item.tags.length > 0 && (
+            <Box mt={1}>
+              <TagBadges tagIds={item.tags} size="sm" />
+            </Box>
+          )}
+        </Flex>
+        <Text color="gray.600" fontSize="xs">
+          Created {formatDate(item.created)}
+        </Text>
+      </GridItem>
+      <GridItem>
+        {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
+      </GridItem>
+      <GridItem color="gray.600">{}</GridItem>
+    </Grid>
+  );
+};
+
+const formatDate = (date: Date) => {
+  const now = new Date();
+  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffInDays === 0) {
+    return `today`;
+  } else if (diffInDays === 1) {
+    return `yesterday`;
+  } else if (diffInDays < 30) {
+    return `${diffInDays} days ago`;
+  } else {
+    return date.toLocaleDateString();
+  }
+};
