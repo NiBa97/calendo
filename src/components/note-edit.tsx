@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV } from "react-icons/fa";
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex, Menu, Portal } from "@chakra-ui/react";
 import Editor from "./editor/editor";
 import TitleInput from "./ui/title-input";
 import { useNotes } from "../contexts/note-context";
 import { TagSelector, TagBadges } from "./tag-selector";
 import NoteChangelog from "./note-changelog";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 
 interface NoteEditProps {
   noteId: string;
@@ -16,6 +15,7 @@ interface NoteEditProps {
   onComplete?: () => void;
   showCloseButton?: boolean;
   showToolbar?: boolean;
+  contentDialogRef?: React.MutableRefObject<HTMLDivElement | null> | null;
 }
 
 interface NoteState {
@@ -30,6 +30,7 @@ const NoteEdit = ({
   onComplete,
   showCloseButton = false,
   showToolbar = true,
+  contentDialogRef = null,
 }: NoteEditProps) => {
   const { notes, updateNote, deleteNote, addTagToNote, removeTagFromNote } = useNotes();
   const note = notes.find((n) => n.id === noteId);
@@ -147,8 +148,8 @@ const NoteEdit = ({
         <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2">
           <Flex alignItems="center">
             <TitleInput placeholder="Note title" value={title} onChange={handleTitleChange} />
-            <MenuRoot>
-              <MenuTrigger asChild>
+            <Menu.Root>
+              <Menu.Trigger asChild>
                 <Button
                   aria-label="More options"
                   bg="brand.1"
@@ -159,22 +160,26 @@ const NoteEdit = ({
                 >
                   <FaEllipsisV />
                 </Button>
-              </MenuTrigger>
-              <MenuContent zIndex={1000}>
-                <MenuItem onClick={() => setIsTagDialogOpen(true)} value="tags">
-                  <FaTags style={{ marginRight: "8px" }} />
-                  Manage Tags
-                </MenuItem>
-                <MenuItem onClick={handleDelete} value="delete">
-                  <FaTrash style={{ marginRight: "8px" }} />
-                  Delete Note
-                </MenuItem>
-                <MenuItem onClick={() => setShowChangelog(true)} value="history">
-                  <FaHistory style={{ marginRight: "8px" }} />
-                  View History
-                </MenuItem>
-              </MenuContent>
-            </MenuRoot>
+              </Menu.Trigger>
+              <Portal container={contentDialogRef ?? undefined}>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags">
+                      <FaTags style={{ marginRight: "8px" }} />
+                      Manage Tags
+                    </Menu.Item>
+                    <Menu.Item onClick={handleDelete} value="delete">
+                      <FaTrash style={{ marginRight: "8px" }} />
+                      Delete Note
+                    </Menu.Item>
+                    <Menu.Item onClick={() => setShowChangelog(true)} value="history">
+                      <FaHistory style={{ marginRight: "8px" }} />
+                      View History
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
             {showCloseButton && (
               <Button
                 aria-label="Close"
