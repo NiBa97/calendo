@@ -10,6 +10,7 @@ export interface Task {
     id: string;
     startDate: Date | undefined;
     endDate: Date | undefined;
+    created: Date;
     isAllDay: boolean;
     status: boolean;
     name: string;
@@ -42,6 +43,7 @@ export function convertTaskRecordToTask(record: TaskRecordOrModel): Task {
         description: record.description ? record.description : "",
         user: record.user ?? [],
         tags: record.tags ?? [],
+        created: record.created ? new Date(record.created) : new Date(),
     };
 }
 
