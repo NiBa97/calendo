@@ -16,7 +16,11 @@ const TaskCheckbox: React.FC<TaskCheckboxProps> = ({ checked = false, onChange, 
       borderColor="brand.4"
       _checked={{
         bg: "brand.3",
+        background: "transparent",
         borderColor: "brand.4",
+      }}
+      _hover={{
+        cursor: "pointer",
       }}
       {...props}
     />

@@ -4,12 +4,13 @@ import { Text, TextProps } from "@chakra-ui/react";
 interface TitlePreviewProps extends Omit<TextProps, "children"> {
   title: string;
   lineThrough?: boolean;
+  contrast?: "dark" | "bright";
 }
 
-const TitlePreview: React.FC<TitlePreviewProps> = ({ title, lineThrough = false, ...props }) => {
+const TitlePreview: React.FC<TitlePreviewProps> = ({ title, lineThrough = false, contrast = "dark", ...props }) => {
   return (
     <Text
-      color="brand.1"
+      color={contrast === "dark" ? "gray.800" : "gray.200"}
       fontSize="lg"
       fontWeight="bold"
       textDecoration={lineThrough ? "line-through" : "none"}
