@@ -55,12 +55,15 @@ const NoteEdit = ({
 
   useEffect(() => {
     if (note) {
-      setTitle(note.title || "");
-      setContent(note.content || "");
       noteStateRef.current = {
         title: note.title || "",
         content: note.content || "",
       };
+      if (ref.current) {
+        ref.current.setMarkdown(note.content || "");
+      }
+      setTitle(note.title || "");
+      setContent(note.content || "");
     }
   }, [note]);
 
@@ -102,7 +105,7 @@ const NoteEdit = ({
     }
     debounceTimeout.current = setTimeout(() => {
       handleSave();
-    }, 5000);
+    }, 2000);
   };
 
   const handleDelete = async () => {
