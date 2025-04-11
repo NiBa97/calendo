@@ -3,6 +3,7 @@ import DashboardLayout from "./layouts/dashboardLayout";
 import Notes from "./pages/notes";
 import Tasks from "./pages/tasks";
 import List from "./pages/list";
+import CombinedListPage from "./pages/combined-list";
 import Login from "./pages/login";
 import { checkIfLoggedIn } from "./pocketbaseUtils";
 import { TaskProvider } from "./contexts/task-context";
@@ -27,6 +28,7 @@ const ProtectedApp = () => {
                 <Route path="notes" element={<Notes />} />
                 <Route path="notes/:id" element={<Notes />} />
                 <Route path="list" element={<List />} />
+                <Route path="combined" element={<CombinedListPage />} />
                 <Route path="*" element={<Navigate to="/tasks" replace />} />
               </Routes>
             </DashboardLayout>

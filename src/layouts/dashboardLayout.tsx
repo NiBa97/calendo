@@ -1,5 +1,5 @@
 import { Box, Flex, IconButton, Icon, useDisclosure, Text } from "@chakra-ui/react";
-import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiLogOut, FiList } from "react-icons/fi";
+import { FiGrid, FiFileText, FiZap, FiUser, FiLoader, FiLogOut, FiList, FiDatabase } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../pocketbaseUtils";
 import { OperationStatusIndicator } from "../components/operation-status-indicator";
@@ -123,6 +123,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: FiList,
       label: "List View",
       to: "/list",
+    },
+    {
+      icon: FiDatabase,
+      label: "Combined List",
+      to: "/combined",
     },
     {
       icon: FiZap,
