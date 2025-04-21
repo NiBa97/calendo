@@ -15,8 +15,9 @@ import {
   Grid,
   GridItem,
   Container,
+  IconButton,
 } from "@chakra-ui/react";
-import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare, FaUserFriends } from "react-icons/fa";
+import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare, FaUserFriends, FaStar, FaTrash, FaPlus } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
 import { useTags } from "../contexts/tag-context";
@@ -25,6 +26,7 @@ import { InputGroup } from "../components/ui/input-group";
 import { MenuRoot, MenuTrigger, MenuContent } from "../components/ui/menu";
 import TaskCheckbox from "../components/ui/task-checkbox";
 import TitlePreview from "../components/ui/title-preview";
+import React from 'react';
 
 // Combined type for list items (notes and tasks)
 type ListItem = {
@@ -37,6 +39,18 @@ type ListItem = {
   dueDate?: Date;
   tags: string[];
   shared: boolean;
+};
+
+// Type for pinned queries
+type PinnedQuery = {
+  id: string;
+  name: string;
+  filters: {
+    title: string;
+    type: string;
+    status: string;
+    tags: string[];
+  };
 };
 
 export default function List() {
@@ -55,6 +69,72 @@ export default function List() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
+
+  // State for pinned queries
+  const [pinnedQueries, setPinnedQueries] = useState<PinnedQuery[]>([]);
+  const [showPinnedQueryInput, setShowPinnedQueryInput] = useState(false);
+  const [newQueryName, setNewQueryName] = useState("");
+
+  // Load pinned queries from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedQueries = localStorage.getItem("pinnedQueries");
+      if (savedQueries) {
+        const queries = JSON.parse(savedQueries);
+        setPinnedQueries(queries);
+      }
+    } catch (error) {
+      console.error("Error loading pinned queries:", error);
+      // If there's an error, clear the corrupted data
+
+      localStorage.removeItem("pinnedQueries");
+      setPinnedQueries([]);
+    }
+  }, []);
+
+  // Save pinned queries to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (pinnedQueries.length > 0) {
+        localStorage.setItem("pinnedQueries", JSON.stringify(pinnedQueries));
+      }
+    } catch (error) {
+      console.error("Error saving pinned queries:", error);
+    }
+  }, [pinnedQueries]);
+
+  // Handle pinning current query
+  const handlePinCurrentQuery = () => {
+    if (!newQueryName.trim()) return;
+
+    const newQuery: PinnedQuery = {
+      id: Date.now().toString(),
+      name: newQueryName.trim(),
+      filters: {
+        title: titleFilter,
+        type: typeFilter,
+        status: statusFilter,
+        tags: [...selectedTagIds], // Create a new array to ensure proper serialization
+      },
+    };
+
+    setPinnedQueries((prev) => [...prev, newQuery]);
+    setNewQueryName("");
+    setShowPinnedQueryInput(false);
+  };
+
+  // Handle applying a pinned query
+  const handleApplyPinnedQuery = (query: PinnedQuery) => {
+    setTitleFilter(query.filters.title);
+    setTypeFilter(query.filters.type);
+    setStatusFilter(query.filters.status);
+    setSelectedTagIds(query.filters.tags);
+  };
+
+  // Handle deleting a pinned query
+  const handleDeletePinnedQuery = (queryId: string) => {
+    setPinnedQueries((prev) => prev.filter((q) => q.id !== queryId));
+  };
 
   // Update URL when filters change
   useEffect(() => {
@@ -165,7 +245,78 @@ export default function List() {
 
   return (
     <Container p={4} maxW="3xl" mx="auto" w="3xl">
-      <Heading size="lg">All Items</Heading>
+      <Heading size="lg" mb={4}>All Items</Heading>
+      
+      {/* Pinned Queries Section */}
+      <Box mb={6}>
+        <Flex align="center" justify="space-between" mb={2}>
+          <Text fontSize="md" fontWeight="medium" color="gray.700">Pinned Filters</Text>
+          <Button
+            size="sm"
+            onClick={() => setShowPinnedQueryInput(true)}
+            colorScheme="blue"
+            variant="ghost"
+          >
+            <Icon as={FaPlus} mr={2} />
+            Add Filter
+          </Button>
+        </Flex>
+        
+        {showPinnedQueryInput && (
+          <Flex gap={2} mb={3}>
+            <Input
+              placeholder="Enter name for pinned filters..."
+              value={newQueryName}
+              onChange={(e) => setNewQueryName(e.target.value)}
+              size="sm"
+              autoFocus
+            />
+            <Button size="sm" colorScheme="blue" onClick={handlePinCurrentQuery}>
+              Save
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => {
+              setShowPinnedQueryInput(false);
+              setNewQueryName("");
+            }}>
+              Cancel
+            </Button>
+          </Flex>
+        )}
+
+        <Flex gap={2} flexWrap="wrap">
+          {pinnedQueries.map((query) => (
+            <Flex
+              key={query.id}
+              bg="gray.100"
+              p={2}
+              borderRadius="md"
+              align="center"
+              _hover={{ bg: "gray.200" }}
+              cursor="pointer"
+              onClick={() => handleApplyPinnedQuery(query)}
+            >
+              <Icon as={FaStar} color="yellow.500" mr={2} />
+              <Text fontSize="sm" fontWeight="medium">{query.name}</Text>
+              <Box>
+                <IconButton
+                  aria-label="Delete pinned query"
+                  size="xs"
+                  variant="ghost"
+                  ml={2}
+                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation();
+                    handleDeletePinnedQuery(query.id);
+                  }}
+                  _hover={{ color: "red.500" }}
+                >
+                  <FaTrash />
+                </IconButton>
+              </Box>
+            </Flex>
+          ))}
+        </Flex>
+      </Box>
+
       <Flex
         direction={{ base: "column", md: "row" }}
         gap={3}
@@ -330,7 +481,7 @@ export default function List() {
         ) : (
           sortedItems
             .filter((item) => item.status == (statusFilter == "open" ? false : true))
-            .map((item) => <ListItem item={item}></ListItem>)
+            .map((item) => <ListItem item={item} key={item.id}></ListItem>)
         )}
       </Box>
     </Container>
