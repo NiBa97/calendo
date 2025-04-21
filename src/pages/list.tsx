@@ -142,7 +142,7 @@ export default function List() {
       isAllDay: false,
       status: false,
       user: [],
-      tags: [],
+      tags: selectedTagIds,
     });
   };
 
@@ -152,6 +152,7 @@ export default function List() {
       const data = {
         title: "New Note",
         content: "",
+        tags: selectedTagIds,
       };
       const newNote = await createNote(data);
       if (newNote?.id) {
