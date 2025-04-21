@@ -127,6 +127,7 @@ const NoteEdit = ({
   const handleArchive = async () => {
     try {
       await archiveNote(noteId);
+      if (onComplete) onComplete();
     } catch (error) {
       console.error("Failed to archive note:", error);
     }
@@ -135,6 +136,7 @@ const NoteEdit = ({
   const handleUnarchive = async () => {
     try {
       await unarchiveNote(noteId);
+      if (onComplete) onComplete();
     } catch (error) {
       console.error("Failed to unarchive note:", error);
     }

@@ -36,6 +36,9 @@ export default function NoteEditModal() {
                   showToolbar={true}
                   showCloseButton={true}
                   contentDialogRef={contentRef}
+                  onComplete={() => {
+                    void setSelectedNote(null);
+                  }}
                 ></NoteEdit>
               )}
             </Box>
