@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV } from "react-icons/fa";
+import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
 import { Box, Button, Flex, Menu, Portal } from "@chakra-ui/react";
 import Editor from "./editor/editor";
 import TitleInput from "./ui/title-input";
@@ -32,7 +32,7 @@ const NoteEdit = ({
   showToolbar = true,
   contentDialogRef = null,
 }: NoteEditProps) => {
-  const { notes, updateNote, deleteNote, addTagToNote, removeTagFromNote } = useNotes();
+  const { notes, updateNote, deleteNote, addTagToNote, removeTagFromNote, archiveNote, unarchiveNote } = useNotes();
   const note = notes.find((n) => n.id === noteId);
   const [title, setTitle] = useState(note?.title || "");
   const [content, setContent] = useState(note?.content || "");
@@ -109,12 +109,34 @@ const NoteEdit = ({
   };
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this note?")) {
-      try {
-        await deleteNote(noteId);
-      } catch (error) {
-        console.error("Failed to delete note:", error);
+    if (!note) return;
+    try {
+      if (!note.status) {
+        alert("Please archive the note before deleting it.");
+        return;
       }
+      if (confirm("Are you sure you want to delete this note?")) {
+        await deleteNote(noteId);
+        if (onComplete) onComplete();
+      }
+    } catch (error) {
+      console.error("Failed to delete note:", error);
+    }
+  };
+
+  const handleArchive = async () => {
+    try {
+      await archiveNote(noteId);
+    } catch (error) {
+      console.error("Failed to archive note:", error);
+    }
+  };
+
+  const handleUnarchive = async () => {
+    try {
+      await unarchiveNote(noteId);
+    } catch (error) {
+      console.error("Failed to unarchive note:", error);
     }
   };
 
@@ -171,7 +193,18 @@ const NoteEdit = ({
                       <FaTags style={{ marginRight: "8px" }} />
                       Manage Tags
                     </Menu.Item>
-                    <Menu.Item onClick={handleDelete} value="delete">
+                    {note.status ? (
+                      <Menu.Item onClick={handleUnarchive} value="unarchive">
+                        <FaBox style={{ marginRight: "8px" }} />
+                        Unarchive Note
+                      </Menu.Item>
+                    ) : (
+                      <Menu.Item onClick={handleArchive} value="archive">
+                        <FaArchive style={{ marginRight: "8px" }} />
+                        Archive Note
+                      </Menu.Item>
+                    )}
+                    <Menu.Item onClick={handleDelete} value="delete" disabled={!note.status}>
                       <FaTrash style={{ marginRight: "8px" }} />
                       Delete Note
                     </Menu.Item>

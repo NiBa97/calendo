@@ -1,5 +1,5 @@
-import { Input, Text, VStack, HStack, Button, Flex, Icon, Table } from "@chakra-ui/react";
-import { FaSearch, FaPlus, FaFileAlt, FaFile, FaBook, FaBookOpen } from "react-icons/fa";
+import { Input, Text, VStack, HStack, Button, Flex, Icon, Table, Badge } from "@chakra-ui/react";
+import { FaSearch, FaPlus, FaFileAlt, FaFile, FaBook, FaBookOpen, FaArchive } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
@@ -123,7 +123,15 @@ export const NoteList = () => {
                   <Icon as={sizeIndicator.icon} boxSize={5} aria-label={sizeIndicator.tooltip} color="brand.1" />
                 </Table.Cell>
                 <Table.Cell>
-                  <TitlePreview title={note.title} />
+                  <Flex alignItems="center" gap={2}>
+                    <TitlePreview title={note.title} lineThrough={note.status} />
+                    {note.status && (
+                      <Badge colorScheme="gray" display="flex" alignItems="center" gap={1}>
+                        <Icon as={FaArchive} boxSize={3} />
+                        Archived
+                      </Badge>
+                    )}
+                  </Flex>
                   <Text color="brand.1" fontSize="sm">
                     Updated {formatDate(note.updated)}
                   </Text>

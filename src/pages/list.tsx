@@ -154,7 +154,7 @@ export default function List() {
       id: note.id,
       title: note.title || "Untitled Note",
       isTask: false,
-      status: false,
+      status: note.status,
       created: note.created,
       updated: note.updated,
       tags: note.tags || [],

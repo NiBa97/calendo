@@ -20,6 +20,8 @@ interface NoteContextType {
   setSelectedNote: (note: Note | null) => void;
   addTagToNote: (noteId: string, tagId: string) => Promise<void>;
   removeTagFromNote: (noteId: string, tagId: string) => Promise<void>;
+  archiveNote: (noteId: string) => Promise<void>;
+  unarchiveNote: (noteId: string) => Promise<void>;
 }
 
 const NoteContext = createContext<NoteContextType | undefined>(undefined);
@@ -85,6 +87,7 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         content: updatedData.content,
         tags: updatedData.tags,
         user: pb.authStore.model?.id,
+        status: updatedData.status,
       };
 
       const record = await pb.collection("note").update(noteId, data);
@@ -100,6 +103,10 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteNote = async (noteId: string) => {
     try {
       setStatus("loading");
+      const note = notes.find((n) => n.id === noteId);
+      if (!note) throw new Error("Note not found");
+      if (!note.status) throw new Error("Cannot delete unarchived note");
+
       await pb.collection("note").delete(noteId);
       setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
       setStatus("idle");
@@ -165,6 +172,34 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const archiveNote = async (noteId: string) => {
+    try {
+      setStatus("loading");
+      const note = notes.find((n) => n.id === noteId);
+      if (!note) throw new Error("Note not found");
+
+      await updateNote(noteId, { status: true });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
+  const unarchiveNote = async (noteId: string) => {
+    try {
+      setStatus("loading");
+      const note = notes.find((n) => n.id === noteId);
+      if (!note) throw new Error("Note not found");
+
+      await updateNote(noteId, { status: false });
+      setStatus("idle");
+    } catch (error) {
+      setStatus("error");
+      throw error;
+    }
+  };
+
   return (
     <NoteContext.Provider
       value={{
@@ -183,6 +218,8 @@ export const NoteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSelectedNote,
         addTagToNote,
         removeTagFromNote,
+        archiveNote,
+        unarchiveNote,
       }}
     >
       {children}
