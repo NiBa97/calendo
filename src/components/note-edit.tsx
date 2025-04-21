@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
-import { Box, Button, Flex, Menu, Portal } from "@chakra-ui/react";
+import { Box, Button, Flex, Menu, Portal, VStack } from "@chakra-ui/react";
 import Editor from "./editor/editor";
 import TitleInput from "./ui/title-input";
 import { useNotes } from "../contexts/note-context";
@@ -78,19 +78,21 @@ const NoteEdit = ({
   }, []);
 
   const handleTitleChange = (newTitle: string) => {
+    if (note?.status) return; // Prevent changes if archived
     setTitle(newTitle);
     noteStateRef.current = { ...noteStateRef.current, title: newTitle };
     debounceSave();
   };
 
   const handleContentChange = (newContent: string) => {
+    if (note?.status) return; // Prevent changes if archived
     setContent(newContent);
     noteStateRef.current = { ...noteStateRef.current, content: newContent };
     debounceSave();
   };
 
   const handleSave = async () => {
-    if (note) {
+    if (note && !note.status) { // Only save if not archived
       try {
         await updateNote(noteId, noteStateRef.current);
       } catch (error) {
@@ -171,13 +173,40 @@ const NoteEdit = ({
         bg="brand.1"
         maxHeight="100%"
         overflow="hidden"
+        position="relative"
       >
-        <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2">
+        {note.status && (
+          <VStack
+            position="absolute"
+            top={"50%"}
+            left={0}
+            right={0}
+            bg="brand.2"
+            color="brand.4"
+            p={2}
+            textAlign="center"
+            zIndex={1}
+          >
+            This note is archived. Unarchive to make changes, or delete it.
+            <Flex gap={2}> 
+              <Button onClick={handleUnarchive}><FaBox />Unarchive</Button>
+              <Button onClick={handleDelete}><FaTrash />Delete</Button>
+            </Flex>
+          </VStack>
+        )}
+        <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2" mt={note.status ? "40px" : 0}>
           <Flex alignItems="center">
-            <TitleInput placeholder="Note title" value={title} onChange={handleTitleChange} />
-            <Menu.Root>
+            <TitleInput 
+              placeholder="Note title" 
+              value={title} 
+              onChange={handleTitleChange} 
+              disabled={note.status}
+              style={{ opacity: note.status ? 0.7 : 1 }}
+            />
+            <Menu.Root >
               <Menu.Trigger asChild>
                 <Button
+                  visibility={note.status ? "hidden" : "visible"}
                   aria-label="More options"
                   bg="brand.1"
                   color="brand.4"
@@ -191,7 +220,7 @@ const NoteEdit = ({
               <Portal container={contentDialogRef ?? undefined}>
                 <Menu.Positioner>
                   <Menu.Content>
-                    <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags">
+                    <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags" disabled={note.status}>
                       <FaTags style={{ marginRight: "8px" }} />
                       Manage Tags
                     </Menu.Item>
@@ -236,19 +265,25 @@ const NoteEdit = ({
         {localTags.length > 0 && (
           <Box p={2} borderBottom="1px solid" borderColor="brand.2">
             <Flex align="center" justify="space-between">
-              <TagBadges tagIds={localTags} onRemove={handleTagRemove} />
+              <TagBadges tagIds={localTags} onRemove={note.status ? undefined : handleTagRemove} />
             </Flex>
           </Box>
         )}
 
-        <Editor markdown={content} onChange={handleContentChange} editorRef={ref} showToolbar={showToolbar} />
+        <Editor 
+          markdown={content} 
+          onChange={handleContentChange} 
+          editorRef={ref} 
+          showToolbar={showToolbar && !note.status}
+          readOnly={note.status}
+        />
       </Flex>
 
       <TagSelector
         selectedTags={localTags}
         onTagSelect={handleTagSelect}
         onTagRemove={handleTagRemove}
-        isOpen={isTagDialogOpen}
+        isOpen={isTagDialogOpen && !note.status}
         onOpenChange={setIsTagDialogOpen}
       />
 

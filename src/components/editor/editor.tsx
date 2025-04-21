@@ -38,12 +38,13 @@ interface EditorProps {
   editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
   onChange: (content: string) => void;
   showToolbar?: boolean;
+  readOnly?: boolean;
   //   parentType: ParentType;
 }
 const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 // Only import this to the next file
-const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true }) => {
+const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true, readOnly = false }) => {
   //   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   //   const { addAttachment } = useAttachments();
 
@@ -181,6 +182,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
         position: "relative",
         width: "100%",
         height: "100%",
+        opacity: readOnly ? 0.7 : 1,
       }}
     >
       {isDragging && (
@@ -210,6 +212,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
         ref={editorRef}
         onChange={onChange}
         className="dark-theme dark-editor"
+        readOnly={readOnly}
       />
     </Box>
   );
