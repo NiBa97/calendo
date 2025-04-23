@@ -121,6 +121,7 @@ export type NoteRecord = {
 	title?: string
 	updated?: IsoDateString
 	user?: RecordIdString[]
+	status?: boolean
 }
 
 export type NoteChangeRecord = {
