@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { Box, Button, ButtonGroup, HStack, IconButton, Text } from "@chakra-ui/react";
-import { type ToolbarProps } from "react-big-calendar";
-import { FaChevronLeft, FaChevronRight, FaClock } from "react-icons/fa";
+import { View, type ToolbarProps } from "react-big-calendar";
+import { FaChevronLeft, FaChevronRight, FaClock, FaCalendarAlt } from "react-icons/fa";
 import moment, { Moment } from "moment";
 import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu";
 import { SimpleTimePicker } from "../ui/simple-time-picker";
@@ -20,15 +20,19 @@ interface EnhancedToolbarProps extends ToolbarProps {
   };
   isTaskListOpen: boolean;
   toggleTasklist: () => void;
+  viewOptions: Record<string, string>;
 }
 
 const CustomToolbar = ({
   label,
   onNavigate,
+  onView,
+  view,
   timeRange,
   setTimeRange,
   isTaskListOpen,
   toggleTasklist,
+  viewOptions,
 }: EnhancedToolbarProps) => {
   return (
     <Box m={4}>
@@ -51,10 +55,33 @@ const CustomToolbar = ({
           </Button>
         </ButtonGroup>
 
-        {/* Center - Current Range */}
+        {/* View Selection */}
+        {Object.keys(viewOptions).length > 1 && (
+          <MenuRoot>
+            <MenuTrigger>
+              <Button  size="sm" >
+              <FaCalendarAlt />
+                {viewOptions[view as string] || view}
+              </Button>
+            </MenuTrigger>
+            <MenuContent minWidth="120px">
+              {Object.keys(viewOptions).map((viewKey) => (
+                <Button
+                  key={viewKey}
+                  variant={viewKey === view ? "solid" : "ghost"}
+                  size="sm"
+                  width="100%"
+                  justifyContent="flex-start"
+                  onClick={() => onView && onView(viewKey as View)}
+                >
+                  {viewOptions[viewKey]}
+                </Button>
+              ))}
+            </MenuContent>
+          </MenuRoot>
+        )}
 
         {/* Time Range - Subtle Menu */}
-
         <MenuRoot closeOnSelect={false}>
           <MenuTrigger display={"flex"} gap={2} alignItems={"center"}>
             <FaClock />

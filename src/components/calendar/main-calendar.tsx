@@ -3,7 +3,7 @@ import {
   Calendar,
   type EventPropGetter,
   type EventProps,
-  type Messages,
+  Messages,
   type SlotInfo,
   ToolbarProps,
   type View,
@@ -13,7 +13,7 @@ import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { type SyntheticEvent, useEffect, useState } from "react";
+import { type SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { useTasks } from "../../contexts/task-context";
 import CustomMultiDayView from "./custom-view";
 import CalendarPopup from "./popup";
@@ -28,6 +28,18 @@ import { Badge } from "@chakra-ui/react";
 
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
+
+const defaultViewOptions: Record<string, string> = {
+  month: "Month",
+  week: "Week",
+  day: "Day",
+  customDayView: "3 Days",
+};
+
+// Define the structure for the views prop expected by react-big-calendar
+type CalendarViews = {
+  [key: string]: boolean | React.ComponentType<any>;
+};
 
 const EventComponent = ({ event }: { event: Task }) => {
   const isOverdue = moment(event.endDate).isBefore(moment().startOf("day")) && !event.status;
@@ -178,9 +190,11 @@ const eventPropGetter = (event: Task) => {
 export default function MainCalendar({
   isTaskListOpen,
   toggleTasklist,
+  availableViews,
 }: {
   isTaskListOpen: boolean;
   toggleTasklist: () => void;
+  availableViews?: Record<string, string>;
 }) {
   const {
     tasks,
@@ -192,13 +206,32 @@ export default function MainCalendar({
     setModalTask,
     loadTasksForRange,
   } = useTasks();
+
+  const effectiveViewOptions = useMemo(() => availableViews || defaultViewOptions, [availableViews]);
+  const viewKeys = useMemo(() => Object.keys(effectiveViewOptions), [effectiveViewOptions]);
+  const isSingleViewForced = useMemo(() => viewKeys.length === 1, [viewKeys]);
+  const initialViewKey = useMemo(() => {
+    if (isSingleViewForced) {
+      return viewKeys[0]; // Use the only available view
+    }
+    const storedView = getLocalStorage("calendar-view", viewKeys[0]) as string; // Default to first available if not found
+    // Validate stored view against current options
+    return viewKeys.includes(storedView) ? storedView : viewKeys[0];
+  }, [isSingleViewForced, viewKeys]);
+
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
-  const [view, setView] = useState<string>("customDayView");
+  const [view, setView] = useState<View>(initialViewKey as View);
   const [slotHeight, setSlotHeight] = useState<number>(100);
-  const handleOnChangeView = (selectedView: string) => setView(selectedView);
-
   const [date, setDate] = useState(new Date());
+
+  const handleOnChangeView = (selectedViewKey: string) => {
+    setView(selectedViewKey as View);
+    // Only update local storage if the view wasn't automatically forced
+    if (!isSingleViewForced) {
+      setLocalStorage("calendar-view", selectedViewKey);
+    }
+  };
 
   const onNavigate = (newDate: Date) => {
     void loadTasksForRange(newDate);
@@ -257,11 +290,11 @@ export default function MainCalendar({
       setTemporaryTask(null);
       return setSelectedEvent(null);
     }
-    const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
-    const { top, left, width } = parentElement.getBoundingClientRect();
-    handlePopupPlacement(top, left, width);
-    setSelectedEvent(event as Task);
-  };
+        const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
+      const { top, left, width } = parentElement.getBoundingClientRect();
+      handlePopupPlacement(top, left, width);
+      setSelectedEvent(event as Task);
+        };
 
   type EventChangeArgs = {
     event: Task;
@@ -276,12 +309,7 @@ export default function MainCalendar({
   };
 
   const numberOfDays = 3;
-  const views = {
-    day: true,
-    customDayView: CustomMultiDayView,
-    week: true,
-    month: true,
-  };
+  
 
   const messages = {
     customDayView: numberOfDays + " Days",
@@ -292,7 +320,6 @@ export default function MainCalendar({
       const { start, end } = args;
 
       const startDate = new Date(start);
-      // eslint-disable-next-line prefer-const
       let endDate = new Date(end);
 
       if (endDate.getTime() - startDate.getTime() < 1000 * 60 * 60) {
@@ -306,7 +333,7 @@ export default function MainCalendar({
   };
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     const { start, end, bounds } = slotInfo;
-    setTemporaryTask(null);
+      setTemporaryTask(null);
 
     if (!bounds) return; // exit if bounds are not available
 
@@ -335,6 +362,19 @@ export default function MainCalendar({
     setModalTask(event as Task);
   };
 
+  // Reintroduce dynamic generation of calendarViews
+  const calendarViews = useMemo((): CalendarViews => {
+    return viewKeys.reduce((acc, key) => {
+      if (key === "customDayView") {
+        acc[key] = CustomMultiDayView; // Use the imported component
+      } else if (defaultViewOptions.hasOwnProperty(key)) { // Check if it's a standard view
+        acc[key] = true; // Standard views
+      }
+      // Ignore keys not in defaultViewOptions if they aren't customDayView
+      return acc;
+    }, {} as CalendarViews);
+  }, [viewKeys]);
+
   return (
     <Box h="full" pl={2}>
       <style>{`
@@ -343,11 +383,10 @@ export default function MainCalendar({
         `}</style>
 
       <DnDCalendar
-        view={view as View}
+        view={view}
         date={date}
-        views={views}
+        views={calendarViews}
         selectable
-        //only display events that have a start and end data
         events={[...tasks.filter((task) => task.startDate && task.endDate), ...(temporaryTask ? [temporaryTask] : [])]}
         startAccessor={(event) => (event as Task).startDate ?? new Date()}
         messages={messages}
@@ -373,6 +412,9 @@ export default function MainCalendar({
           toolbar: (props: ToolbarProps) => (
             <CustomToolbar
               {...props}
+              view={view as View}
+              onView={handleOnChangeView}
+              viewOptions={effectiveViewOptions}
               setTimeRange={setTimeRange}
               timeRange={timeRange}
               isTaskListOpen={isTaskListOpen}
