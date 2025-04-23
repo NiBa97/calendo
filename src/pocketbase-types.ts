@@ -19,7 +19,6 @@ export enum Collections {
 	Tag = "tag",
 	Task = "task",
 	TaskHistory = "taskHistory",
-	Todo = "todo",
 	Users = "users",
 }
 
@@ -176,15 +175,6 @@ export type TaskHistoryRecord = {
 	user?: RecordIdString
 }
 
-export type TodoRecord = {
-	created?: IsoDateString
-	id: string
-	status?: boolean
-	title?: string
-	updated?: IsoDateString
-	userID: RecordIdString
-}
-
 export type UsersRecord = {
 	avatar?: string
 	created?: IsoDateString
@@ -212,7 +202,6 @@ export type PomodoroResponse<Texpand = unknown> = Required<PomodoroRecord> & Bas
 export type TagResponse<Texpand = unknown> = Required<TagRecord> & BaseSystemFields<Texpand>
 export type TaskResponse<Texpand = unknown> = Required<TaskRecord> & BaseSystemFields<Texpand>
 export type TaskHistoryResponse<Texpand = unknown> = Required<TaskHistoryRecord> & BaseSystemFields<Texpand>
-export type TodoResponse<Texpand = unknown> = Required<TodoRecord> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
@@ -231,7 +220,6 @@ export type CollectionRecords = {
 	tag: TagRecord
 	task: TaskRecord
 	taskHistory: TaskHistoryRecord
-	todo: TodoRecord
 	users: UsersRecord
 }
 
@@ -249,7 +237,6 @@ export type CollectionResponses = {
 	tag: TagResponse
 	task: TaskResponse
 	taskHistory: TaskHistoryResponse
-	todo: TodoResponse
 	users: UsersResponse
 }
 
@@ -270,6 +257,5 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'tag'): RecordService<TagResponse>
 	collection(idOrName: 'task'): RecordService<TaskResponse>
 	collection(idOrName: 'taskHistory'): RecordService<TaskHistoryResponse>
-	collection(idOrName: 'todo'): RecordService<TodoResponse>
 	collection(idOrName: 'users'): RecordService<UsersResponse>
 }
