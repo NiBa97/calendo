@@ -125,11 +125,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       to: "/list",
     },
     {
-      icon: FiDatabase,
-      label: "Combined List",
-      to: "/combined",
-    },
-    {
       icon: FiZap,
       label: "Pomo",
       to: "/pomo",
