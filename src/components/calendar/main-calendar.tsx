@@ -26,6 +26,13 @@ import { FaUsers } from "react-icons/fa6";
 import { useTags } from "../../contexts/tag-context";
 import { Badge } from "@chakra-ui/react";
 
+// Set moment locale to start week on Monday
+moment.locale('en', {
+  week: {
+    dow: 1, // Monday is the first day of the week
+  }
+});
+
 const localizer = momentLocalizer(moment);
 const DnDCalendar = withDragAndDrop(Calendar);
 
