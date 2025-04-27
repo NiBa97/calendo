@@ -4,18 +4,20 @@ import { Switch } from "./switch";
 import { FaCalendar } from "react-icons/fa";
 import moment from "moment";
 import { FaClock } from "react-icons/fa";
-import { useTasks } from "../../contexts/task-context";
 import { Task } from "../../types";
 import { PopoverBody, PopoverContent, PopoverTrigger } from "./popover";
 
-const DateTimeRangeSelector = ({ task }: { task: Task }) => {
-  const { updateTask } = useTasks();
+interface DateTimeRangeSelectorProps {
+  task: Task;
+  onChange?: (changes: { startDate: Date; endDate: Date; isAllDay: boolean }) => void;
+}
+
+const DateTimeRangeSelector = ({ task, onChange }: DateTimeRangeSelectorProps) => {
   const [isAllDay, setIsAllDay] = useState(task.isAllDay);
   const [startDate, setStartDate] = useState(moment(task.startDate).format("YYYY-MM-DD"));
   const [startTime, setStartTime] = useState(task.startDate ? moment(task.startDate).format("HH:mm") : "00:00");
   const [endDate, setEndDate] = useState(moment(task.endDate).format("YYYY-MM-DD"));
   const [endTime, setEndTime] = useState(task.endDate ? moment(task.endDate).format("HH:mm") : "00:00");
-  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isValidDate: boolean =
     startTime.includes(":") && endTime.includes(":") && !isNaN(Date.parse(startDate)) && !isNaN(Date.parse(endDate));
@@ -49,44 +51,41 @@ const DateTimeRangeSelector = ({ task }: { task: Task }) => {
 
   useEffect(() => {
     // Check if the start and end date are valid dates
-    if (
-      isValidDate &&
-      (isAllDay !== task.isAllDay ||
-        returnCompleteStartDate().getTime() !== task.startDate?.getTime() ||
-        returnCompleteEndDate().getTime() !== task.endDate?.getTime())
-    ) {
-      debounceSave();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTime, endTime, startDate, endDate, isAllDay]);
+    if (isValidDate) {
+      const completeStartDate = returnCompleteStartDate();
+      const completeEndDate = returnCompleteEndDate();
 
-  const handleSave = () => {
-    updateTask(task.id, {
-      startDate: returnCompleteStartDate(),
-      endDate: returnCompleteEndDate(),
-      isAllDay: isAllDay,
-    });
-  };
+      // Check if the current state differs from the original task prop values OR the derived values
+      const startDateFromProp = task.startDate ? moment(task.startDate).format("YYYY-MM-DD") : "";
+      const startTimeFromProp = task.startDate ? moment(task.startDate).format("HH:mm") : "";
+      const endDateFromProp = task.endDate ? moment(task.endDate).format("YYYY-MM-DD") : "";
+      const endTimeFromProp = task.endDate ? moment(task.endDate).format("HH:mm") : "";
 
-  const debounceSave = () => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
-    debounceTimeout.current = setTimeout(() => {
-      handleSave();
-    }, 1000);
-  };
+      const hasChangedFromProps = 
+          startDate !== startDateFromProp || 
+          startTime !== startTimeFromProp || 
+          endDate !== endDateFromProp || 
+          endTime !== endTimeFromProp || 
+          isAllDay !== task.isAllDay;
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-        handleSave();
+      // Only call onChange if the values are valid and have actually changed from the initial/last reported state
+      if (hasChangedFromProps) {
+         // Adjust end date if start date is after it
+         let adjustedEndDate = completeEndDate;
+         if (completeStartDate > completeEndDate) {
+           // Simple adjustment: make end date same as start date
+           adjustedEndDate = new Date(completeStartDate.getTime());
+         }
+        
+        onChange?.({
+          startDate: completeStartDate,
+          endDate: adjustedEndDate, // Pass the potentially adjusted end date
+          isAllDay: isAllDay,
+        });
       }
-    };
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [startTime, endTime, startDate, endDate, isAllDay, task.startDate, task.endDate, task.isAllDay, onChange]); // Add onChange and task props to dependencies
 
   const handleStartDateChangeLocal = (value: string) => {
     setStartDate(value);

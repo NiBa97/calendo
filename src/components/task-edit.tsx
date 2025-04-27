@@ -67,6 +67,25 @@ const EditTask = ({
 
   ref.current?.setMarkdown(taskState.description);
 
+  // Function to handle updates from DateTimeRangeSelector
+  const handleDateTimeChange = (changes: { startDate: Date; endDate: Date; isAllDay: boolean }) => {
+    console.log("TaskEdit received date changes:", changes);
+    taskStateRef.current = {
+      ...taskStateRef.current,
+      startDate: changes.startDate,
+      endDate: changes.endDate,
+      isAllDay: changes.isAllDay,
+    };
+    setTaskState((prevState) => ({
+      ...prevState,
+      startDate: changes.startDate,
+      endDate: changes.endDate,
+      isAllDay: changes.isAllDay,
+    }));
+    // Trigger the debounceSave mechanism in EditTask
+    debounceSave();
+  };
+
   useEffect(() => {
     setLocalTags(task?.tags || []);
   }, [task.tags]);
@@ -212,7 +231,7 @@ const EditTask = ({
           p={3}
           ref={contentRef}
         >
-          <DateTimeRangeSelector task={task} />
+          <DateTimeRangeSelector task={task} onChange={handleDateTimeChange} />
           <Menu.Root>
             <Menu.Trigger asChild>
               <Button

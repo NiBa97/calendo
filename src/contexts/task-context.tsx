@@ -104,10 +104,19 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     try {
       setStatus("loading");
 
-      console.log("taskData", taskData);
+      // If startDate is being updated and is after endDate, adjust endDate accordingly
+      if (taskData.startDate && taskData.endDate && taskData.startDate > taskData.endDate) {
+        taskData.endDate = new Date(taskData.startDate.getTime());
+      }
 
-      const record = await pb.collection("task").update(taskId, taskData);
+      // Convert dates to ISO strings for the API
+      const updateData = {
+        ...taskData,
+        startDate: taskData.startDate?.toISOString(),
+        endDate: taskData.endDate?.toISOString(),
+      };
 
+      const record = await pb.collection("task").update(taskId, updateData);
       const updatedTask = convertTaskRecordToTask(record);
 
       toast({
