@@ -12,8 +12,10 @@ import { OperationStatusProvider } from "./contexts/operation-status-context";
 import { TagProvider } from "./contexts/tag-context";
 import { Toaster } from "./components/ui/toaster";
 import NoteEditModal from "./components/note-modal";
+import GlobalSearch from "./components/ui/GlobalSearch";
 
 const ProtectedApp = () => {
+
   return (
     <OperationStatusProvider>
       <TaskProvider>
@@ -21,6 +23,7 @@ const ProtectedApp = () => {
           <TagProvider>
             <Toaster />
             <DashboardLayout>
+              <GlobalSearch />
               <Routes>
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="tasks/:id" element={<Tasks />} />
