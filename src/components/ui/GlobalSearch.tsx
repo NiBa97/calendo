@@ -89,6 +89,7 @@ const GlobalSearch = () => {
       const pbResults = await pb.collection('taskandnotes').getList<SearchResult>(1, 20, {
         filter: filter,
         fields: 'id, type, title, content',
+        sort: '-updated',
       });
       console.log("PocketBase Results:", pbResults);
       const convertedResults = pbResults.items;
@@ -173,6 +174,10 @@ const GlobalSearch = () => {
                 )}
                 {!isLoading && !error && results.length === 0 && searchTerm.trim().length < 2 && (
                   <Text>Start typing to search...</Text>
+                )}
+
+                {!isLoading && !error && results.length === 20 && (
+                  <Text mt={4} color="gray.500" textAlign="center">More than 20 results found. Please refine your search.</Text>
                 )}
               </Box>
             </Dialog.Body>
