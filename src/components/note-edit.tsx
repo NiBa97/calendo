@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { FaTimes, FaHistory, FaTrash, FaTags, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
+import { FaTimes, FaHistory, FaTrash, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
 import { Box, Button, Flex, Menu, Portal, VStack } from "@chakra-ui/react";
 import Editor from "./editor/editor";
 import TitleInput from "./ui/title-input";
 import { useNotes } from "../contexts/note-context";
-import { TagSelector, TagBadges } from "./tag-selector";
+import { TagBadges } from "./ui/tag-badges";
 import NoteChangelog from "./note-changelog";
 import { MDXEditorMethods } from "@mdxeditor/editor";
+import { TagMenu } from "./tag-menu";
 
 interface NoteEditProps {
   noteId: string;
@@ -38,7 +39,6 @@ const NoteEdit = ({
   const [content, setContent] = useState(note?.content || "");
   const [localTags, setLocalTags] = useState<string[]>(note?.tags || []);
   const [showChangelog, setShowChangelog] = useState(false);
-  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = useRef<MDXEditorMethods>(null);
   const noteStateRef = useRef<NoteState>({
@@ -46,7 +46,6 @@ const NoteEdit = ({
     content: note?.content || "",
   });
 
-  // Update local tags whenever note.tags changes
   useEffect(() => {
     if (note?.tags) {
       setLocalTags(note.tags);
@@ -69,7 +68,6 @@ const NoteEdit = ({
 
   useEffect(() => {
     return () => {
-      // Save on unmount if needed
       if (debounceTimeout.current) {
         clearTimeout(debounceTimeout.current);
         handleSave();
@@ -78,21 +76,21 @@ const NoteEdit = ({
   }, []);
 
   const handleTitleChange = (newTitle: string) => {
-    if (note?.status) return; // Prevent changes if archived
+    if (note?.status) return;
     setTitle(newTitle);
     noteStateRef.current = { ...noteStateRef.current, title: newTitle };
     debounceSave();
   };
 
   const handleContentChange = (newContent: string) => {
-    if (note?.status) return; // Prevent changes if archived
+    if (note?.status) return;
     setContent(newContent);
     noteStateRef.current = { ...noteStateRef.current, content: newContent };
     debounceSave();
   };
 
   const handleSave = async () => {
-    if (note && !note.status) { // Only save if not archived
+    if (note && !note.status) {
       try {
         await updateNote(noteId, noteStateRef.current);
       } catch (error) {
@@ -144,22 +142,18 @@ const NoteEdit = ({
     }
   };
 
-  // Handle tag selection with local state update
-  const handleTagSelect = (tagId: string) => {
-    const updatedTags = [...localTags];
-    if (!updatedTags.includes(tagId)) {
-      updatedTags.push(tagId);
-      setLocalTags(updatedTags);
+  const handleTagToggle = (tagId: string) => {
+    if (note?.status) return;
+    const isSelected = localTags.includes(tagId);
+    let updatedTags;
+    if (isSelected) {
+      updatedTags = localTags.filter((id) => id !== tagId);
+      removeTagFromNote(noteId, tagId);
+    } else {
+      updatedTags = [...localTags, tagId];
+      addTagToNote(noteId, tagId);
     }
-    addTagToNote(noteId, tagId);
-    setIsTagDialogOpen(false);
-  };
-
-  // Handle tag removal with local state update
-  const handleTagRemove = (tagId: string) => {
-    const updatedTags = localTags.filter((id) => id !== tagId);
     setLocalTags(updatedTags);
-    removeTagFromNote(noteId, tagId);
   };
 
   if (!note) return null;
@@ -220,10 +214,11 @@ const NoteEdit = ({
               <Portal container={contentDialogRef ?? undefined}>
                 <Menu.Positioner>
                   <Menu.Content>
-                    <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags" disabled={note.status}>
-                      <FaTags style={{ marginRight: "8px" }} />
-                      Manage Tags
-                    </Menu.Item>
+                    <TagMenu
+                      selectedTagIds={localTags}
+                      onTagToggle={handleTagToggle}
+                      contentDialogRef={contentDialogRef}
+                    />
                     {note.status ? (
                       <Menu.Item onClick={handleUnarchive} value="unarchive">
                         <FaBox style={{ marginRight: "8px" }} />
@@ -255,6 +250,9 @@ const NoteEdit = ({
                 color="brand.4"
                 size="lg"
                 borderRadius="none"
+                _hover={{
+                  bg: "brand.2",
+                }}
               >
                 <FaTimes />
               </Button>
@@ -265,35 +263,31 @@ const NoteEdit = ({
         {localTags.length > 0 && (
           <Box p={2} borderBottom="1px solid" borderColor="brand.2">
             <Flex align="center" justify="space-between">
-              <TagBadges tagIds={localTags} onRemove={note.status ? undefined : handleTagRemove} />
+              <TagBadges tagIds={localTags} onRemove={handleTagToggle} />
             </Flex>
           </Box>
         )}
 
-        <Editor 
-          markdown={content} 
-          onChange={handleContentChange} 
-          editorRef={ref} 
-          showToolbar={showToolbar && !note.status}
-          readOnly={note.status}
-        />
+        <Box flex="1" overflow="auto" borderBottom="2px solid" borderColor="brand.2" style={{ opacity: note.status ? 0.7 : 1 }}>
+          <Editor 
+            markdown={content} 
+            onChange={handleContentChange} 
+            editorRef={ref} 
+            readOnly={note.status}
+            showToolbar={showToolbar}
+          />
+        </Box>
       </Flex>
 
-      <TagSelector
-        selectedTags={localTags}
-        onTagSelect={handleTagSelect}
-        onTagRemove={handleTagRemove}
-        isOpen={isTagDialogOpen && !note.status}
-        onOpenChange={setIsTagDialogOpen}
-      />
-
-      <NoteChangelog
-        isOpen={showChangelog}
-        onClose={() => setShowChangelog(false)}
-        noteId={noteId}
-        originalContent={content}
-        originalTitle={title}
-      />
+      {showChangelog && (
+        <NoteChangelog
+          isOpen={showChangelog}
+          onClose={() => setShowChangelog(false)}
+          noteId={noteId}
+          originalContent={content}
+          originalTitle={title}
+        />
+      )}
     </>
   );
 };

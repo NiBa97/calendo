@@ -16,17 +16,19 @@ import {
   GridItem,
   Container,
   IconButton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare, FaUserFriends, FaStar, FaTrash, FaPlus } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
 import { useTags } from "../contexts/tag-context";
-import { TagBadges } from "../components/tag-selector";
+import { TagBadges } from "../components/ui/tag-badges";
 import { InputGroup } from "../components/ui/input-group";
 import { MenuRoot, MenuTrigger, MenuContent } from "../components/ui/menu";
 import TaskCheckbox from "../components/ui/task-checkbox";
 import TitlePreview from "../components/ui/title-preview";
 import React from 'react';
+import { TagManagerDialog } from "../components/tag-manager-dialog";
 
 // Combined type for list items (notes and tasks)
 type ListItem = {
@@ -74,6 +76,9 @@ export default function List() {
   const [pinnedQueries, setPinnedQueries] = useState<PinnedQuery[]>([]);
   const [showPinnedQueryInput, setShowPinnedQueryInput] = useState(false);
   const [newQueryName, setNewQueryName] = useState("");
+
+  // State for Tag Manager Dialog
+  const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
 
   // Load pinned queries from localStorage on mount
   useEffect(() => {
@@ -243,248 +248,262 @@ export default function List() {
     }
   };
 
+  // Handler for Tag Manager Dialog open state change
+  const handleTagManagerOpenChange = (open: boolean) => {
+    if (open) {
+      onTagManagerOpen();
+    } else {
+      onTagManagerClose();
+    }
+  };
+
   return (
-    <Container p={4} maxW="3xl" mx="auto" w="3xl">
-      <Heading size="lg" mb={4}>All Items</Heading>
-      
-      {/* Pinned Queries Section */}
-      <Box mb={6}>
-        <Flex align="center" justify="space-between" mb={2}>
-          <Text fontSize="md" fontWeight="medium" color="gray.700">Pinned Filters</Text>
-          <Button
-            size="sm"
-            onClick={() => setShowPinnedQueryInput(true)}
-            colorScheme="blue"
-            variant="ghost"
-          >
-            <Icon as={FaPlus} mr={2} />
-            Add Filter
-          </Button>
-        </Flex>
+    <>
+      <Container p={4} maxW="3xl" mx="auto" w="3xl">
+        <Heading size="lg" mb={4}>All Items</Heading>
         
-        {showPinnedQueryInput && (
-          <Flex gap={2} mb={3}>
-            <Input
-              placeholder="Enter name for pinned filters..."
-              value={newQueryName}
-              onChange={(e) => setNewQueryName(e.target.value)}
+        {/* Pinned Queries Section */}
+        <Box mb={6}>
+          <Flex align="center" justify="space-between" mb={2}>
+            <Text fontSize="md" fontWeight="medium" color="gray.700">Pinned Filters</Text>
+            <Button
               size="sm"
-              autoFocus
-            />
-            <Button size="sm" colorScheme="blue" onClick={handlePinCurrentQuery}>
-              Save
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => {
-              setShowPinnedQueryInput(false);
-              setNewQueryName("");
-            }}>
-              Cancel
-            </Button>
-          </Flex>
-        )}
-
-        <Flex gap={2} flexWrap="wrap">
-          {pinnedQueries.map((query) => (
-            <Flex
-              key={query.id}
-              bg="gray.100"
-              p={2}
-              borderRadius="md"
-              align="center"
-              _hover={{ bg: "gray.200" }}
-              cursor="pointer"
-              onClick={() => handleApplyPinnedQuery(query)}
+              onClick={() => setShowPinnedQueryInput(true)}
+              colorScheme="blue"
+              variant="ghost"
             >
-              <Icon as={FaStar} color="yellow.500" mr={2} />
-              <Text fontSize="sm" fontWeight="medium">{query.name}</Text>
-              <Box>
-                <IconButton
-                  aria-label="Delete pinned query"
-                  size="xs"
-                  variant="ghost"
-                  ml={2}
-                  onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.stopPropagation();
-                    handleDeletePinnedQuery(query.id);
-                  }}
-                  _hover={{ color: "red.500" }}
-                >
-                  <FaTrash />
-                </IconButton>
-              </Box>
-            </Flex>
-          ))}
-        </Flex>
-      </Box>
-
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        gap={3}
-        mb={6}
-        p={3}
-        bg="gray.50"
-        borderRadius="md"
-        flexWrap="wrap"
-      >
-        <InputGroup startElement={<FaSearch />} flex={{ base: "1", md: "2" }}>
-          <Input
-            placeholder="Filter by title..."
-            value={titleFilter}
-            onChange={(e) => setTitleFilter(e.target.value)}
-            bg="white"
-          />
-        </InputGroup>
-        <HStack>
-          <Button colorScheme="blue" onClick={handleCreateNote}>
-            <Icon as={FaBook} mr={2} />
-            New Note
-          </Button>
-          <Button colorScheme="green" onClick={handleCreateTask}>
-            <Icon as={FaCheckSquare} mr={2} />
-            New Task
-          </Button>
-          <Button colorScheme="red" onClick={() => alert("not implemented")}>
-            <Icon as={FaTags} mr={2} />
-            Tags
-          </Button>
-        </HStack>
-      </Flex>
-
-      {(titleFilter || typeFilter !== "all" || selectedTagIds.length > 0) && (
-        <Flex wrap="wrap" gap={2} mb={4}>
-          <Text color="gray.600" fontWeight="medium">
-            Active filters:
-          </Text>
-
-          {titleFilter && (
-            <Badge colorScheme="blue" borderRadius="full" px={2} display="flex" alignItems="center">
-              Title: {titleFilter}
-            </Badge>
-          )}
-
-          {typeFilter !== "all" && (
-            <Badge colorScheme="purple" borderRadius="full" px={2} display="flex" alignItems="center">
-              Type: {typeFilter === "notes" ? "Notes" : "Tasks"}
-            </Badge>
-          )}
-
-          {selectedTagIds.length > 0 && <TagBadges tagIds={selectedTagIds} onRemove={handleTagClick} size="sm" />}
-
-          <Button
-            size="xs"
-            onClick={() => {
-              setTitleFilter("");
-              setTypeFilter("all");
-              setSelectedTagIds([]);
-            }}
-          >
-            Clear filters
-          </Button>
-        </Flex>
-      )}
-
-      <Flex justifyContent="space-between">
-        <Box>
-          <Button
-            onClick={() => {
-              setStatusFilter("open");
-            }}
-          >
-            Open
-            <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-              {sortedItems.filter((item) => item.status == false).length}
-            </Text>
-          </Button>
-          <Button
-            onClick={() => {
-              setStatusFilter("closed");
-            }}
-          >
-            Closed
-            <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-              {sortedItems.filter((item) => item.status == true).length}
-            </Text>
-          </Button>
-        </Box>
-        <Box>
-          <MenuRoot>
-            <MenuTrigger asChild>
-              <Button>
-                <Flex align="center">
-                  <Icon as={FaFilter} mr={2} />
-                  Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
-                  <Icon as={FaCaretDown} ml={2} />
-                </Flex>
-              </Button>
-            </MenuTrigger>
-            <MenuContent>
-              <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => setTypeFilter(e.value)}>
-                <Menu.RadioItem value="all" key="all" _checked={{ fontWeight: "bold" }}>
-                  All Items
-                </Menu.RadioItem>
-                <Menu.RadioItem value="notes" key="notes" _checked={{ fontWeight: "bold" }}>
-                  Notes
-                </Menu.RadioItem>
-                <Menu.RadioItem value="tasks" key="tasks" _checked={{ fontWeight: "bold" }}>
-                  Tasks
-                </Menu.RadioItem>
-              </Menu.RadioItemGroup>
-            </MenuContent>
-          </MenuRoot>
-
-          <MenuRoot>
-            <MenuTrigger asChild>
-              <Button>
-                <Flex align="center">
-                  <Icon as={FaTags} mr={2} />
-                  Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
-                  <Icon as={FaCaretDown} ml={2} />
-                </Flex>
-              </Button>
-            </MenuTrigger>
-            <MenuContent minW="250px">
-              <Box p={3}>
-                <Text fontWeight="medium" mb={2}>
-                  Filter by Tags
-                </Text>
-                <VStack align="stretch" maxH="200px" overflowY="auto">
-                  {tags.length === 0 ? (
-                    <Text color="gray.500">No tags found</Text>
-                  ) : (
-                    tags.map((tag) => (
-                      <Flex
-                        key={tag.id}
-                        align="center"
-                        p={2}
-                        borderRadius="md"
-                        cursor="pointer"
-                        bg={selectedTagIds.includes(tag.id) ? "gray.100" : "transparent"}
-                        _hover={{ bg: "gray.50" }}
-                        onClick={() => handleTagClick(tag.id)}
-                      >
-                        <Box w="12px" h="12px" borderRadius="full" bg={tag.color} mr={2} />
-                        <Text>{tag.name}</Text>
-                      </Flex>
-                    ))
-                  )}
-                </VStack>
-              </Box>
-            </MenuContent>
-          </MenuRoot>
-        </Box>
-      </Flex>
-      <Box borderWidth="1px" borderRadius="md" overflow="hidden" borderTopRadius={0}>
-        {sortedItems.length === 0 ? (
-          <Flex justify="center" py={8} color="gray.500">
-            No items match your filters
+              <Icon as={FaPlus} mr={2} />
+              Add Filter
+            </Button>
           </Flex>
-        ) : (
-          sortedItems
-            .filter((item) => item.status == (statusFilter == "open" ? false : true))
-            .map((item) => <ListItem item={item} key={item.id}></ListItem>)
+          
+          {showPinnedQueryInput && (
+            <Flex gap={2} mb={3}>
+              <Input
+                placeholder="Enter name for pinned filters..."
+                value={newQueryName}
+                onChange={(e) => setNewQueryName(e.target.value)}
+                size="sm"
+                autoFocus
+              />
+              <Button size="sm" colorScheme="blue" onClick={handlePinCurrentQuery}>
+                Save
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => {
+                setShowPinnedQueryInput(false);
+                setNewQueryName("");
+              }}>
+                Cancel
+              </Button>
+            </Flex>
+          )}
+
+          <Flex gap={2} flexWrap="wrap">
+            {pinnedQueries.map((query) => (
+              <Flex
+                key={query.id}
+                bg="gray.100"
+                p={2}
+                borderRadius="md"
+                align="center"
+                _hover={{ bg: "gray.200" }}
+                cursor="pointer"
+                onClick={() => handleApplyPinnedQuery(query)}
+              >
+                <Icon as={FaStar} color="yellow.500" mr={2} />
+                <Text fontSize="sm" fontWeight="medium">{query.name}</Text>
+                <Box>
+                  <IconButton
+                    aria-label="Delete pinned query"
+                    size="xs"
+                    variant="ghost"
+                    ml={2}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      handleDeletePinnedQuery(query.id);
+                    }}
+                    _hover={{ color: "red.500" }}
+                  >
+                    <FaTrash />
+                  </IconButton>
+                </Box>
+              </Flex>
+            ))}
+          </Flex>
+        </Box>
+
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          gap={3}
+          mb={6}
+          p={3}
+          bg="gray.50"
+          borderRadius="md"
+          flexWrap="wrap"
+        >
+          <InputGroup startElement={<FaSearch />} flex={{ base: "1", md: "2" }}>
+            <Input
+              placeholder="Filter by title..."
+              value={titleFilter}
+              onChange={(e) => setTitleFilter(e.target.value)}
+              bg="white"
+            />
+          </InputGroup>
+          <HStack>
+            <Button colorScheme="blue" onClick={handleCreateNote}>
+              <Icon as={FaBook} mr={2} />
+              New Note
+            </Button>
+            <Button colorScheme="green" onClick={handleCreateTask}>
+              <Icon as={FaCheckSquare} mr={2} />
+              New Task
+            </Button>
+            <Button colorScheme="red" onClick={onTagManagerOpen}>
+              <Icon as={FaTags} mr={2} />
+              Tags
+            </Button>
+          </HStack>
+        </Flex>
+
+        {(titleFilter || typeFilter !== "all" || selectedTagIds.length > 0) && (
+          <Flex wrap="wrap" gap={2} mb={4}>
+            <Text color="gray.600" fontWeight="medium">
+              Active filters:
+            </Text>
+
+            {titleFilter && (
+              <Badge colorScheme="blue" borderRadius="full" px={2} display="flex" alignItems="center">
+                Title: {titleFilter}
+              </Badge>
+            )}
+
+            {typeFilter !== "all" && (
+              <Badge colorScheme="purple" borderRadius="full" px={2} display="flex" alignItems="center">
+                Type: {typeFilter === "notes" ? "Notes" : "Tasks"}
+              </Badge>
+            )}
+
+            {selectedTagIds.length > 0 && <TagBadges tagIds={selectedTagIds} onRemove={handleTagClick} size="sm" />}
+
+            <Button
+              size="xs"
+              onClick={() => {
+                setTitleFilter("");
+                setTypeFilter("all");
+                setSelectedTagIds([]);
+              }}
+            >
+              Clear filters
+            </Button>
+          </Flex>
         )}
-      </Box>
-    </Container>
+
+        <Flex justifyContent="space-between">
+          <Box>
+            <Button
+              onClick={() => {
+                setStatusFilter("open");
+              }}
+            >
+              Open
+              <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
+                {sortedItems.filter((item) => item.status == false).length}
+              </Text>
+            </Button>
+            <Button
+              onClick={() => {
+                setStatusFilter("closed");
+              }}
+            >
+              Closed
+              <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
+                {sortedItems.filter((item) => item.status == true).length}
+              </Text>
+            </Button>
+          </Box>
+          <Box>
+            <MenuRoot>
+              <MenuTrigger asChild>
+                <Button>
+                  <Flex align="center">
+                    <Icon as={FaFilter} mr={2} />
+                    Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
+                    <Icon as={FaCaretDown} ml={2} />
+                  </Flex>
+                </Button>
+              </MenuTrigger>
+              <MenuContent>
+                <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => setTypeFilter(e.value)}>
+                  <Menu.RadioItem value="all" key="all" _checked={{ fontWeight: "bold" }}>
+                    All Items
+                  </Menu.RadioItem>
+                  <Menu.RadioItem value="notes" key="notes" _checked={{ fontWeight: "bold" }}>
+                    Notes
+                  </Menu.RadioItem>
+                  <Menu.RadioItem value="tasks" key="tasks" _checked={{ fontWeight: "bold" }}>
+                    Tasks
+                  </Menu.RadioItem>
+                </Menu.RadioItemGroup>
+              </MenuContent>
+            </MenuRoot>
+
+            <MenuRoot>
+              <MenuTrigger asChild>
+                <Button>
+                  <Flex align="center">
+                    <Icon as={FaTags} mr={2} />
+                    Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
+                    <Icon as={FaCaretDown} ml={2} />
+                  </Flex>
+                </Button>
+              </MenuTrigger>
+              <MenuContent minW="250px">
+                <Box p={3}>
+                  <Text fontWeight="medium" mb={2}>
+                    Filter by Tags
+                  </Text>
+                  <VStack align="stretch" maxH="200px" overflowY="auto">
+                    {tags.length === 0 ? (
+                      <Text color="gray.500">No tags found</Text>
+                    ) : (
+                      tags.map((tag) => (
+                        <Flex
+                          key={tag.id}
+                          align="center"
+                          p={2}
+                          borderRadius="md"
+                          cursor="pointer"
+                          bg={selectedTagIds.includes(tag.id) ? "gray.100" : "transparent"}
+                          _hover={{ bg: "gray.50" }}
+                          onClick={() => handleTagClick(tag.id)}
+                        >
+                          <Box w="12px" h="12px" borderRadius="full" bg={tag.color} mr={2} />
+                          <Text>{tag.name}</Text>
+                        </Flex>
+                      ))
+                    )}
+                  </VStack>
+                </Box>
+              </MenuContent>
+            </MenuRoot>
+          </Box>
+        </Flex>
+        <Box borderWidth="1px" borderRadius="md" overflow="hidden" borderTopRadius={0}>
+          {sortedItems.length === 0 ? (
+            <Flex justify="center" py={8} color="gray.500">
+              No items match your filters
+            </Flex>
+          ) : (
+            sortedItems
+              .filter((item) => item.status == (statusFilter == "open" ? false : true))
+              .map((item) => <ListItem item={item} key={item.id}></ListItem>)
+          )}
+        </Box>
+      </Container>
+
+      {/* Render Tag Manager Dialog */}
+      <TagManagerDialog isOpen={isTagManagerOpen} onOpenChange={handleTagManagerOpenChange} />
+    </>
   );
 }
 

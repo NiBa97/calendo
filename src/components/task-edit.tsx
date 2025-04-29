@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { FaTimes, FaHistory, FaEllipsisV, FaTags } from "react-icons/fa";
+import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { Flex, IconButton, Box, HStack, Button, Portal, Menu } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
@@ -12,7 +12,8 @@ import TaskChangelog from "./task-changelog";
 import { ShareMenu } from "./share-menu";
 import TitleInput from "./ui/title-input";
 import TaskCheckbox from "./ui/task-checkbox";
-import { TagSelector, TagBadges } from "./tag-selector";
+import { TagBadges } from "./ui/tag-badges";
+import { TagMenu } from "./tag-menu";
 
 interface TaskState {
   name: string;
@@ -25,7 +26,6 @@ interface TaskState {
 
 const EditTask = ({
   task,
-
   height = undefined,
   width = undefined,
   showCloseButton = true,
@@ -63,7 +63,6 @@ const EditTask = ({
     isAllDay: task?.isAllDay ?? false,
   });
   const [showChangelog, setShowChangelog] = useState(false);
-  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   ref.current?.setMarkdown(taskState.description);
 
@@ -143,20 +142,17 @@ const EditTask = ({
     };
   }, [debounceTimeout, task]);
 
-  const handleTagSelect = (tagId: string) => {
-    const updatedTags = [...localTags];
-    if (!updatedTags.includes(tagId)) {
-      updatedTags.push(tagId);
-      setLocalTags(updatedTags);
+  const handleTagToggle = (tagId: string) => {
+    const isSelected = localTags.includes(tagId);
+    let updatedTags;
+    if (isSelected) {
+      updatedTags = localTags.filter((id) => id !== tagId);
+      removeTagFromTask(task.id, tagId);
+    } else {
+      updatedTags = [...localTags, tagId];
+      addTagToTask(task.id, tagId);
     }
-    addTagToTask(task.id, tagId);
-    setIsTagDialogOpen(false);
-  };
-
-  const handleTagRemove = (tagId: string) => {
-    const updatedTags = localTags.filter((id) => id !== tagId);
     setLocalTags(updatedTags);
-    removeTagFromTask(task.id, tagId);
   };
 
   return (
@@ -208,7 +204,7 @@ const EditTask = ({
         {localTags.length > 0 && (
           <Box p={2} borderBottom="1px solid" borderColor="brand.2">
             <Flex align="center" justify="space-between">
-              <TagBadges tagIds={localTags} onRemove={handleTagRemove} />
+              <TagBadges tagIds={localTags} onRemove={handleTagToggle} />
             </Flex>
           </Box>
         )}
@@ -248,34 +244,31 @@ const EditTask = ({
             <Portal container={contentDialogRef ?? undefined}>
               <Menu.Positioner>
                 <Menu.Content>
-                  <Menu.Item onClick={() => setIsTagDialogOpen(true)} value="tags">
-                    <FaTags style={{ marginRight: "8px" }} />
-                    Manage Tags
-                  </Menu.Item>
-                  <Menu.Item onClick={() => setShowChangelog(true)} value="history">
-                    <FaHistory style={{ marginRight: "8px" }} />
-                    View History
-                  </Menu.Item>
+
                   <ShareMenu
-                    contentDialogRef={contentRef}
                     objectId={task.id}
                     objectType="task"
                     currentUsers={task.user}
+                    contentDialogRef={contentDialogRef}
                   />
+                  <TagMenu
+                    selectedTagIds={localTags}
+                    onTagToggle={handleTagToggle}
+                    contentDialogRef={contentDialogRef}
+                  />
+                  <Menu.Separator />
+                  <Menu.Item value="history" onClick={() => setShowChangelog(true)}>
+                    <HStack>
+                      <FaHistory style={{ marginRight: "8px" }} /> History
+                    </HStack>
+                  </Menu.Item>
                 </Menu.Content>
               </Menu.Positioner>
             </Portal>
           </Menu.Root>
         </Flex>
       </Flex>
-      <TagSelector
-        selectedTags={localTags}
-        onTagSelect={handleTagSelect}
-        onTagRemove={handleTagRemove}
-        isOpen={isTagDialogOpen}
-        onOpenChange={setIsTagDialogOpen}
-      />
-      <TaskChangelog isOpen={showChangelog} onClose={() => setShowChangelog(false)} taskId={task.id} />
+      {showChangelog && <TaskChangelog isOpen={showChangelog} onClose={() => setShowChangelog(false)} taskId={task.id} />}
     </>
   );
 };
