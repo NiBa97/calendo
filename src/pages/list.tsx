@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
@@ -29,18 +29,21 @@ import TaskCheckbox from "../components/ui/task-checkbox";
 import TitlePreview from "../components/ui/title-preview";
 import React from 'react';
 import { TagManagerDialog } from "../components/tag-manager-dialog";
+import { pb } from "../pocketbaseUtils"; // Use named export
+import { RecordModel } from "pocketbase"; // Import PocketBase types
+import { Task, Note, convertTaskRecordToTask, convertNoteRecordToNote } from "../types"; // Import app types and converters
 
-// Combined type for list items (notes and tasks)
+// Revert ListItem type to use isTask and Date objects for client-side processing
 type ListItem = {
   id: string;
   title: string;
-  isTask: boolean;
-  status?: boolean;
-  created: Date;
+  isTask: boolean; 
+  status: boolean;
+  created: Date; // Use Date object for client-side sorting
   updated?: Date;
-  dueDate?: Date;
+  dueDate?: Date; // Specific to tasks
   tags: string[];
-  shared: boolean;
+  user: string[]; // Keep user array for shared status
 };
 
 // Type for pinned queries
@@ -59,9 +62,8 @@ export default function List() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Get context data
-  const { notes } = useNotes();
-  const { tasks, setModalTask } = useTasks();
-  const { createNote, setSelectedNote } = useNotes();
+  const { tasks, setModalTask, updateTask } = useTasks();
+  const { notes, createNote, setSelectedNote } = useNotes();
   const { tags } = useTags();
 
   // Local state for filters
@@ -79,6 +81,134 @@ export default function List() {
 
   // State for Tag Manager Dialog
   const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
+
+  // NEW STATE: For API data, pagination, counts, loading
+  const [items, setItems] = useState<ListItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [openCount, setOpenCount] = useState(0);
+  const [closedCount, setClosedCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const itemsPerPage = 30; // Define how many items per page
+
+  // Define fetch function using useCallback to keep reference stable
+  const fetchItemsAndCounts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // --- Build Base Filter String (title, tags) ---
+      let baseFilterParts: string[] = [];
+
+      // Title filter (adjust field name for notes vs tasks)
+      if (titleFilter) {
+        const escapedTitle = titleFilter.replace(/"/g, '\"'); 
+        // Apply to 'name' for tasks and 'title' for notes
+        baseFilterParts.push(`(title ~ "${escapedTitle}" || name ~ "${escapedTitle}")`); 
+      }
+
+      // Tag filter (same field name 'tags' for both)
+      if (selectedTagIds.length > 0) {
+        const tagFilters = selectedTagIds.map(id => `tags ~ "${id.replace(/"/g, '\"')}"`);
+        baseFilterParts.push(`(${tagFilters.join(" || ")})`);
+      }
+
+      const baseFilterString = baseFilterParts.join(" && ");
+
+      // --- Fetch Item Counts (querying tasks and notes separately) ---
+      const openStatusFilter = 'status = false';
+      const closedStatusFilter = 'status = true';
+
+      const finalOpenFilter = baseFilterString ? `${baseFilterString} && ${openStatusFilter}` : openStatusFilter;
+      const finalClosedFilter = baseFilterString ? `${baseFilterString} && ${closedStatusFilter}` : closedStatusFilter;
+
+      const countPromises = [];
+      // Add task counts if type is 'all' or 'tasks'
+      if (typeFilter === 'all' || typeFilter === 'tasks') {
+         countPromises.push(pb.collection('task').getList(1, 1, { filter: finalOpenFilter, requestKey: 'task_open_count' }));
+         countPromises.push(pb.collection('task').getList(1, 1, { filter: finalClosedFilter, requestKey: 'task_closed_count' }));
+      } else {
+         countPromises.push(Promise.resolve({ totalItems: 0 })); // Placeholder if not fetching tasks
+         countPromises.push(Promise.resolve({ totalItems: 0 })); // Placeholder
+      }
+      // Add note counts if type is 'all' or 'notes'
+       if (typeFilter === 'all' || typeFilter === 'notes') {
+         countPromises.push(pb.collection('note').getList(1, 1, { filter: finalOpenFilter, requestKey: 'note_open_count' }));
+         countPromises.push(pb.collection('note').getList(1, 1, { filter: finalClosedFilter, requestKey: 'note_closed_count' }));
+      } else {
+         countPromises.push(Promise.resolve({ totalItems: 0 })); // Placeholder if not fetching notes
+         countPromises.push(Promise.resolve({ totalItems: 0 })); // Placeholder
+      }
+
+      const [taskOpenResult, taskClosedResult, noteOpenResult, noteClosedResult] = await Promise.all(countPromises);
+      
+      setOpenCount(taskOpenResult.totalItems + noteOpenResult.totalItems);
+      setClosedCount(taskClosedResult.totalItems + noteClosedResult.totalItems);
+
+      // --- Fetch All Items for Current View (Tasks and/or Notes) ---
+      const currentStatusFilter = statusFilter === 'open' ? openStatusFilter : closedStatusFilter;
+      const finalItemsFilter = baseFilterString ? `${baseFilterString} && ${currentStatusFilter}` : currentStatusFilter;
+
+      let taskItems: ListItem[] = [];
+      let noteItems: ListItem[] = [];
+      const fetchPromises = [];
+
+      if (typeFilter === 'all' || typeFilter === 'tasks') {
+          fetchPromises.push(
+              pb.collection('task').getFullList(200, {
+                  filter: finalItemsFilter,
+                  sort: '-created', // Sort server-side initially
+                  requestKey: 'tasks_list'
+              }).then(records => {
+                  taskItems = records.map(rec => ({
+                      ...convertTaskRecordToTask(rec),
+                      isTask: true,
+                      // Ensure title field is consistent
+                      title: convertTaskRecordToTask(rec).name, 
+                  }));
+              })
+          );
+      }
+
+      if (typeFilter === 'all' || typeFilter === 'notes') {
+          fetchPromises.push(
+              pb.collection('note').getFullList(200, {
+                  filter: finalItemsFilter,
+                  sort: '-created', // Sort server-side initially
+                  requestKey: 'notes_list' 
+              }).then(records => {
+                  noteItems = records.map(rec => ({
+                      ...convertNoteRecordToNote(rec),
+                      isTask: false,
+                  }));
+              })
+          );
+      }
+
+      await Promise.all(fetchPromises);
+
+      // Combine, Sort Client-Side
+      const combinedItems = [...taskItems, ...noteItems];
+      combinedItems.sort((a, b) => b.created.getTime() - a.created.getTime());
+
+      // Update totals based on combined results
+      setTotalItems(combinedItems.length);
+      setTotalPages(Math.ceil(combinedItems.length / itemsPerPage));
+
+      // Apply Client-Side Pagination
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      setItems(combinedItems.slice(startIndex, endIndex));
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Handle error appropriately (e.g., show a toast message)
+      setItems([]);
+      setTotalItems(0);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, titleFilter, typeFilter, statusFilter, selectedTagIds]); // Add dependencies
 
   // Load pinned queries from localStorage on mount
   useEffect(() => {
@@ -151,58 +281,14 @@ export default function List() {
     if (selectedTagIds.length > 0) params.set("tags", selectedTagIds.join(","));
 
     setSearchParams(params, { replace: true });
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
   }, [titleFilter, typeFilter, statusFilter, selectedTagIds, setSearchParams]);
 
-  // Convert notes and tasks to a unified list item format
-  const allItems = useMemo(() => {
-    const noteItems: ListItem[] = notes.map((note) => ({
-      id: note.id,
-      title: note.title || "Untitled Note",
-      isTask: false,
-      status: note.status,
-      created: note.created,
-      updated: note.updated,
-      tags: note.tags || [],
-      shared: note.user?.length > 1 || false,
-    }));
-
-    const taskItems: ListItem[] = tasks.map((task) => ({
-      id: task.id,
-      title: task.title || "Untitled Task",
-      isTask: true,
-      status: task.status,
-      created: task.created,
-      dueDate: task.startDate ? new Date(task.startDate) : undefined,
-      tags: task.tags || [],
-      shared: task.user?.length > 1 || false,
-    }));
-
-    return [...noteItems, ...taskItems];
-  }, [notes, tasks]);
-
-  // Apply all filters
-  const filteredItems = useMemo(() => {
-    return allItems.filter((item) => {
-      // Filter by title
-      const matchesTitle = !titleFilter || item.title.toLowerCase().includes(titleFilter.toLowerCase());
-
-      // Filter by type (note/task)
-      const matchesType =
-        typeFilter === "all" || (typeFilter === "notes" && !item.isTask) || (typeFilter === "tasks" && item.isTask);
-
-      // Filter by tags
-      const matchesTags = selectedTagIds.length === 0 || selectedTagIds.some((tagId) => item.tags.includes(tagId));
-
-      return matchesTitle && matchesType && matchesTags;
-    });
-  }, [allItems, titleFilter, typeFilter, selectedTagIds]);
-
-  // Sort by created date (changed from updated date)
-  const sortedItems = useMemo(() => {
-    return [...filteredItems].sort((a, b) => {
-      return b.created.getTime() - a.created.getTime();
-    });
-  }, [filteredItems]);
+  // NEW EFFECT: Fetch data when fetch function reference or its dependencies change
+  useEffect(() => {
+    fetchItemsAndCounts();
+  }, [fetchItemsAndCounts]);
 
   const handleTagClick = (tagId: string) => {
     setSelectedTagIds((prev) => {
@@ -242,6 +328,7 @@ export default function List() {
       const newNote = await createNote(data);
       if (newNote?.id) {
         setSelectedNote(newNote);
+        fetchItemsAndCounts(); // Refetch list after creating note
       }
     } catch (error) {
       console.log(error);
@@ -407,7 +494,7 @@ export default function List() {
             >
               Open
               <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-                {sortedItems.filter((item) => item.status == false).length}
+                {openCount}
               </Text>
             </Button>
             <Button
@@ -417,7 +504,7 @@ export default function List() {
             >
               Closed
               <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-                {sortedItems.filter((item) => item.status == true).length}
+                {closedCount}
               </Text>
             </Button>
           </Box>
@@ -489,16 +576,42 @@ export default function List() {
           </Box>
         </Flex>
         <Box borderWidth="1px" borderRadius="md" overflow="hidden" borderTopRadius={0}>
-          {sortedItems.length === 0 ? (
+          {isLoading ? (
+            <Flex justify="center" py={8} color="gray.500">Loading...</Flex>
+          ) : items.length === 0 ? (
             <Flex justify="center" py={8} color="gray.500">
               No items match your filters
             </Flex>
           ) : (
-            sortedItems
-              .filter((item) => item.status == (statusFilter == "open" ? false : true))
-              .map((item) => <ListItem item={item} key={item.id}></ListItem>)
+            items.map((item) => (
+              <ListItem 
+                item={item} 
+                key={item.id} 
+                refetchList={fetchItemsAndCounts} // Pass refetch function
+              />
+            ))
           )}
         </Box>
+
+        {/* Pagination Controls */} 
+        <Flex justify="space-between" align="center" mt={4} mb={8}>
+          <Button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1 || isLoading}
+          >
+            Previous
+          </Button>
+          <Text>
+            Page {currentPage} of {totalPages}
+          </Text>
+          <Button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages || isLoading}
+          >
+            Next
+          </Button>
+        </Flex>
+
       </Container>
 
       {/* Render Tag Manager Dialog */}
@@ -507,34 +620,76 @@ export default function List() {
   );
 }
 
-const ListItem = ({ item }: { item: ListItem }) => {
+const ListItem = ({ item, refetchList }: { item: ListItem; refetchList: () => void }) => {
   const { tasks, setModalTask, updateTask } = useTasks();
   const { notes, setSelectedNote } = useNotes();
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleTaskStatusChange = async (taskId: string, newStatus: boolean) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (task) {
-      await updateTask(task.id, {
-        ...task,
-        status: newStatus,
-      });
+  // Needs adjustment based on how updates should trigger list refresh
+  const handleTaskStatusChange = async (taskId: string, newStatus: boolean, refetch: () => void) => {
+    // Find original task data (if needed for update payload)
+    // This might require fetching task details if not available in ListItem
+    // For now, assume we only need ID and new status for the update
+    try {
+      // Option 1: Update the specific task collection
+      await pb.collection('task').update(taskId, { status: newStatus });
+      refetch(); // Call the passed refetch function
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      // Handle error
     }
+
+    // Old logic using context (might still be relevant if context drives other UI)
+    // const task = tasks.find((t) => t.id === taskId);
+    // if (task) {
+    //   await updateTask(task.id, {
+    //     ...task,
+    //     status: newStatus,
+    //   });
+    // }
   };
 
   // Handle item click - open appropriate popup
-  const handleItemClick = (item: ListItem) => {
-    if (item.isTask) {
-      // Find the task object to open in modal
-      const task = tasks.find((t) => t.id === item.id);
+  const handleItemClick = async (item: ListItem) => { // Make async
+    if (item.isTask) { // Use isTask flag again
+      // Try finding task in context cache first
+      let task = tasks.find((t) => t.id === item.id);
       if (task) {
         setModalTask(task);
+      } else {
+        // If not in cache, fetch full task details from API
+        console.warn("Task details not found in context cache for ID:", item.id, "Fetching from API...");
+        try {
+          const fetchedRecord = await pb.collection('task').getOne(item.id); // Fetch raw record
+          if (fetchedRecord) {
+             const fetchedTask = convertTaskRecordToTask(fetchedRecord); // Convert to Task type
+             setModalTask(fetchedTask);
+          }
+        } catch (error) {
+          console.error("Error fetching task details:", error);
+          // Handle error (e.g., show toast)
+          // Optionally setModalTask(null) if needed
+        }
       }
-    } else {
-      // Open note in dialog
-      const note = notes.find((t) => t.id === item.id);
+    } else { // Assuming type is 'note'
+      // Try finding note in context cache first
+      let note = notes.find((n) => n.id === item.id);
       if (note) {
         setSelectedNote(note);
+      } else {
+        // If not in cache, fetch full note details from API
+        console.warn("Note details not found in context cache for ID:", item.id, "Fetching from API...");
+        try {
+          const fetchedRecord = await pb.collection('note').getOne(item.id); // Fetch raw record
+          if (fetchedRecord) {
+            const fetchedNote = convertNoteRecordToNote(fetchedRecord); // Convert to Note type
+            setSelectedNote(fetchedNote);
+          }
+        } catch (error) {
+          console.error("Error fetching note details:", error);
+          // Handle error (e.g., show toast)
+          // Optionally setSelectedNote(null) if needed
+        }
       }
     }
   };
@@ -556,7 +711,7 @@ const ListItem = ({ item }: { item: ListItem }) => {
         {item.isTask ? (
           <TaskCheckbox
             checked={item.status}
-            onChange={(e) => handleTaskStatusChange(item.id, e)}
+            onChange={(e) => handleTaskStatusChange(item.id, e, refetchList)} // Pass refetch
             onClick={(e) => e.stopPropagation()}
             colorScheme={item.status ? "green" : "gray"}
           />
@@ -585,7 +740,7 @@ const ListItem = ({ item }: { item: ListItem }) => {
         </Text>
       </GridItem>
       <GridItem>
-        {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
+        {item.user?.length > 1 && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
       </GridItem>
       <GridItem color="gray.600">{}</GridItem>
     </Grid>
