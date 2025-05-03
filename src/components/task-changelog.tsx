@@ -16,7 +16,7 @@ interface TaskChangelogProps {
 const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }) => {
   const [versions, setVersions] = useState<
     {
-      name: string;
+      title: string;
       description: string;
       status: boolean;
       startDate?: Date;
@@ -43,7 +43,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
         sort: "-created",
       });
       const versionHistory: {
-        name: string;
+        title: string;
         description: string;
         status: boolean;
         startDate?: Date;
@@ -54,7 +54,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
 
       records.forEach((record) => {
         versionHistory.push({
-          name: record.name ?? "",
+          title: record.title ?? "",
           description: record.description ?? "",
           status: record.status ?? false,
           startDate: record.startDate ? new Date(record.startDate) : undefined,
@@ -79,7 +79,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
       console.log("Reverting to version:", versionToRevert);
 
       await updateTask(taskId, {
-        name: versionToRevert.name,
+        title: versionToRevert.title,
         description: versionToRevert.description,
         status: versionToRevert.status,
         startDate: versionToRevert.startDate,
@@ -129,7 +129,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
 
   // Get a list of changed fields between two versions
   const getChangedFields = (currentVersion: Record<string, unknown>, previousVersion: Record<string, unknown>) => {
-    const fields = ["name", "description", "status", "startDate", "endDate", "isAllDay"];
+    const fields = ["title", "description", "status", "startDate", "endDate", "isAllDay"];
     return fields.filter((field) => hasFieldChanged(field, currentVersion, previousVersion));
   };
 
@@ -220,7 +220,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
                   // Get fields that changed between this version and the next one in history
                   const changedFields = nextVersionInHistory
                     ? getChangedFields(nextVersionInHistory, version)
-                    : ["name", "description", "status", "startDate", "endDate", "isAllDay"];
+                    : ["title", "description", "status", "startDate", "endDate", "isAllDay"];
 
                   return (
                     <Box
@@ -287,11 +287,10 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
                             </Text>
                           ) : (
                             <>
-                              {/* Task Name */}
-                              {changedFields.includes("name") && (
+                              {changedFields.includes("title") && (
                                 <Box>
                                   <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                    Task Name:
+                                    Task Title:
                                   </Text>
                                   <Box
                                     p={3}
@@ -300,7 +299,7 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
                                     borderWidth="1px"
                                     borderColor="gray.700"
                                   >
-                                    <Text fontFamily="monospace">{version.name}</Text>
+                                    <Text fontFamily="monospace">{version.title}</Text>
                                   </Box>
                                 </Box>
                               )}

@@ -74,7 +74,7 @@ const EventComponent = ({ event }: { event: Task }) => {
   const shouldShowTime = !isVerySmallEvent && !event.isAllDay;
 
   const getDisplayTitle = () => {
-    const name = event.name;
+    const name = event.title;
 
     if (isVerySmallEvent && name.length > 12) {
       return name.substring(0, 10) + "...";
@@ -103,7 +103,7 @@ const EventComponent = ({ event }: { event: Task }) => {
         borderLeft={isOverdue ? "4px solid red" : ""}
         onContextMenu={onContextMenu}
         alignItems="center"
-        title={event.name}
+        title={event.title}
       >
         <Text fontWeight={600} textDecoration={event.status ? "line-through" : "none"} fontSize="sm" lineHeight="1">
           {event.user && event.user.length > 1 && (
@@ -126,7 +126,7 @@ const EventComponent = ({ event }: { event: Task }) => {
       onContextMenu={onContextMenu}
       flexDirection="column"
       justifyContent="space-between"
-      title={event.name}
+      title={event.title}
     >
       <Flex justifyContent="space-between" alignItems="center" width="100%" gap={1}>
         <Text
@@ -346,7 +346,7 @@ export default function MainCalendar({
 
     // Create a partial Task object for temporary task
     const event: Partial<Task> = {
-      name: "",
+      title: "",
       startDate: start,
       endDate: end,
       isAllDay: false,
@@ -398,7 +398,7 @@ export default function MainCalendar({
         startAccessor={(event) => (event as Task).startDate ?? new Date()}
         messages={messages}
         endAccessor={(event) => (event as Task).endDate ?? new Date()}
-        titleAccessor={(event) => (event as Task).name}
+        titleAccessor={(event) => (event as Task).title}
         resourceIdAccessor={(event) => (event as Task).id}
         allDayAccessor={(event) => (event as Task).isAllDay}
         showMultiDayTimes

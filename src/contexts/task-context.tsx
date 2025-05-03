@@ -81,7 +81,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         endDate: taskData.endDate?.toISOString(),
         isAllDay: taskData.isAllDay ?? false,
         status: isInPast ? true : taskData.status ?? false,
-        name: taskData.name,
+        title: taskData.title,
         description: taskData.description,
         tags: taskData.tags || [],
         user: [pb.authStore.record?.id],

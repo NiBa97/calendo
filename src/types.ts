@@ -13,7 +13,7 @@ export interface Task {
   created: Date;
   isAllDay: boolean;
   status: boolean;
-  name: string;
+  title: string;
   description: string;
   user: string[];
   tags: string[];
@@ -23,8 +23,8 @@ export function convertTaskRecordToTask(record: TaskRecord): Task;
 export function convertTaskRecordToTask(record: RecordModel): Task;
 export function convertTaskRecordToTask(record: TaskRecordOrModel): Task {
   // Make sure we have the required fields
-  if (!record.name) {
-    throw new Error('TaskRecord must have a name');
+  if (!record.title) {
+    throw new Error('TaskRecord must have a title');
   }
   if (record.isAllDay === undefined) {
     throw new Error('TaskRecord must have an isAllDay property');
@@ -39,7 +39,7 @@ export function convertTaskRecordToTask(record: TaskRecordOrModel): Task {
     endDate: record.endDate ? new Date(record.endDate) : undefined,
     isAllDay: record.isAllDay,
     status: record.status,
-    name: record.name,
+    title: record.title,
     description: record.description ? record.description : "",
     user: record.user ?? [],
     tags: record.tags ?? [],

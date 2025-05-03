@@ -14,7 +14,7 @@ const TaskContextMenu = () => {
 
   const handleDuplicate = () => {
     void createTask({
-      name: contextInformation.task.name,
+      title: contextInformation.task.title,
       description: contextInformation.task.description ?? undefined,
       startDate: contextInformation.task.startDate ?? undefined,
       endDate: contextInformation.task.endDate ?? undefined,

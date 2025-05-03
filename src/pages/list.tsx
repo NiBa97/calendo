@@ -168,7 +168,7 @@ export default function List() {
 
     const taskItems: ListItem[] = tasks.map((task) => ({
       id: task.id,
-      title: task.name || "Untitled Task",
+      title: task.title || "Untitled Task",
       isTask: true,
       status: task.status,
       created: task.created,
@@ -219,7 +219,7 @@ export default function List() {
     // Create an empty task in modal
     setModalTask({
       id: "",
-      name: "New Task",
+      title: "New Task",
       description: "",
       startDate: new Date(),
       endDate: new Date(),

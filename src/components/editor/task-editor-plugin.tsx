@@ -85,7 +85,7 @@ export const TaskRef = ({ taskId }: TaskRefProps) => {
         gap={2}
       >
         <TaskCheckbox checked={task.status} onChange={() => handleCheckboxChange(!task.status)} />
-        <TitlePreview title={task.name} lineThrough={task.status} />
+        <TitlePreview title={task.title} lineThrough={task.status} />
       </Box>
 
       {showPopup && (
@@ -129,7 +129,7 @@ const TaskSelector = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTasks, setFilteredTasks] = useState(tasks);
   useEffect(() => {
-    setFilteredTasks(tasks.filter((task) => task.name.toLowerCase().includes(searchTerm.toLowerCase())));
+    setFilteredTasks(tasks.filter((task) => task.title.toLowerCase().includes(searchTerm.toLowerCase())));
   }, [searchTerm, tasks]);
   return (
     <DialogRoot
@@ -162,7 +162,7 @@ const TaskSelector = ({
                   }}
                   _hover={{ bg: "brand.3" }}
                 >
-                  <Text>{task.name}</Text>
+                  <Text>{task.title}</Text>
                 </Box>
               ))}
             </VStack>
@@ -227,7 +227,7 @@ export const CreateTaskButton = () => {
     activeEditor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        createTask({ name: selection.getTextContent() })
+        createTask({ title: selection.getTextContent() })
           .then((task) => {
             insertJsx({
               name: "TaskRef",

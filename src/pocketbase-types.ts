@@ -155,7 +155,7 @@ export type TaskRecord = {
 	endDate?: IsoDateString
 	id: string
 	isAllDay?: boolean
-	name: string
+	title: string
 	startDate?: IsoDateString
 	status?: boolean
 	tags?: RecordIdString[]
@@ -168,7 +168,7 @@ export type TaskHistoryRecord = {
 	endDate?: IsoDateString
 	id: string
 	isAllDay?: boolean
-	name?: string
+	title?: string
 	startDate?: IsoDateString
 	status?: boolean
 	task?: RecordIdString

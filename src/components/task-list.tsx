@@ -227,7 +227,7 @@ const TaskItem = ({
         alignItems={"center"}
         position="relative"
       >
-        <TitlePreview title={task.name} lineThrough={task.status} />
+        <TitlePreview title={task.title} lineThrough={task.status} />
         <HStack gap={2} alignItems="center">
           {showDate && (
             <Text fontSize="xs" color={"brand.4"} opacity={task.status ? 0.7 : 1}>

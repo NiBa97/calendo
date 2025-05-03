@@ -16,7 +16,7 @@ import { TagBadges } from "./ui/tag-badges";
 import { TagMenu } from "./tag-menu";
 
 interface TaskState {
-  name: string;
+  title: string;
   description: string;
   status: boolean;
   startDate: Date | undefined;
@@ -46,7 +46,7 @@ const EditTask = ({
   const { updateTask, createTask, setTemporaryTask, addTagToTask, removeTagFromTask } = useTasks();
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [taskState, setTaskState] = useState<TaskState>({
-    name: task?.name ?? "",
+    title: task?.title ?? "",
     description: task?.description ?? "",
     status: task?.status ?? false,
     startDate: task?.startDate ? new Date(task.startDate) : undefined,
@@ -55,7 +55,7 @@ const EditTask = ({
   });
   const [localTags, setLocalTags] = useState<string[]>(task?.tags || []);
   const taskStateRef = useRef<TaskState>({
-    name: task?.name ?? "",
+    title: task?.title ?? "",
     description: task?.description ?? "",
     status: task?.status ?? false,
     startDate: task?.startDate ? new Date(task.startDate) : undefined,
@@ -119,7 +119,7 @@ const EditTask = ({
   };
 
   const handleSubmit = async () => {
-    if (!task.id && taskState.name.trim()) {
+    if (!task.id && taskState.title.trim()) {
       onComplete?.();
     }
   };
@@ -179,9 +179,9 @@ const EditTask = ({
             <TaskCheckbox checked={taskState.status} onChange={(checked) => handleStatusChange(checked)} />
             <TitleInput
               placeholder="Add task title"
-              value={taskState.name}
-              onChange={(value) => handleChange("name", value)}
-              autoFocus={taskState.name === ""}
+              value={taskState.title}
+              onChange={(value) => handleChange("title", value)}
+              autoFocus={taskState.title === ""}
             />
             {showCloseButton && (
               <IconButton

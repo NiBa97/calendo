@@ -7,23 +7,23 @@ import { useTasks } from "../contexts/task-context";
 import { toaster } from "./ui/toaster";
 
 const CreateTask = () => {
-  const [taskName, setTaskName] = useState("");
+  const [taskTitle, setTaskTitle] = useState("");
   const { createTask } = useTasks();
   // const toast = useToast();
 
   const handleCreateTask = () => {
-    if (!taskName.trim()) {
+    if (!taskTitle.trim()) {
       toaster.create({
         title: "Error",
-        description: "Task name cannot be empty",
+        description: "Task title cannot be empty",
         type: "error",
       });
       return;
     }
 
-    createTask({ name: taskName.trim() })
+    createTask({ title: taskTitle.trim() })
       .then(() => {
-        setTaskName("");
+        setTaskTitle("");
         toaster.create({
           title: "Success",
           description: "A new task has been created successfully.",
@@ -54,8 +54,8 @@ const CreateTask = () => {
               bg="brand.2"
               border="none"
               type="text"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
               size="md"
               borderRadius="md"
               color="white"
