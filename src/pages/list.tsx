@@ -25,11 +25,11 @@ import { InputGroup } from "../components/ui/input-group";
 import { MenuRoot, MenuTrigger, MenuContent } from "../components/ui/menu";
 import React from 'react';
 import { TagManagerDialog } from "../components/tag-manager-dialog";
-import { pb } from "../pocketbaseUtils"; // Use named export
 import { Filter, FilterType, FilterStatus, FilterSortBy } from "../lib/filters"; // Import Filter class and types
 import GlobalList from "../components/global-list"; // Import GlobalList
 import { ListPagination } from "../components/list-pagination";
 import { CountButton } from "../components/list/countButton";
+import { TagFilterButton } from "../components/tag-filter-button";
 
 // Type for pinned queries
 type PinnedQuery = {
@@ -77,13 +77,6 @@ export default function List() {
 
   // State for Tag Manager Dialog
   const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
-
-
-  
-  pb.collection("taskandnotes").getList(1, 50, {
-  }).then((records) => {
-    console.log("records", records);
-  });
 
   // Effect to update the activeFilter state when individual controls change
   useEffect(() => {
@@ -428,46 +421,8 @@ export default function List() {
                 </Menu.RadioItemGroup>
               </MenuContent>
             </MenuRoot>
-
-            <MenuRoot>
-              <MenuTrigger asChild>
-                <Button>
-                  <Flex align="center">
-                    <Icon as={FaTags} mr={2} />
-                    Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
-                    <Icon as={FaCaretDown} ml={2} />
-                  </Flex>
-                </Button>
-              </MenuTrigger>
-              <MenuContent minW="250px">
-                <Box p={3}>
-                  <Text fontWeight="medium" mb={2}>
-                    Filter by Tags
-                  </Text>
-                  <VStack align="stretch" maxH="200px" overflowY="auto">
-                    {tags.length === 0 ? (
-                      <Text color="gray.500">No tags found</Text>
-                    ) : (
-                      tags.map((tag) => (
-                        <Flex
-                          key={tag.id}
-                          align="center"
-                          p={2}
-                          borderRadius="md"
-                          cursor="pointer"
-                          bg={selectedTagIds.includes(tag.id) ? "gray.100" : "transparent"}
-                          _hover={{ bg: "gray.50" }}
-                          onClick={() => handleTagClick(tag.id)}
-                        >
-                          <Box w="12px" h="12px" borderRadius="full" bg={tag.color} mr={2} />
-                          <Text>{tag.name}</Text>
-                        </Flex>
-                      ))
-                    )}
-                  </VStack>
-                </Box>
-              </MenuContent>
-            </MenuRoot>
+            <TagFilterButton selectedTagIds={selectedTagIds} handleSelectionChange={setSelectedTagIds} />
+           
           </Box>
         </Flex>
         <GlobalList

@@ -1,7 +1,7 @@
 import { pb } from "../pocketbaseUtils"; // Use named export
 // import filter
 import { Filter } from "../lib/filters"
-import { convertNoteRecordToNote, convertTaskRecordToTask, Note, Task, TaskOrNote } from "../types";
+import { convertNoteRecordToNote, convertTagRecordToTag, convertTaskRecordToTask, Note, Tag, Task, TaskOrNote } from "../types";
 import { ListResult, RecordModel } from "pocketbase"; // Import PocketBase types
 import { TaskandnotesRecord } from "../pocketbase-types";
 
@@ -55,4 +55,11 @@ export const getCollectionCount = async (collection: string, filter: Filter): Pr
         requestKey: null,
     });
     return records.totalItems;
+};
+
+export const getTags = async (): Promise<Tag[]> => {
+    const records = await pb.collection("tag").getFullList({
+        requestKey: null,
+    });
+    return records.map((record: RecordModel) => convertTagRecordToTag(record));
 };
