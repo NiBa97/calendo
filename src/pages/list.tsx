@@ -30,6 +30,7 @@ import GlobalList from "../components/global-list"; // Import GlobalList
 import { ListPagination } from "../components/list-pagination";
 import { CountButton } from "../components/list/countButton";
 import { TagFilterButton } from "../components/tag-filter-button";
+import { TypeFilterButton } from "../components/type-filter-button";
 
 // Type for pinned queries
 type PinnedQuery = {
@@ -403,24 +404,7 @@ export default function List() {
             }} />
           </Box>
           <Box>
-            <MenuRoot>
-              <MenuTrigger asChild>
-                <Button>
-                  <Flex align="center">
-                    <Icon as={FaFilter} mr={2} />
-                    Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
-                    <Icon as={FaCaretDown} ml={2} />
-                  </Flex>
-                </Button>
-              </MenuTrigger>
-              <MenuContent>
-                <Menu.RadioItemGroup value={typeFilter} onValueChange={(details) => setTypeFilter(details.value as FilterType)}>
-                  <Menu.RadioItem value="all">All Items</Menu.RadioItem>
-                  <Menu.RadioItem value="notes">Notes</Menu.RadioItem>
-                  <Menu.RadioItem value="tasks">Tasks</Menu.RadioItem>
-                </Menu.RadioItemGroup>
-              </MenuContent>
-            </MenuRoot>
+            <TypeFilterButton selectedType={typeFilter} handleSelectionChange={setTypeFilter} />
             <TagFilterButton selectedTagIds={selectedTagIds} handleSelectionChange={setSelectedTagIds} />
            
           </Box>
