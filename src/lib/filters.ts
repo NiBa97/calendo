@@ -107,6 +107,12 @@ export class Filter {
             filterParts.push(`status = true`);
         }
 
+        // Type filter
+        if (this.type === "tasks") {
+            filterParts.push(`type = "task"`);
+        } else if (this.type === "notes") {
+            filterParts.push(`type = "note"`);
+        }
         return filterParts.length > 0 ? filterParts.join(" && ") : "";
     }
 

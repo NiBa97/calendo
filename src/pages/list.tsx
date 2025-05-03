@@ -28,6 +28,8 @@ import { TagManagerDialog } from "../components/tag-manager-dialog";
 import { pb } from "../pocketbaseUtils"; // Use named export
 import { Filter, FilterType, FilterStatus, FilterSortBy } from "../lib/filters"; // Import Filter class and types
 import GlobalList from "../components/global-list"; // Import GlobalList
+import { ListPagination } from "../components/list-pagination";
+import { CountButton } from "../components/list/countButton";
 
 // Type for pinned queries
 type PinnedQuery = {
@@ -44,64 +46,6 @@ type PinnedQuery = {
   };
 };
 
-// Fetches the counts of open and closed items based on base filter and type
-const fetchItemCounts = async (
-  filterInstance: Filter // Accept Filter instance
-): Promise<{ openCount: number; closedCount: number }> => {
-
-  const fetchCount = async (collection: string, statusFilter: string): Promise<number> => {
-    // Combine base filter from instance with status filter
-    const basePbFilter = filterInstance.toPocketbaseFilter(); // Get base filter
-    // Status is handled separately for counting
-    const statusPbFilter = statusFilter ? `status = ${statusFilter === 'open' ? 'false' : 'true'}` : '';
-
-    let finalFilter = basePbFilter;
-    if (collection === 'task' && statusPbFilter) { // Only tasks have status field
-      finalFilter = basePbFilter ? `${basePbFilter} && ${statusPbFilter}` : statusPbFilter;
-    } else if (collection === 'note' && statusFilter === 'closed') {
-      return 0; // Notes cannot be 'closed'
-    } else if (collection === 'note' && statusFilter === 'open') {
-      finalFilter = basePbFilter; // Use base filter for open notes
-    }
-
-    try {
-      const result = await pb.collection(collection).getList(1, 1, {
-        filter: finalFilter || 'id != ""' , // Ensure filter is not empty
-        $autoCancel: false,
-        // More unique request key for counts
-        requestKey: `count_${collection}_${statusFilter || 'all'}_${Date.now()}`,
-      });
-      return result.totalItems;
-    } catch (error) {
-      console.error(`Error fetching count for ${collection} (${statusFilter || 'all'}):`, error);
-      return 0;
-    }
-  };
-
-  let taskOpenTotal = 0;
-  let taskClosedTotal = 0;
-  let noteOpenTotal = 0;
-
-  const promises: Promise<number>[] = [];
-
-  // Fetch task counts
-  if (filterInstance.type === 'all' || filterInstance.type === 'tasks') {
-    promises.push(fetchCount('task', 'open').then(count => taskOpenTotal = count));
-    promises.push(fetchCount('task', 'closed').then(count => taskClosedTotal = count));
-  }
-
-  // Fetch note counts (only open)
-  if (filterInstance.type === 'all' || filterInstance.type === 'notes') {
-    promises.push(fetchCount('note', 'open').then(count => noteOpenTotal = count));
-  }
-
-  await Promise.all(promises);
-
-  return {
-    openCount: taskOpenTotal + noteOpenTotal,
-    closedCount: taskClosedTotal, // Only tasks contribute
-  };
-};
 
 // --- List Component ---
 
@@ -134,10 +78,12 @@ export default function List() {
   // State for Tag Manager Dialog
   const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
 
-  // State for counts
-  const [openCount, setOpenCount] = useState(0);
-  const [closedCount, setClosedCount] = useState(0);
-  const [isCountLoading, setIsCountLoading] = useState(false);
+
+  
+  pb.collection("taskandnotes").getList(1, 50, {
+  }).then((records) => {
+    console.log("records", records);
+  });
 
   // Effect to update the activeFilter state when individual controls change
   useEffect(() => {
@@ -176,25 +122,7 @@ export default function List() {
     setActiveFilter(initialFilter); // Also reset active filter to match URL
   }, [initialFilter]);
 
-  // Effect to fetch counts when activeFilter changes
-  useEffect(() => {
-    const fetchCounts = async () => {
-      setIsCountLoading(true);
-      pb.cancelAllRequests(); // Cancel previous potentially
-      try {
-        const counts = await fetchItemCounts(activeFilter);
-        setOpenCount(counts.openCount);
-        setClosedCount(counts.closedCount);
-      } catch (error) {
-        console.error("Error fetching counts:", error);
-        setOpenCount(0);
-        setClosedCount(0);
-      } finally {
-        setIsCountLoading(false);
-      }
-    };
-    fetchCounts();
-  }, [activeFilter]); // Fetch counts when the consolidated filter changes
+
 
   // Update URL when filter controls change (debounced or direct)
   useEffect(() => {
@@ -320,11 +248,7 @@ export default function List() {
     if (open) onTagManagerOpen(); else onTagManagerClose();
   };
 
-  // Handler for selection changes from GlobalList
-  const handleSelectionChange = (selectedIds: string[]) => {
-    console.log("Selected IDs:", selectedIds);
-    // setSelectedListIds(selectedIds);
-  };
+ 
 
   return (
     <>
@@ -478,26 +402,12 @@ export default function List() {
 
         <Flex justifyContent="space-between">
           <Box>
-            <Button
-              onClick={() => {
-                setStatusFilter("open");
-              }}
-            >
-              Open
-              <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-                {isCountLoading ? '...' : openCount}
-              </Text>
-            </Button>
-            <Button
-              onClick={() => {
-                setStatusFilter("closed");
-              }}
-            >
-              Closed
-              <Text color="gray.600" bg="gray.100" px={2} borderRadius="md">
-                {isCountLoading ? '...' : closedCount}
-              </Text>
-            </Button>
+            <CountButton collection="taskandnotes" title="Open" filter={new Filter({...activeFilter, status: "open"})} onClick={() => {
+              setStatusFilter("open");
+            }} />
+            <CountButton collection="taskandnotes" title="Closed" filter={new Filter({...activeFilter, status: "closed"})} onClick={() => {
+              setStatusFilter("closed");
+            }} />
           </Box>
           <Box>
             <MenuRoot>
@@ -562,7 +472,17 @@ export default function List() {
         </Flex>
         <GlobalList
           filter={activeFilter}
-          onSelectionChange={handleSelectionChange}
+          onSelectionChange={() => {}}
+        />
+        <ListPagination
+          currentPage={activeFilter.pageNumber}
+          maxPage={50}
+          onChange={(pageNumber) => {
+            setActiveFilter(new Filter({
+              ...activeFilter,
+              pageNumber: pageNumber,
+            }));
+          }}
         />
       </Container>
 

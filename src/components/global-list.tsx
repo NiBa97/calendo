@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Filter } from "../lib/filters";
-import { getTasks, getNotes } from "../services/pocketBaseService";
-import { Task, Note } from "../types";
+import { getTaskAndNotes } from "../services/pocketBaseService";
+import { TaskOrNote } from "../types";
 import { Box, Flex, GridItem, Icon, Text } from "@chakra-ui/react";
 import { useTasks } from "../contexts/task-context";
-import { useNotes } from "../contexts/note-context";
 import { Grid } from "@chakra-ui/react";
 import TaskCheckbox from "./ui/task-checkbox";
 import { FaUserFriends } from "react-icons/fa";
@@ -18,14 +17,13 @@ interface GlobalListProps {
     onSelectionChange: (selectedIds: string[]) => void;
 }
 
-const isTask = (item: Task | Note): item is Task => {
-    return 'isAllDay' in item;
+const isTask = (item: TaskOrNote): boolean => {
+    return item.type === "task";
 };
 
 const GlobalList: React.FC<GlobalListProps> = ({ filter, onSelectionChange }) => {
-    const [selectedItems, setSelectedItems] = useState<string[]>([]);
-    console.log(selectedItems);
-    const [allItems, setAllItems] = useState<(Task | Note)[]>([]);
+    const [_, setSelectedItems] = useState<string[]>([]);
+    const [allItems, setAllItems] = useState<TaskOrNote[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,24 +33,11 @@ const GlobalList: React.FC<GlobalListProps> = ({ filter, onSelectionChange }) =>
             setError(null);
 
             try {
-                let fetchedTasks: Task[] = [];
-                let fetchedNotes: Note[] = [];
 
-                if (filter.type === 'tasks' || filter.type === 'all') {
-                    fetchedTasks = await getTasks(filter);
-                }
-
-                if (filter.type === 'notes' || filter.type === 'all') {
-                    fetchedNotes = await getNotes(filter);
-                }
-
-                let combinedItems: (Task | Note)[] = [...fetchedTasks, ...fetchedNotes];
-
-                if (filter.type === 'all') {
-                    combinedItems.sort((a, b) => b.created.getTime() - a.created.getTime());
-                }
-
-                setAllItems(combinedItems);
+                let fetchedTaskAndNotes: TaskOrNote[] = [];
+                fetchedTaskAndNotes = await getTaskAndNotes(filter);
+                console.log("fetchedTaskAndNotes", fetchedTaskAndNotes);
+                setAllItems(fetchedTaskAndNotes);
                 setSelectedItems([]);
                 onSelectionChange([]);
 
@@ -91,27 +76,26 @@ const GlobalList: React.FC<GlobalListProps> = ({ filter, onSelectionChange }) =>
 
 
 
-const ListItem = ({ item }: { item: Task | Note }) => {
-    const {setModalTask, updateTask } = useTasks();
-    const { setSelectedNote } = useNotes();
+const ListItem = ({ item }: { item: TaskOrNote }) => {
+    const { updateTask } = useTasks();
     const [isHovered, setIsHovered] = useState(false);
   
-    const handleTaskStatusChange = async (task: Task, newStatus: boolean) => {
-      if (task) {
-        await updateTask(task.id, {
-          ...task,
+    const handleTaskStatusChange = async (item: TaskOrNote, newStatus: boolean) => {
+      if (item.type === "task") {
+        await updateTask(item.id, {
           status: newStatus,
         });
       }
     };
   
     // Handle item click - open appropriate popup
-    const handleItemClick = (item: Note | Task) => {
-      if (isTask(item)) {
-          setModalTask(item);
-      } else {
-        setSelectedNote(item);
-      }
+    const handleItemClick = (item: TaskOrNote) => {
+      alert("item clicked" + item.type);
+      // if (isTask(item)) {
+      //     setModalTask(item);
+      // } else {
+      //   setSelectedNote(item);
+      // }
     };
   
     return (
