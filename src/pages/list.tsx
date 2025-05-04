@@ -11,16 +11,13 @@ import {
   Badge,
   Icon,
   Container,
-  IconButton,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare, FaStar, FaTrash, FaPlus } from "react-icons/fa";
+import { FaSearch, FaTags, FaBook, FaCheckSquare } from "react-icons/fa";
 import { useNotes } from "../contexts/note-context";
 import { useTasks } from "../contexts/task-context";
-import { useTags } from "../contexts/tag-context";
 import { TagBadges } from "../components/ui/tag-badges";
 import { InputGroup } from "../components/ui/input-group";
-import React from 'react';
 import { TagManagerDialog } from "../components/tag-manager-dialog";
 import { Filter, FilterType, FilterStatus, FilterSortBy } from "../lib/filters"; // Import Filter class and types
 import GlobalList from "../components/global-list"; // Import GlobalList
@@ -28,21 +25,9 @@ import { ListPagination } from "../components/list-pagination";
 import { CountButton } from "../components/list/countButton";
 import { TagFilterButton } from "../components/tag-filter-button";
 import { TypeFilterButton } from "../components/type-filter-button";
+import { PinnedQueries } from "../components/pinned-queries";
 
-// Type for pinned queries
-type PinnedQuery = {
-  id: string;
-  name: string;
-  filters: {
-    title: string;
-    type: FilterType; // Use FilterType
-    status: FilterStatus; // Use FilterStatus
-    tags: string[];
-    // Add sort properties if pinned queries should save them
-    sortBy?: FilterSortBy;
-    sortDirection?: "asc" | "desc";
-  };
-};
+
 
 
 // --- List Component ---
@@ -52,7 +37,6 @@ export default function List() {
   // Get context data
   const { setModalTask } = useTasks();
   const { createNote, setSelectedNote } = useNotes();
-  const { tags } = useTags();
 
   // Initialize the master Filter object from search params first
   const initialFilter = useMemo(() => Filter.fromSearchParams(searchParams), [searchParams]);
@@ -68,14 +52,9 @@ export default function List() {
   // State for the Filter object passed to GlobalList - initial value is now derived
   const [activeFilter, setActiveFilter] = useState<Filter>(initialFilter);
 
-  // State for pinned queries
-  const [pinnedQueries, setPinnedQueries] = useState<PinnedQuery[]>([]);
-  const [showPinnedQueryInput, setShowPinnedQueryInput] = useState(false);
-  const [newQueryName, setNewQueryName] = useState("");
 
   // State for Tag Manager Dialog
   const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
-  console.log("activeFilter", activeFilter);
   // Effect to update the activeFilter state when individual controls change
   useEffect(() => {
     // Update activeFilter only if individual controls differ from the current activeFilter
@@ -124,68 +103,6 @@ export default function List() {
     // Reset selection when filter changes that affect the list content
     //setSelectedListIds([]); // This might clear selection too often, consider moving
   }, [activeFilter, setSearchParams, searchParams]); // Added searchParams dependency
-
-  // Load/Save pinned queries effects
-  useEffect(() => {
-    try {
-      const savedQueries = localStorage.getItem("pinnedQueries");
-      if (savedQueries) {
-        const queries = JSON.parse(savedQueries);
-        setPinnedQueries(queries);
-      }
-    } catch (error) {
-      console.error("Error loading pinned queries:", error);
-      localStorage.removeItem("pinnedQueries");
-      setPinnedQueries([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      if (pinnedQueries.length > 0) {
-        localStorage.setItem("pinnedQueries", JSON.stringify(pinnedQueries));
-      } else {
-        localStorage.removeItem("pinnedQueries"); // Clear if empty
-      }
-    } catch (error) {
-      console.error("Error saving pinned queries:", error);
-    }
-  }, [pinnedQueries]);
-
-  // Pinned Query Handlers
-  const handlePinCurrentQuery = () => {
-    if (!newQueryName.trim()) return;
-    const newQuery: PinnedQuery = {
-      id: Date.now().toString(),
-      name: newQueryName.trim(),
-      filters: { // Use properties from activeFilter
-        title: activeFilter.title,
-        type: activeFilter.type,
-        status: activeFilter.status,
-        tags: [...activeFilter.tags],
-        sortBy: activeFilter.sortBy,
-        sortDirection: activeFilter.sortDirection,
-      },
-    };
-    setPinnedQueries((prev) => [...prev, newQuery]);
-    setNewQueryName("");
-    setShowPinnedQueryInput(false);
-  };
-
-  const handleApplyPinnedQuery = (query: PinnedQuery) => {
-    // Update individual filter states from pinned query
-    setTitleFilter(query.filters.title);
-    setTypeFilter(query.filters.type);
-    setStatusFilter(query.filters.status);
-    setSelectedTagIds(query.filters.tags);
-    setSortBy(query.filters.sortBy || 'created'); // Handle optional sort props
-    setSortDirection(query.filters.sortDirection || 'desc');
-    // The useEffect watching these states will update activeFilter
-  };
-
-  const handleDeletePinnedQuery = (queryId: string) => {
-    setPinnedQueries((prev) => prev.filter((q) => q.id !== queryId));
-  };
 
   // Tag Click Handler
   const handleTagClick = (tagId: string) => {
@@ -244,76 +161,7 @@ export default function List() {
     <>
       <Container p={4} maxW="3xl" mx="auto" w="3xl">
         <Heading size="lg" mb={4}>All Items</Heading>
-
-        {/* Pinned Queries Section */}
-        <Box mb={6}>
-          <Flex align="center" justify="space-between" mb={2}>
-            <Text fontSize="md" fontWeight="medium" color="gray.700">Pinned Filters</Text>
-            <Button
-              size="sm"
-              onClick={() => setShowPinnedQueryInput(true)}
-              colorScheme="blue"
-              variant="ghost"
-            >
-              <Icon as={FaPlus} mr={2} />
-              Add Filter
-            </Button>
-          </Flex>
-
-          {showPinnedQueryInput && (
-            <Flex gap={2} mb={3}>
-              <Input
-                placeholder="Enter name for pinned filters..."
-                value={newQueryName}
-                onChange={(e) => setNewQueryName(e.target.value)}
-                size="sm"
-                autoFocus
-              />
-              <Button size="sm" colorScheme="blue" onClick={handlePinCurrentQuery}>
-                Save
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => {
-                setShowPinnedQueryInput(false);
-                setNewQueryName("");
-              }}>
-                Cancel
-              </Button>
-            </Flex>
-          )}
-
-          <Flex gap={2} flexWrap="wrap">
-            {pinnedQueries.map((query) => (
-              <Flex
-                key={query.id}
-                bg="gray.100"
-                p={2}
-                borderRadius="md"
-                align="center"
-                _hover={{ bg: "gray.200" }}
-                cursor="pointer"
-                onClick={() => handleApplyPinnedQuery(query)}
-              >
-                <Icon as={FaStar} color="yellow.500" mr={2} />
-                <Text fontSize="sm" fontWeight="medium">{query.name}</Text>
-                <Box>
-                  <IconButton
-                    aria-label="Delete pinned query"
-                    size="xs"
-                    variant="ghost"
-                    ml={2}
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      handleDeletePinnedQuery(query.id);
-                    }}
-                    _hover={{ color: "red.500" }}
-                  >
-                    <FaTrash />
-                  </IconButton>
-                </Box>
-              </Flex>
-            ))}
-          </Flex>
-        </Box>
+        <PinnedQueries currentFilter={activeFilter} setCurrentFilter={setActiveFilter} />
 
         <Flex
           direction={{ base: "column", md: "row" }}
