@@ -1,12 +1,12 @@
 import { Box, Button, Flex, Icon, Menu, Text, VStack } from "@chakra-ui/react"
 import { FaTags, FaCaretDown } from "react-icons/fa"
-import { getTags } from "../services/pocketBaseService";
-import { Tag } from "../types";
 import { useEffect, useState } from "react";
+import { getTags } from "../../../services/pocketBaseService";
+import { Tag } from "../../../types";
 export const TagFilterButton = ({ selectedTagIds, handleSelectionChange }: { selectedTagIds: string[], handleSelectionChange: (selectedTagIds: string[]) => void }) => {
   const [tags, setTags] = useState<Tag[]>([]);
   useEffect(() => {
-    getTags().then((tags) => {
+    getTags().then((tags: Tag[]) => {
       setTags(tags);
     });
   }, []);

@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import { Box, Button, ButtonGroup, HStack, IconButton, Text } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, HStack, IconButton, Text, Menu } from "@chakra-ui/react";
 import { View, type ToolbarProps } from "react-big-calendar";
 import { FaChevronLeft, FaChevronRight, FaClock, FaCalendarAlt } from "react-icons/fa";
 import moment, { Moment } from "moment";
-import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu";
-import { SimpleTimePicker } from "../ui/simple-time-picker";
+import { SimpleTimePicker } from "../../../components/ui/simple-time-picker";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface EnhancedToolbarProps extends ToolbarProps {
@@ -57,40 +56,45 @@ const CustomToolbar = ({
 
         {/* View Selection */}
         {Object.keys(viewOptions).length > 1 && (
-          <MenuRoot>
-            <MenuTrigger>
-              <Button  size="sm" >
-              <FaCalendarAlt />
+          <Menu.Root>
+            <Menu.Trigger>
+              <Button size="sm" >
+                <FaCalendarAlt />
                 {viewOptions[view as string] || view}
               </Button>
-            </MenuTrigger>
-            <MenuContent minWidth="120px">
-              {Object.keys(viewOptions).map((viewKey) => (
-                <Button
-                  key={viewKey}
-                  variant={viewKey === view ? "solid" : "ghost"}
-                  size="sm"
-                  width="100%"
-                  justifyContent="flex-start"
-                  onClick={() => onView && onView(viewKey as View)}
-                >
-                  {viewOptions[viewKey]}
-                </Button>
-              ))}
-            </MenuContent>
-          </MenuRoot>
+            </Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Content minWidth="120px">
+                {Object.keys(viewOptions).map((viewKey) => (
+                  <Button
+                    key={viewKey}
+                    variant={viewKey === view ? "solid" : "ghost"}
+                    size="sm"
+                    width="100%"
+                    justifyContent="flex-start"
+                    onClick={() => onView && onView(viewKey as View)}
+                  >
+                    {viewOptions[viewKey]}
+                  </Button>
+                ))}
+              </Menu.Content>
+            </Menu.Positioner>
+          </Menu.Root>
+
         )}
 
         {/* Time Range - Subtle Menu */}
-        <MenuRoot closeOnSelect={false}>
-          <MenuTrigger display={"flex"} gap={2} alignItems={"center"}>
+        <Menu.Root closeOnSelect={false}>
+          <Menu.Trigger display={"flex"} gap={2} alignItems={"center"}>
             <FaClock />
             {moment(timeRange.start, "HH:mm").format("HH:mm")} - {moment(timeRange.end, "HH:mm").format("HH:mm")}
-          </MenuTrigger>
-          <MenuContent p={0}>
-            <SimpleTimePicker timeRange={timeRange} setTimeRange={setTimeRange} />
-          </MenuContent>
-        </MenuRoot>
+          </Menu.Trigger>
+          <Menu.Positioner>
+            <Menu.Content p={0}>
+              <SimpleTimePicker timeRange={timeRange} setTimeRange={setTimeRange} />
+            </Menu.Content>
+          </Menu.Positioner>
+        </Menu.Root>
       </HStack>
     </Box>
   );

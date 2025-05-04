@@ -1,5 +1,5 @@
 import { Dialog } from "@chakra-ui/react";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../../contexts/task-context";
 import EditTask from "./task-edit";
 import { useRef } from "react";
 export default function TaskEditModal() {

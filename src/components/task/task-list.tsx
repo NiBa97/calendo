@@ -1,12 +1,12 @@
 import { HStack, Text, Badge, Box } from "@chakra-ui/react";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../../contexts/task-context";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { FaExpand } from "react-icons/fa6";
-import { Task } from "../types";
-import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "./ui/accordion";
-import TitlePreview from "./ui/title-preview";
-import TaskCheckbox from "./ui/task-checkbox";
+import { Task } from "../../types";
+import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "../ui/accordion";
+import TitlePreview from "../ui/title-preview";
+import TaskCheckbox from "../ui/task-checkbox";
 
 const ListTasks: React.FC = () => {
   const { tasks, setDraggingTask, setContextInformation } = useTasks();
@@ -238,8 +238,8 @@ const TaskItem = ({
             {task.isAllDay
               ? "All Day"
               : task.startDate && task.endDate
-              ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
-              : "No Date Assigned"}
+                ? `${moment(task.startDate).format("HH:mm")} - ${moment(task.endDate).format("HH:mm")}`
+                : "No Date Assigned"}
           </Text>
         </HStack>
       </Box>

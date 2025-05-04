@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, VStack, Text, Flex, Heading, Badge } from "@chakra-ui/react";
-import { getPb } from "../pocketbaseUtils";
-import { TaskHistoryRecord } from "../pocketbase-types";
-import { useTasks } from "../contexts/task-context";
-import { DialogBody, DialogContent, DialogRoot } from "./ui/dialog";
+import { useState, useEffect } from "react";
+import { useTasks } from "../../contexts/task-context";
+import { DialogBody, DialogContent, DialogRoot } from "../ui/dialog";
+
+
 import { FaHistory } from "react-icons/fa";
 import moment from "moment";
+import { Badge, Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { VStack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
+import { getPb } from "../../pocketbaseUtils";
+import { TaskHistoryRecord } from "../../pocketbase-types";
 
 interface TaskChangelogProps {
   isOpen: boolean;
@@ -140,9 +144,10 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
   return (
     <DialogRoot
       open={isOpen}
-      onOpenChange={(e) => {
-        console.log("onOpenChange", e);
-        if (!e.open) onClose();
+      onOpenChange={(details) => {
+        if (!details.open) {
+          onClose();
+        }
       }}
     >
       <DialogContent
@@ -251,8 +256,8 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
                             {index === 0
                               ? "Current Version"
                               : index === versions.length - 1
-                              ? "Original Version"
-                              : `Previous Version ${versions.length - index}`}
+                                ? "Original Version"
+                                : `Previous Version ${versions.length - index}`}
                           </Badge>
                           <Text ml={3} fontWeight="medium" fontSize="sm">
                             {formatDate(version.date)}
@@ -328,33 +333,33 @@ const TaskChangelog: React.FC<TaskChangelogProps> = ({ isOpen, onClose, taskId }
                               {(changedFields.includes("startDate") ||
                                 changedFields.includes("endDate") ||
                                 changedFields.includes("isAllDay")) && (
-                                <Box>
-                                  <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                    Schedule:
-                                  </Text>
-                                  <Box
-                                    p={3}
-                                    borderRadius="md"
-                                    bg="rgba(0,0,0,0.5)"
-                                    borderWidth="1px"
-                                    borderColor="gray.700"
-                                  >
-                                    <VStack align="start" gap={1}>
-                                      {changedFields.includes("isAllDay") && (
-                                        <Text fontFamily="monospace">
-                                          All Day: <Badge>{version.isAllDay ? "Yes" : "No"}</Badge>
-                                        </Text>
-                                      )}
-                                      {changedFields.includes("startDate") && (
-                                        <Text fontFamily="monospace">Start: {formatDateTime(version.startDate)}</Text>
-                                      )}
-                                      {changedFields.includes("endDate") && (
-                                        <Text fontFamily="monospace">End: {formatDateTime(version.endDate)}</Text>
-                                      )}
-                                    </VStack>
+                                  <Box>
+                                    <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                      Schedule:
+                                    </Text>
+                                    <Box
+                                      p={3}
+                                      borderRadius="md"
+                                      bg="rgba(0,0,0,0.5)"
+                                      borderWidth="1px"
+                                      borderColor="gray.700"
+                                    >
+                                      <VStack align="start" gap={1}>
+                                        {changedFields.includes("isAllDay") && (
+                                          <Text fontFamily="monospace">
+                                            All Day: <Badge>{version.isAllDay ? "Yes" : "No"}</Badge>
+                                          </Text>
+                                        )}
+                                        {changedFields.includes("startDate") && (
+                                          <Text fontFamily="monospace">Start: {formatDateTime(version.startDate)}</Text>
+                                        )}
+                                        {changedFields.includes("endDate") && (
+                                          <Text fontFamily="monospace">End: {formatDateTime(version.endDate)}</Text>
+                                        )}
+                                      </VStack>
+                                    </Box>
                                   </Box>
-                                </Box>
-                              )}
+                                )}
 
                               {/* Task Description */}
                               {changedFields.includes("description") && (

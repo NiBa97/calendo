@@ -1,6 +1,6 @@
 import { Badge, Button, Flex, Text } from "@chakra-ui/react"
-import { Filter } from "../lib/filters"
-import { TagBadges } from "./ui/tag-badges";
+import { Filter } from "../../../lib/filters"
+import { TagBadges } from "../../../components/ui/tag-badges";
 
 export const FilterDisplay = ({ filter, onChange }: { filter: Filter, onChange: (filter: Filter) => void }) => {
     if (filter.tags.length === 0 && filter.title === "" && filter.type === "all") {

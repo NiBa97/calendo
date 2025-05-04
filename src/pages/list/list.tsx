@@ -10,20 +10,20 @@ import {
   Icon,
   Container,
   useDisclosure,
+  InputGroup,
 } from "@chakra-ui/react";
 import { FaSearch, FaTags, FaBook, FaCheckSquare } from "react-icons/fa";
-import { useNotes } from "../contexts/note-context";
-import { useTasks } from "../contexts/task-context";
-import { InputGroup } from "../components/ui/input-group";
-import { TagManagerDialog } from "../components/tag-manager-dialog";
-import { Filter } from "../lib/filters"; // Import Filter class and types
-import GlobalList from "../components/global-list"; // Import GlobalList
-import { ListPagination } from "../components/list-pagination";
-import { CountButton } from "../components/list/countButton";
-import { TagFilterButton } from "../components/tag-filter-button";
-import { TypeFilterButton } from "../components/type-filter-button";
-import { PinnedQueries } from "../components/pinned-queries";
-import { FilterDisplay } from "../components/filter-display";
+import { useNotes } from "../../contexts/note-context";
+import { useTasks } from "../../contexts/task-context";
+import { TagManagerDialog } from "../../components/tag-manager-dialog";
+import { Filter } from "../../lib/filters"; // Import Filter class and types
+import { CountButton } from "./components/countButton";
+import { TagFilterButton } from "./components/tag-filter-button";
+import { TypeFilterButton } from "./components/type-filter-button";
+import { PinnedQueries } from "./components/pinned-queries";
+import { FilterDisplay } from "./components/filter-display";
+import GlobalList from "./components/global-list";
+import { ListPagination } from "./components/list-pagination";
 
 
 

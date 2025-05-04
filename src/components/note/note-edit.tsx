@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaTrash, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
 import { Box, Button, Flex, Menu, Portal, VStack } from "@chakra-ui/react";
-import Editor from "./editor/editor";
-import TitleInput from "./ui/title-input";
-import { useNotes } from "../contexts/note-context";
-import { TagBadges } from "./ui/tag-badges";
+import Editor from "../editor/editor";
+import TitleInput from "../ui/title-input";
+import { useNotes } from "../../contexts/note-context";
+import { TagBadges } from "../ui/tag-badges";
 import NoteChangelog from "./note-changelog";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { TagMenu } from "./tag-menu";
+import { TagMenu } from "../tag-menu";
 
 interface NoteEditProps {
   noteId: string;
@@ -182,7 +182,7 @@ const NoteEdit = ({
             zIndex={1}
           >
             This note is archived. Unarchive to make changes, or delete it.
-            <Flex gap={2}> 
+            <Flex gap={2}>
               <Button onClick={handleUnarchive}><FaBox />Unarchive</Button>
               <Button onClick={handleDelete}><FaTrash />Delete</Button>
             </Flex>
@@ -190,10 +190,10 @@ const NoteEdit = ({
         )}
         <Box as="form" width="100%" borderBottom="2px solid" borderColor="brand.2" mt={note.status ? "40px" : 0}>
           <Flex alignItems="center">
-            <TitleInput 
-              placeholder="Note title" 
-              value={title} 
-              onChange={handleTitleChange} 
+            <TitleInput
+              placeholder="Note title"
+              value={title}
+              onChange={handleTitleChange}
               disabled={note.status}
               style={{ opacity: note.status ? 0.7 : 1 }}
             />
@@ -269,10 +269,10 @@ const NoteEdit = ({
         )}
 
         <Box flex="1" overflow="auto" borderBottom="2px solid" borderColor="brand.2" style={{ opacity: note.status ? 0.7 : 1 }}>
-          <Editor 
-            markdown={content} 
-            onChange={handleContentChange} 
-            editorRef={ref} 
+          <Editor
+            markdown={content}
+            onChange={handleContentChange}
+            editorRef={ref}
             readOnly={note.status}
             showToolbar={showToolbar}
           />

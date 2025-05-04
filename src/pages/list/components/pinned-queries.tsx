@@ -1,7 +1,8 @@
-import { Box, Button, Flex, HStack, Icon, IconButton, Input, Text } from "@chakra-ui/react"
+import { useState, useEffect } from 'react';
+import { Filter } from "../../../lib/filters"
+import { Flex, Button, Box, Text, IconButton, Input, HStack, Icon } from '@chakra-ui/react';
 import { FaFloppyDisk, FaPlus, FaStar, FaTrash } from "react-icons/fa6"
-import { useEffect, useRef, useState } from "react"
-import { Filter } from "../lib/filters"
+import { useRef } from "react"
 import { FaTimes } from "react-icons/fa";
 
 interface PinnedQuery {

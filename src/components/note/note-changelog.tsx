@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, VStack, Text, Flex, Heading, Badge } from "@chakra-ui/react";
-import { getPb } from "../pocketbaseUtils";
-import { NoteChangeRecord } from "../pocketbase-types";
+import { getPb } from "../../pocketbaseUtils";
+import { NoteChangeRecord } from "../../pocketbase-types";
 import DiffMatchPatch from "diff-match-patch";
-import { useNotes } from "../contexts/note-context";
-import { DialogBody, DialogContent, DialogRoot } from "./ui/dialog";
+import { useNotes } from "../../contexts/note-context";
+import { DialogBody, DialogContent, DialogRoot } from "../ui/dialog";
 import { FaHistory } from "react-icons/fa";
 
 interface NoteChangelogProps {
@@ -240,8 +240,8 @@ const NoteChangelog: React.FC<NoteChangelogProps> = ({ isOpen, onClose, noteId, 
                           {index === 0
                             ? "Latest Version"
                             : index === versions.length - 1
-                            ? "Note Created"
-                            : `Previous Version ${index}`}
+                              ? "Note Created"
+                              : `Previous Version ${index}`}
                         </Badge>
                         <Text ml={3} fontWeight="medium" fontSize="sm">
                           {formatDate(version.date)}

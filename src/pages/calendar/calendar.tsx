@@ -1,11 +1,11 @@
 import { Box, Flex, Separator, useDisclosure } from "@chakra-ui/react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import ListTasks from "../components/task-list";
-import CreateTask from "../components/create-task";
-import MainCalendar from "../components/calendar/main-calendar";
-import TaskContextMenu from "../components/task-contextmenu";
+import ListTasks from "../../components/task/task-list";
+import CreateTask from "../../components/task/create-task";
+import MainCalendar from "./components/main-calendar";
+import TaskContextMenu from "../../components/task/task-contextmenu";
 
-export default function Tasks() {
+export default function Calendar() {
   const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: true });
 
   return (

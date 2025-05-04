@@ -14,16 +14,16 @@ import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { type SyntheticEvent, useEffect, useMemo, useState } from "react";
-import { useTasks } from "../../contexts/task-context";
+import { useTasks } from "../../../contexts/task-context";
 import CustomMultiDayView from "./custom-view";
 import CalendarPopup from "./popup";
-import { Task } from "../../types";
-import { getLocalStorage, setLocalStorage } from "../../utils/storage";
-import { getContrastColor } from "../../utils/colors";
+import { Task } from "../../../types";
+import { getLocalStorage, setLocalStorage } from "../../../utils/storage";
+import { getContrastColor } from "../../../utils/colors";
 import CustomToolbar from "./custom-toolbar";
-import EditTask from "../task-edit";
+import EditTask from "../../../components/task/task-edit";
 import { FaUsers } from "react-icons/fa6";
-import { useTags } from "../../contexts/tag-context";
+import { useTags } from "../../../contexts/tag-context";
 import { Badge } from "@chakra-ui/react";
 
 // Set moment locale to start week on Monday
@@ -297,11 +297,11 @@ export default function MainCalendar({
       setTemporaryTask(null);
       return setSelectedEvent(null);
     }
-        const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
-      const { top, left, width } = parentElement.getBoundingClientRect();
-      handlePopupPlacement(top, left, width);
-      setSelectedEvent(event as Task);
-        };
+    const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
+    const { top, left, width } = parentElement.getBoundingClientRect();
+    handlePopupPlacement(top, left, width);
+    setSelectedEvent(event as Task);
+  };
 
   type EventChangeArgs = {
     event: Task;
@@ -316,7 +316,7 @@ export default function MainCalendar({
   };
 
   const numberOfDays = 3;
-  
+
 
   const messages = {
     customDayView: numberOfDays + " Days",
@@ -340,7 +340,7 @@ export default function MainCalendar({
   };
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     const { start, end, bounds } = slotInfo;
-      setTemporaryTask(null);
+    setTemporaryTask(null);
 
     if (!bounds) return; // exit if bounds are not available
 

@@ -1,5 +1,5 @@
 import { Button, Flex, Icon, Menu } from "@chakra-ui/react"
-import { FilterType } from "../lib/filters"
+import { FilterType } from "../../../lib/filters"
 import { FaCaretDown, FaFilter } from "react-icons/fa"
 export const TypeFilterButton = ({ selectedType, handleSelectionChange }: { selectedType: string, handleSelectionChange: (selectedType: FilterType) => void }) => {
   return (

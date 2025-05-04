@@ -1,9 +1,9 @@
-import { Button , Text} from "@chakra-ui/react";
-import { Filter } from "../../lib/filters";
-import { getCollectionCount } from "../../services/pocketBaseService";
+import { Button, Text } from "@chakra-ui/react";
+import { Filter } from "../../../lib/filters";
+import { getCollectionCount } from "../../../services/pocketBaseService";
 import { useState, useEffect } from 'react';
 
-export const CountButton = ({title, filter, onClick, collection}: {
+export const CountButton = ({ title, filter, onClick, collection }: {
     title: string,
     filter: Filter,
     onClick: () => void,
@@ -25,7 +25,7 @@ export const CountButton = ({title, filter, onClick, collection}: {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [collection, filter]); 
+    }, [collection, filter]);
 
     return (
         <Button onClick={onClick}>

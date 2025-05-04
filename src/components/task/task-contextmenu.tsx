@@ -1,7 +1,7 @@
 import { Button, Flex } from "@chakra-ui/react";
-import CalendarPopup from "./calendar/popup";
+import CalendarPopup from "../../pages/calendar/components/popup";
 import { FaCopy, FaStop, FaTrash } from "react-icons/fa6";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../../contexts/task-context";
 
 const TaskContextMenu = () => {
   const { createTask, deleteTask, updateTask, contextInformation, setContextInformation } = useTasks();
