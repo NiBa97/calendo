@@ -19,6 +19,18 @@ export interface Task {
   tags: string[];
 }
 
+export interface TaskOrNote {
+  type: "task" | "note";
+  id: string;
+  title: string;
+  content: string;
+  user: string[];
+  tags: string[];
+  status: boolean;
+  created: Date;
+  updated: Date;
+}
+
 export function convertTaskRecordToTask(record: TaskRecord): Task;
 export function convertTaskRecordToTask(record: RecordModel): Task;
 export function convertTaskRecordToTask(record: TaskRecordOrModel): Task {

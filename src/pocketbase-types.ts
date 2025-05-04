@@ -19,6 +19,8 @@ export enum Collections {
 	Tag = "tag",
 	Task = "task",
 	TaskHistory = "taskHistory",
+	Taskandnotes = "taskandnotes",
+	Todo = "todo",
 	Users = "users",
 }
 
@@ -27,15 +29,20 @@ export type IsoDateString = string
 export type RecordIdString = string
 export type HTMLString = string
 
+type ExpandType<T> = unknown extends T
+	? T extends unknown
+		? { expand?: unknown }
+		: { expand: T }
+	: { expand: T }
+
 // System fields
-export type BaseSystemFields<T = never> = {
+export type BaseSystemFields<T = unknown> = {
 	id: RecordIdString
 	collectionId: string
 	collectionName: Collections
-	expand?: T
-}
+} & ExpandType<T>
 
-export type AuthSystemFields<T = never> = {
+export type AuthSystemFields<T = unknown> = {
 	email: string
 	emailVisibility: boolean
 	username: string
@@ -116,11 +123,11 @@ export type NoteRecord = {
 	content?: HTMLString
 	created?: IsoDateString
 	id: string
+	status?: boolean
 	tags?: RecordIdString[]
 	title?: string
 	updated?: IsoDateString
 	user?: RecordIdString[]
-	status?: boolean
 }
 
 export type NoteChangeRecord = {
@@ -155,10 +162,11 @@ export type TaskRecord = {
 	endDate?: IsoDateString
 	id: string
 	isAllDay?: boolean
-	title: string
 	startDate?: IsoDateString
 	status?: boolean
 	tags?: RecordIdString[]
+	title: string
+	updated?: IsoDateString
 	user?: RecordIdString[]
 }
 
@@ -168,11 +176,33 @@ export type TaskHistoryRecord = {
 	endDate?: IsoDateString
 	id: string
 	isAllDay?: boolean
-	title?: string
 	startDate?: IsoDateString
 	status?: boolean
 	task?: RecordIdString
+	title?: string
 	user?: RecordIdString
+}
+
+export type TaskandnotesRecord<Tcontent = unknown, Tcreated = unknown, Titem_id = unknown, Ttags = unknown, Ttitle = unknown, Ttype = unknown, Tupdated = unknown, Tuser = unknown> = {
+	content?: null | Tcontent
+	created?: null | Tcreated
+	id: string
+	item_id?: null | Titem_id
+	status?: boolean
+	tags?: null | Ttags
+	title?: null | Ttitle
+	type?: null | Ttype
+	updated?: null | Tupdated
+	user?: null | Tuser
+}
+
+export type TodoRecord = {
+	created?: IsoDateString
+	id: string
+	status?: boolean
+	title?: string
+	updated?: IsoDateString
+	userID: RecordIdString
 }
 
 export type UsersRecord = {
@@ -202,6 +232,8 @@ export type PomodoroResponse<Texpand = unknown> = Required<PomodoroRecord> & Bas
 export type TagResponse<Texpand = unknown> = Required<TagRecord> & BaseSystemFields<Texpand>
 export type TaskResponse<Texpand = unknown> = Required<TaskRecord> & BaseSystemFields<Texpand>
 export type TaskHistoryResponse<Texpand = unknown> = Required<TaskHistoryRecord> & BaseSystemFields<Texpand>
+export type TaskandnotesResponse<Tcontent = unknown, Tcreated = unknown, Titem_id = unknown, Ttags = unknown, Ttitle = unknown, Ttype = unknown, Tupdated = unknown, Tuser = unknown, Texpand = unknown> = Required<TaskandnotesRecord<Tcontent, Tcreated, Titem_id, Ttags, Ttitle, Ttype, Tupdated, Tuser>> & BaseSystemFields<Texpand>
+export type TodoResponse<Texpand = unknown> = Required<TodoRecord> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
@@ -220,6 +252,8 @@ export type CollectionRecords = {
 	tag: TagRecord
 	task: TaskRecord
 	taskHistory: TaskHistoryRecord
+	taskandnotes: TaskandnotesRecord
+	todo: TodoRecord
 	users: UsersRecord
 }
 
@@ -237,6 +271,8 @@ export type CollectionResponses = {
 	tag: TagResponse
 	task: TaskResponse
 	taskHistory: TaskHistoryResponse
+	taskandnotes: TaskandnotesResponse
+	todo: TodoResponse
 	users: UsersResponse
 }
 
@@ -257,5 +293,7 @@ export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'tag'): RecordService<TagResponse>
 	collection(idOrName: 'task'): RecordService<TaskResponse>
 	collection(idOrName: 'taskHistory'): RecordService<TaskHistoryResponse>
+	collection(idOrName: 'taskandnotes'): RecordService<TaskandnotesResponse>
+	collection(idOrName: 'todo'): RecordService<TodoResponse>
 	collection(idOrName: 'users'): RecordService<UsersResponse>
 }

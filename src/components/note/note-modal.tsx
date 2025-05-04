@@ -1,5 +1,5 @@
 import { Box, Dialog } from "@chakra-ui/react";
-import { useNotes } from "../contexts/note-context";
+import { useNotes } from "../../contexts/note-context";
 import NoteEdit from "./note-edit";
 import { useRef } from "react";
 export default function NoteEditModal() {

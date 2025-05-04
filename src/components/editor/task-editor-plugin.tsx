@@ -8,7 +8,7 @@ import { DialogBody, DialogContent, DialogRoot } from "../ui/dialog";
 import { Box, Text } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
 import { useTasks } from "../../contexts/task-context";
-import EditTask from "../task-edit";
+import EditTask from "../task/task-edit";
 import { Task } from "../../types";
 import TaskCheckbox from "../ui/task-checkbox";
 import TitlePreview from "../ui/title-preview";

@@ -3,8 +3,8 @@ import { Box, Button, Field, HStack, Input } from "@chakra-ui/react";
 // import { useToast } from "@chakra-ui/toast";
 import { FaPlus } from "react-icons/fa6";
 
-import { useTasks } from "../contexts/task-context";
-import { toaster } from "./ui/toaster";
+import { useTasks } from "../../contexts/task-context";
+import { toaster } from "../ui/toaster";
 
 const CreateTask = () => {
   const [taskTitle, setTaskTitle] = useState("");

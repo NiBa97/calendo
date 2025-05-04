@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../../contexts/task-context";
 import { Flex, IconButton, Box, HStack, Button, Portal, Menu } from "@chakra-ui/react";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
-import { Task } from "../types";
-import DateTimeRangeSelector from "./ui/datetime-range-selector";
-import Editor from "./editor/editor";
+import { Task } from "../../types";
+import DateTimeRangeSelector from "../ui/datetime-range-selector";
+import Editor from "../editor/editor";
 import TaskChangelog from "./task-changelog";
-import { ShareMenu } from "./share-menu";
-import TitleInput from "./ui/title-input";
-import TaskCheckbox from "./ui/task-checkbox";
-import { TagBadges } from "./ui/tag-badges";
-import { TagMenu } from "./tag-menu";
+import { ShareMenu } from "../share-menu";
+import TitleInput from "../ui/title-input";
+import TaskCheckbox from "../ui/task-checkbox";
+import { TagBadges } from "../ui/tag-badges";
+import { TagMenu } from "../tag-menu";
 
 interface TaskState {
   title: string;
