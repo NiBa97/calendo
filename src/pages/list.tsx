@@ -7,11 +7,9 @@ import {
   Input,
   Button,
   HStack,
-  VStack,
   Text,
   Badge,
   Icon,
-  Menu,
   Container,
   IconButton,
   useDisclosure,
@@ -22,7 +20,6 @@ import { useTasks } from "../contexts/task-context";
 import { useTags } from "../contexts/tag-context";
 import { TagBadges } from "../components/ui/tag-badges";
 import { InputGroup } from "../components/ui/input-group";
-import { MenuRoot, MenuTrigger, MenuContent } from "../components/ui/menu";
 import React from 'react';
 import { TagManagerDialog } from "../components/tag-manager-dialog";
 import { Filter, FilterType, FilterStatus, FilterSortBy } from "../lib/filters"; // Import Filter class and types
@@ -78,30 +75,29 @@ export default function List() {
 
   // State for Tag Manager Dialog
   const { open: isTagManagerOpen, onOpen: onTagManagerOpen, onClose: onTagManagerClose } = useDisclosure();
-
+  console.log("activeFilter", activeFilter);
   // Effect to update the activeFilter state when individual controls change
   useEffect(() => {
     // Update activeFilter only if individual controls differ from the current activeFilter
     // This prevents loops if activeFilter itself triggers changes elsewhere that sync back
     if (
-        titleFilter !== activeFilter.title ||
-        typeFilter !== activeFilter.type ||
-        statusFilter !== activeFilter.status ||
-        JSON.stringify(selectedTagIds) !== JSON.stringify(activeFilter.tags) || // Deep compare for tags
-        sortBy !== activeFilter.sortBy ||
-        sortDirection !== activeFilter.sortDirection
-        // Note: pageNumber/itemsPerPage are managed by GlobalList or kept default here
+      titleFilter !== activeFilter.title ||
+      typeFilter !== activeFilter.type ||
+      statusFilter !== activeFilter.status ||
+      JSON.stringify(selectedTagIds) !== JSON.stringify(activeFilter.tags) || // Deep compare for tags
+      sortBy !== activeFilter.sortBy ||
+      sortDirection !== activeFilter.sortDirection
     ) {
-        setActiveFilter(new Filter({
-            title: titleFilter,
-            type: typeFilter,
-            status: statusFilter,
-            tags: selectedTagIds,
-            sortBy: sortBy,
-            sortDirection: sortDirection,
-            pageNumber: 1, // Reset page number when filters change
-            itemsPerPage: activeFilter.itemsPerPage, // Keep current itemsPerPage
-        }));
+      setActiveFilter(new Filter({
+        title: titleFilter,
+        type: typeFilter,
+        status: statusFilter,
+        tags: selectedTagIds,
+        sortBy: sortBy,
+        sortDirection: sortDirection,
+        pageNumber: 1, // Reset page number when filters change
+        itemsPerPage: 10, // Keep current itemsPerPage
+      }));
     }
   }, [titleFilter, typeFilter, statusFilter, selectedTagIds, sortBy, sortDirection, activeFilter]); // Add activeFilter to deps
 
@@ -242,13 +238,13 @@ export default function List() {
     if (open) onTagManagerOpen(); else onTagManagerClose();
   };
 
- 
+
 
   return (
     <>
       <Container p={4} maxW="3xl" mx="auto" w="3xl">
         <Heading size="lg" mb={4}>All Items</Heading>
-        
+
         {/* Pinned Queries Section */}
         <Box mb={6}>
           <Flex align="center" justify="space-between" mb={2}>
@@ -263,7 +259,7 @@ export default function List() {
               Add Filter
             </Button>
           </Flex>
-          
+
           {showPinnedQueryInput && (
             <Flex gap={2} mb={3}>
               <Input
@@ -396,22 +392,22 @@ export default function List() {
 
         <Flex justifyContent="space-between">
           <Box>
-            <CountButton collection="taskandnotes" title="Open" filter={new Filter({...activeFilter, status: "open"})} onClick={() => {
+            <CountButton collection="taskandnotes" title="Open" filter={new Filter({ ...activeFilter, status: "open" })} onClick={() => {
               setStatusFilter("open");
             }} />
-            <CountButton collection="taskandnotes" title="Closed" filter={new Filter({...activeFilter, status: "closed"})} onClick={() => {
+            <CountButton collection="taskandnotes" title="Closed" filter={new Filter({ ...activeFilter, status: "closed" })} onClick={() => {
               setStatusFilter("closed");
             }} />
           </Box>
           <Box>
             <TypeFilterButton selectedType={typeFilter} handleSelectionChange={setTypeFilter} />
             <TagFilterButton selectedTagIds={selectedTagIds} handleSelectionChange={setSelectedTagIds} />
-           
+
           </Box>
         </Flex>
         <GlobalList
           filter={activeFilter}
-          onSelectionChange={() => {}}
+          onSelectionChange={() => { }}
         />
         <ListPagination
           currentPage={activeFilter.pageNumber}

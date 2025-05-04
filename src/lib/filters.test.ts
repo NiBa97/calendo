@@ -5,7 +5,7 @@ describe('Filter Class', () => {
     // --- Constructor Tests ---
     it('should initialize with default values', () => {
         const filter = new Filter();
-        expect(filter.itemsPerPage).toBe(30);
+        expect(filter.itemsPerPage).toBe(10);
         expect(filter.type).toBe('all');
         expect(filter.title).toBe('');
         expect(filter.tags).toEqual([]);
@@ -46,7 +46,7 @@ describe('Filter Class', () => {
             sortBy: 'invalidField' as any,
             sortDirection: 'none' as any,
         });
-        expect(filter.itemsPerPage).toBe(30);
+        expect(filter.itemsPerPage).toBe(10);
         expect(filter.pageNumber).toBe(1);
         expect(filter.type).toBe('invalid');
         expect(filter.status).toBe('pending');
@@ -58,7 +58,7 @@ describe('Filter Class', () => {
     it('should create filter from empty URLSearchParams with defaults', () => {
         const params = new URLSearchParams();
         const filter = Filter.fromSearchParams(params);
-        expect(filter.itemsPerPage).toBe(30);
+        expect(filter.itemsPerPage).toBe(10);
         expect(filter.type).toBe('all');
         expect(filter.title).toBe('');
         expect(filter.tags).toEqual([]);
@@ -88,7 +88,7 @@ describe('Filter Class', () => {
             'limit=abc&type=invalid&page=0&status=pending&sortBy=invalidField&sortDir=none'
         );
         const filter = Filter.fromSearchParams(params);
-        expect(filter.itemsPerPage).toBe(30);
+        expect(filter.itemsPerPage).toBe(10);
         expect(filter.pageNumber).toBe(1);
         expect(filter.type).toBe('invalid');
         expect(filter.status).toBe('pending');
@@ -157,14 +157,14 @@ describe('Filter Class', () => {
     });
 
     it('toSearchParams: should include non-default values in params', () => {
-        const filter = new Filter({ itemsPerPage: 10, type: 'tasks', title: 'search', tags: ['t1', 't2'], pageNumber: 2, status: 'closed', sortBy: 'title', sortDirection: 'asc' });
+        const filter = new Filter({ itemsPerPage: 15, type: 'tasks', title: 'search', tags: ['t1', 't2'], pageNumber: 2, status: 'closed', sortBy: 'title', sortDirection: 'asc' });
         const expectedParams = new URLSearchParams({
             title: 'search',
             type: 'tasks',
             status: 'closed',
             tags: 't1,t2',
             page: '2',
-            limit: '10',
+            limit: '15',
             sortBy: 'title',
             sortDir: 'asc',
         });
@@ -174,7 +174,7 @@ describe('Filter Class', () => {
         expect(generatedParams.get('status')).toBe('closed');
         expect(generatedParams.get('tags')).toBe('t1,t2');
         expect(generatedParams.get('page')).toBe('2');
-        expect(generatedParams.get('limit')).toBe('10');
+        expect(generatedParams.get('limit')).toBe('15');
         expect(generatedParams.get('sortBy')).toBe('title');
         expect(generatedParams.get('sortDir')).toBe('asc');
         expect(generatedParams.toString()).toEqual(expectedParams.toString());

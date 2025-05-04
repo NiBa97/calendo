@@ -29,7 +29,7 @@ export class Filter {
 
     constructor(options: FilterOptions = {}) {
         const defaults = {
-            itemsPerPage: 30,
+            itemsPerPage: 10,
             type: "all" as FilterType,
             title: "",
             tags: [] as string[],
@@ -59,7 +59,7 @@ export class Filter {
      * @returns A new Filter instance.
      */
     static fromSearchParams(params: URLSearchParams): Filter {
-        const itemsPerPage = parseInt(params.get("limit") || "30", 10);
+        const itemsPerPage = parseInt(params.get("limit") || "10", 10);
         const type = (params.get("type") as FilterType) || "all";
         const title = params.get("title") || "";
         const tags = params.get("tags") ? params.get("tags")!.split(",") : [];

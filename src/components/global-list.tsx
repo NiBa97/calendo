@@ -61,9 +61,8 @@ const GlobalList: React.FC<GlobalListProps> = ({ filter, onSelectionChange }) =>
 
     return (
         <div>
-            <h1>Global List</h1>
             {isLoading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {/* {error && <p style={{ color: 'red' }}>Error: {error}</p>} */}
             <ul>
                 {allItems.map(item => {
                     return <ListItem key={item.id} item={item} />
