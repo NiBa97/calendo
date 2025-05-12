@@ -14,7 +14,7 @@
     "@chakra-ui/toast": "^7.0.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
-    "@mdxeditor/editor": "^3.25.0",
+    "@mdxeditor/editor": "^3.32.2",
     "diff-match-patch": "^1.0.5",
     "framer-motion": "^12.8.0",
     "lucide-react": "^0.475.0",
