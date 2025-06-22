@@ -6,7 +6,7 @@ import MainCalendar from "../components/calendar/main-calendar";
 import TaskContextMenu from "../components/task-contextmenu";
 
 export default function Tasks() {
-  const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: true });
+  const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: false });
 
   return (
     <Flex direction="column" flex={1}>
