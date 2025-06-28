@@ -1,7 +1,7 @@
-import { Dialog } from "@chakra-ui/react";
 import { useTasks } from "../contexts/task-context";
 import EditTask from "./task-edit";
 import { useRef } from "react";
+import { AppModal } from "./ui/app-modal";
 export default function TaskEditModal() {
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -10,38 +10,21 @@ export default function TaskEditModal() {
     void setModalTask(null);
   };
   return (
-    <Dialog.Root
-      open={modalTask !== null}
-      onOpenChange={(e) => {
-        if (!e.open) onClose();
-      }}
+    <AppModal
+      isOpen={modalTask !== null}
+      onClose={onClose}
+      contentRef={contentRef}
+      size="lg"
     >
-      <Dialog.Backdrop />
-      <Dialog.Positioner>
-        <Dialog.Content
-          bg={"transparent"}
-          color={"brand.4"}
-          height={"90vh"}
-          width={"90vw"}
-          maxH={"90vh"}
-          maxW={"90vw"}
-          ref={contentRef}
-        >
-          <Dialog.Body height={"90vh"} width={"90vw"} p={0}>
-            {/* <Box bg={"black"} color={"brand.4"} height={"90vh"} width={"90vw"}> */}
-            {modalTask && (
-              <EditTask
-                contentDialogRef={contentRef}
-                task={modalTask}
-                height={undefined}
-                width={undefined}
-                onComplete={onClose}
-              ></EditTask>
-            )}
-            {/* </Box> */}
-          </Dialog.Body>
-        </Dialog.Content>
-      </Dialog.Positioner>
-    </Dialog.Root>
+      {modalTask && (
+        <EditTask
+          contentDialogRef={contentRef}
+          task={modalTask}
+          height={undefined}
+          width={undefined}
+          onComplete={onClose}
+        />
+      )}
+    </AppModal>
   );
 }

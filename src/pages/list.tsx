@@ -1,8 +1,8 @@
 import {
-  Box,
   Container,
   Flex,
   Heading,
+  Spacer,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useNotes } from "../contexts/note-context";
@@ -115,7 +115,8 @@ export default function List() {
           onCreateTask={handleCreateTask}
           onTagManagerOpen={onTagManagerOpen}
         />
-        <Box borderWidth="1px" borderRadius="md" overflow="hidden" borderTopRadius={0}>
+        <Spacer h={2} />
+        <Flex gap={2} direction="column" overflow="hidden" >
           {sortedItems.length === 0 ? (
             <Flex justify="center" py={8} color="gray.500">
               No items match your filters
@@ -125,7 +126,7 @@ export default function List() {
               .filter((item) => item.status === (statusFilter === "open" ? false : true))
               .map((item) => <ListItem item={item} key={item.id} onTagClick={handleTagClick} />)
           )}
-        </Box>
+        </Flex>
       </Container>
 
       {/* Render Tag Manager Dialog */}

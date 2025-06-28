@@ -28,7 +28,10 @@ export const TagBadges: React.FC<{
           fontSize={size === "sm" ? "xs" : "sm"}
           cursor={onClick ? "pointer" : "default"}
           _hover={onClick ? { opacity: 0.8 } : {}}
-          onClick={() => onClick?.(tag.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.(tag.id);
+          }}
         >
           {tag.name}
           {onRemove && (

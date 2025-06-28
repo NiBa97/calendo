@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Grid, GridItem, Flex, Text, Icon, Box } from "@chakra-ui/react";
+import { Card } from "./ui/card";
 import { FaBook, FaUserFriends, FaPlus } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
 import { useNotes } from "../contexts/note-context";
@@ -82,70 +83,74 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
   };
 
   return (
-    <Grid
-      templateColumns="20px 1fr 80px 150px"
-      gap={4}
-      px={4}
-      py={2}
-      borderBottom="1px solid"
-      borderColor="gray.200"
-      _hover={{ bg: "gray.50" }}
+    <Card
+      variant="flat"
+      _hover={{ bg: "gray.50", cursor: "pointer" }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      alignItems="center"
+      onClick={() => handleItemClick(item)}
+      p={2}
     >
-      <GridItem>
-        {item.isTask ? (
-          <TaskCheckbox
-            checked={item.status}
-            onChange={(e) => handleTaskStatusChange(item.id, e)}
-            onClick={(e) => e.stopPropagation()}
-            colorScheme={item.status ? "green" : "gray"}
-          />
-        ) : (
-          <Icon as={FaBook} color="blue.500" boxSize={5} />
-        )}
-      </GridItem>
-      <GridItem>
-        <Flex>
-          <TitlePreview
-            title={item.title}
-            onClick={() => handleItemClick(item)}
-            lineThrough={item.status}
-            contrast={isHovered ? "dark" : "bright"}
-            mr={2}
-            _hover={{ textDecoration: "underline", cursor: "pointer" }}
-          />
+      <Grid
+        templateColumns="20px 1fr 80px 150px"
+        gap={4}
+        alignItems="center"
+      >
+        <GridItem>
+          {item.isTask ? (
+            <TaskCheckbox
+              checked={item.status}
+              onChange={(e) => handleTaskStatusChange(item.id, e)}
+              onClick={(e) => e.stopPropagation()}
+              colorScheme={item.status ? "green" : "gray"}
+            />
+          ) : (
+            <Icon as={FaBook} color="blue.500" boxSize={5} />
+          )}
+        </GridItem>
+        <GridItem>
+          <Flex>
+            <TitlePreview
+              title={item.title}
+              lineThrough={item.status}
+              contrast={isHovered ? "dark" : "bright"}
+              mr={2}
+            />
 
-          <Flex alignItems="center" gap={2} h={5} mt={1}>
-            {item.tags.length > 0 && (
-              <TagBadges tagIds={item.tags} size="sm" onClick={onTagClick} />
-            )}
-            <Menu.Root>
-              <Menu.Trigger asChild>
-                <Box color={isHovered ? "gray.500" : "gray.400"} _hover={{ cursor: "pointer" }}>
-                  <FaPlus size={10} />
-                </Box>
-              </Menu.Trigger>
-              <Menu.Positioner>
-                <Menu.Content>
-                  <TagListMenu
-                    selectedTagIds={item.tags}
-                    onTagToggle={handleTagToggle}
-                  />
-                </Menu.Content>
-              </Menu.Positioner>
-            </Menu.Root>
+            <Flex alignItems="center" gap={2} h={5} mt={1}>
+              {item.tags.length > 0 && (
+                <TagBadges tagIds={item.tags} size="sm" onClick={onTagClick} />
+              )}
+              <Menu.Root>
+                <Menu.Trigger asChild>
+                  <Box 
+                    color={isHovered ? "gray.500" : "gray.400"} 
+                    _hover={{ cursor: "pointer" }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <FaPlus size={10} />
+                  </Box>
+                </Menu.Trigger>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <TagListMenu
+                      selectedTagIds={item.tags}
+                      onTagToggle={handleTagToggle}
+                    />
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Menu.Root>
+            </Flex>
           </Flex>
-        </Flex>
-        <Text color="gray.600" fontSize="xs">
-          Created {formatDate(item.created)}
-        </Text>
-      </GridItem>
-      <GridItem>
-        {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
-      </GridItem>
-      <GridItem color="gray.600">{ }</GridItem>
-    </Grid>
+          <Text color="gray.600" fontSize="xs">
+            Created {formatDate(item.created)}
+          </Text>
+        </GridItem>
+        <GridItem>
+          {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
+        </GridItem>
+        <GridItem color="gray.600">{ }</GridItem>
+      </Grid>
+    </Card>
   );
 };
