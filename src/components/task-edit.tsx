@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
 import { useTasks } from "../contexts/task-context";
-import { Flex, IconButton, Box, HStack, Button, Portal, Menu } from "@chakra-ui/react";
+import { Flex, Box, HStack, Portal, Menu } from "@chakra-ui/react";
+import { IconActionButton } from "./ui/icon-action-button";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
 import { Task } from "../types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
@@ -184,19 +185,12 @@ const EditTask = ({
               autoFocus={taskState.title === ""}
             />
             {showCloseButton && (
-              <IconButton
+              <IconActionButton
                 aria-label="Close"
-                bg="brand.1"
+                variant="close"
                 onClick={onComplete}
-                color="brand.4"
-                size="lg"
-                borderRadius="none"
-                _hover={{
-                  bg: "brand.2",
-                }}
-              >
-                <FaTimes />
-              </IconButton>
+                icon={<FaTimes />}
+              />
             )}
           </HStack>
         </Box>
@@ -230,16 +224,11 @@ const EditTask = ({
           <DateTimeRangeSelector task={task} onChange={handleDateTimeChange} />
           <Menu.Root>
             <Menu.Trigger asChild>
-              <Button
+              <IconActionButton
                 aria-label="More options"
-                bg="brand.1"
-                color="brand.4"
-                size="lg"
-                borderRadius="none"
-                _hover={{ bg: "brand.2" }}
-              >
-                <FaEllipsisV />
-              </Button>
+                variant="menu"
+                icon={<FaEllipsisV />}
+              />
             </Menu.Trigger>
             <Portal container={contentDialogRef ?? undefined}>
               <Menu.Positioner>

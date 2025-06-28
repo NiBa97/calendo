@@ -1,6 +1,11 @@
 import React, { useState } from "react";
-import { Box, Input, Text, Flex, Button, Dialog, Portal } from "@chakra-ui/react";
-import { FaSearch, FaPlus, FaTrash } from "react-icons/fa";
+import { Box, Text, Flex, Dialog, Portal } from "@chakra-ui/react";
+import { BrandInput } from "./ui/brand-input";
+import { BrandButton } from "./ui/brand-button";
+import { SearchInput } from "./ui/search-input";
+import { EmptyState } from "./ui/empty-state";
+import { IconActionButton } from "./ui/icon-action-button";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import { useTags } from "../contexts/tag-context";
 import { ColorInput } from "./ui/color-input";
 
@@ -72,27 +77,17 @@ export const TagManagerDialog: React.FC<TagManagerDialogProps> = ({
 
             <Dialog.Body p={4}>
               <Flex direction="column" gap={4}>
-                <Box position="relative">
-                  <Input
-                    placeholder="Search tags..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    pr="2rem"
-                    bg="brand.1"
-                    color="brand.4"
-                    borderColor="brand.3"
-                    _hover={{ borderColor: "brand.4" }}
-                    _focus={{ borderColor: "brand.4" }}
-                  />
-                  <Box position="absolute" right="0.5rem" top="50%" transform="translateY(-50%)">
-                    <FaSearch color="var(--chakra-colors-brand-3)" />
-                  </Box>
-                </Box>
+                <SearchInput
+                  placeholder="Search tags..."
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  brandVariant="dark"
+                />
 
                 <Text fontWeight="medium">Existing Tags</Text>
                 <Flex maxH="200px" overflowY="auto" direction={"column"} gap={2}>
                   {sortedTags.length === 0 ? (
-                    <Text p={2} color="brand.3">No tags found</Text>
+                    <EmptyState message="No tags found" />
                   ) : (
                     sortedTags.map((tag) => (
                       <Flex
@@ -107,16 +102,12 @@ export const TagManagerDialog: React.FC<TagManagerDialogProps> = ({
                           <Box bg={tag.color} width="16px" height="16px" borderRadius="full" mr={2} />
                           <Text>{tag.name}</Text>
                         </Flex>
-                        <Button
+                        <IconActionButton
                           aria-label="Delete tag"
-                          size="xs"
-                          variant="ghost"
-                          color="brand.3"
-                          _hover={{ color: "red.500", bg: "transparent" }}
+                          variant="danger"
                           onClick={() => handleDeleteTag(tag.id)}
-                        >
-                          <FaTrash />
-                        </Button>
+                          icon={<FaTrash />}
+                        />
                       </Flex>
                     ))
                   )}
@@ -127,31 +118,27 @@ export const TagManagerDialog: React.FC<TagManagerDialogProps> = ({
                     Create New Tag
                   </Text>
                   <Flex direction="column" gap={3}>
-                    <Input
+                    <BrandInput
                       placeholder="Tag name"
                       value={newTagName}
                       onChange={(e) => setNewTagName(e.target.value)}
-                      bg="brand.1"
-                      color="brand.4"
-                      borderColor="brand.3"
-                      _hover={{ borderColor: "brand.4" }}
-                      _focus={{ borderColor: "brand.4" }}
+                      brandVariant="dark"
                     />
                     <Flex align="center">
                       <Text mr={2}>Color:</Text>
                       <ColorInput value={newTagColor} onChange={setNewTagColor} />
                     </Flex>
-                    <Button onClick={handleCreateTag} colorScheme="blue" disabled={!newTagName.trim()}>
+                    <BrandButton onClick={handleCreateTag} variant="primary" disabled={!newTagName.trim()}>
                       <Box as={FaPlus} mr={1} /> Create Tag
-                    </Button>
+                    </BrandButton>
                   </Flex>
                 </Box>
               </Flex>
             </Dialog.Body>
             <Dialog.Footer borderTop="1px solid" borderColor="brand.2">
-              <Button variant="ghost" onClick={handleClose}>
+              <BrandButton variant="ghost" onClick={handleClose}>
                 Close
-              </Button>
+              </BrandButton>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>

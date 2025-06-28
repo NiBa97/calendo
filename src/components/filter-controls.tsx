@@ -1,8 +1,6 @@
 import React from "react";
 import {
   Flex,
-  Input,
-  Button,
   HStack,
   Icon,
   Text,
@@ -10,8 +8,10 @@ import {
   Box,
   VStack,
 } from "@chakra-ui/react";
-import { FaSearch, FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare } from "react-icons/fa";
-import { InputGroup } from "./ui/input-group";
+import { BrandButton } from "./ui/brand-button";
+import { SearchInput } from "./ui/search-input";
+import { EmptyState } from "./ui/empty-state";
+import { FaFilter, FaTags, FaCaretDown, FaBook, FaCheckSquare } from "react-icons/fa";
 import { MenuRoot, MenuTrigger, MenuContent } from "./ui/menu";
 import { Menu } from "@chakra-ui/react";
 import { TagBadges } from "./ui/tag-badges";
@@ -65,27 +65,25 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
         borderRadius="md"
         flexWrap="wrap"
       >
-        <InputGroup startElement={<FaSearch />} flex={{ base: "1", md: "2" }}>
-          <Input
-            placeholder="Filter by title..."
-            value={titleFilter}
-            onChange={(e) => onTitleFilterChange(e.target.value)}
-            bg="white"
-          />
-        </InputGroup>
+        <SearchInput
+          placeholder="Filter by title..."
+          value={titleFilter}
+          onChange={onTitleFilterChange}
+          flex={{ base: "1", md: "2" }}
+        />
         <HStack>
-          <Button colorScheme="blue" onClick={onCreateNote}>
+          <BrandButton variant="primary" onClick={onCreateNote}>
             <Icon as={FaBook} mr={2} />
             New Note
-          </Button>
-          <Button colorScheme="green" onClick={onCreateTask}>
+          </BrandButton>
+          <BrandButton variant="primary" onClick={onCreateTask}>
             <Icon as={FaCheckSquare} mr={2} />
             New Task
-          </Button>
-          <Button colorScheme="red" onClick={onTagManagerOpen}>
+          </BrandButton>
+          <BrandButton variant="secondary" onClick={onTagManagerOpen}>
             <Icon as={FaTags} mr={2} />
             Tags
-          </Button>
+          </BrandButton>
         </HStack>
       </Flex>
 
@@ -110,45 +108,45 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
           {selectedTagIds.length > 0 && <TagBadges tagIds={selectedTagIds} onRemove={onTagClick} size="sm" />}
 
-          <Button size="xs" onClick={onClearFilters}>
+          <BrandButton size="xs" variant="ghost" onClick={onClearFilters}>
             Clear filters
-          </Button>
+          </BrandButton>
         </Flex>
       )}
 
       {/* Status and Type Controls */}
       <Flex justifyContent="space-between">
         <Box>
-          <Button
+          <BrandButton
             onClick={() => onStatusFilterChange("open")}
-            variant={statusFilter === "open" ? "solid" : "outline"}
+            variant={statusFilter === "open" ? "primary" : "secondary"}
           >
             Open
             <Text color="gray.600" bg="gray.100" px={2} borderRadius="md" ml={2}>
               {sortedItems.filter((item) => item.status === false).length}
             </Text>
-          </Button>
-          <Button
+          </BrandButton>
+          <BrandButton
             onClick={() => onStatusFilterChange("closed")}
-            variant={statusFilter === "closed" ? "solid" : "outline"}
+            variant={statusFilter === "closed" ? "primary" : "secondary"}
             ml={2}
           >
             Closed
             <Text color="gray.600" bg="gray.100" px={2} borderRadius="md" ml={2}>
               {sortedItems.filter((item) => item.status === true).length}
             </Text>
-          </Button>
+          </BrandButton>
         </Box>
         <Box>
           <MenuRoot>
             <MenuTrigger asChild>
-              <Button>
+              <BrandButton variant="secondary">
                 <Flex align="center">
                   <Icon as={FaFilter} mr={2} />
                   Type: {typeFilter === "all" ? "All" : typeFilter === "notes" ? "Notes" : "Tasks"}
                   <Icon as={FaCaretDown} ml={2} />
                 </Flex>
-              </Button>
+              </BrandButton>
             </MenuTrigger>
             <MenuContent>
               <Menu.RadioItemGroup value={typeFilter} onValueChange={(e) => onTypeFilterChange(e.value)}>
@@ -167,13 +165,13 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
           <MenuRoot>
             <MenuTrigger asChild>
-              <Button ml={2}>
+              <BrandButton variant="secondary" ml={2}>
                 <Flex align="center">
                   <Icon as={FaTags} mr={2} />
                   Tags {selectedTagIds.length > 0 && `(${selectedTagIds.length})`}
                   <Icon as={FaCaretDown} ml={2} />
                 </Flex>
-              </Button>
+              </BrandButton>
             </MenuTrigger>
             <MenuContent minW="250px">
               <Box p={3}>
@@ -182,7 +180,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
                 </Text>
                 <VStack align="stretch" maxH="200px" overflowY="auto">
                   {tags.length === 0 ? (
-                    <Text color="gray.500">No tags found</Text>
+                    <EmptyState message="No tags found" />
                   ) : (
                     tags.map((tag) => (
                       <Flex

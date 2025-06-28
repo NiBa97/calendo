@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaTrash, FaEllipsisV, FaArchive, FaBox } from "react-icons/fa";
-import { Box, Button, Flex, Menu, Portal, VStack } from "@chakra-ui/react";
+import { Box, Flex, Menu, Portal, VStack } from "@chakra-ui/react";
+import { BrandButton } from "./ui/brand-button";
+import { IconActionButton } from "./ui/icon-action-button";
 import Editor from "./editor/editor";
 import TitleInput from "./ui/title-input";
 import { useNotes } from "../contexts/note-context";
@@ -183,8 +185,8 @@ const NoteEdit = ({
           >
             This note is archived. Unarchive to make changes, or delete it.
             <Flex gap={2}> 
-              <Button onClick={handleUnarchive}><FaBox />Unarchive</Button>
-              <Button onClick={handleDelete}><FaTrash />Delete</Button>
+              <BrandButton onClick={handleUnarchive} variant="secondary"><FaBox />Unarchive</BrandButton>
+              <BrandButton onClick={handleDelete} variant="danger"><FaTrash />Delete</BrandButton>
             </Flex>
           </VStack>
         )}
@@ -199,17 +201,12 @@ const NoteEdit = ({
             />
             <Menu.Root >
               <Menu.Trigger asChild>
-                <Button
+                <IconActionButton
                   visibility={note.status ? "hidden" : "visible"}
                   aria-label="More options"
-                  bg="brand.1"
-                  color="brand.4"
-                  size="lg"
-                  borderRadius="none"
-                  _hover={{ bg: "brand.2" }}
-                >
-                  <FaEllipsisV />
-                </Button>
+                  variant="menu"
+                  icon={<FaEllipsisV />}
+                />
               </Menu.Trigger>
               <Portal container={contentDialogRef ?? undefined}>
                 <Menu.Positioner>
@@ -243,19 +240,12 @@ const NoteEdit = ({
               </Portal>
             </Menu.Root>
             {showCloseButton && (
-              <Button
+              <IconActionButton
                 aria-label="Close"
-                bg="brand.1"
+                variant="close"
                 onClick={onComplete}
-                color="brand.4"
-                size="lg"
-                borderRadius="none"
-                _hover={{
-                  bg: "brand.2",
-                }}
-              >
-                <FaTimes />
-              </Button>
+                icon={<FaTimes />}
+              />
             )}
           </Flex>
         </Box>
