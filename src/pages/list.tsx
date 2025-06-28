@@ -29,6 +29,7 @@ import TaskCheckbox from "../components/ui/task-checkbox";
 import TitlePreview from "../components/ui/title-preview";
 import React from 'react';
 import { TagManagerDialog } from "../components/tag-manager-dialog";
+import { TagListMenu } from "../components/tag-list-menu";
 
 // Combined type for list items (notes and tasks)
 type ListItem = {
@@ -261,7 +262,7 @@ export default function List() {
     <>
       <Container p={4} maxW="3xl" mx="auto" w="3xl">
         <Heading size="lg" mb={4}>All Items</Heading>
-        
+
         {/* Pinned Queries Section */}
         <Box mb={6}>
           <Flex align="center" justify="space-between" mb={2}>
@@ -276,7 +277,7 @@ export default function List() {
               Add Filter
             </Button>
           </Flex>
-          
+
           {showPinnedQueryInput && (
             <Flex gap={2} mb={3}>
               <Input
@@ -508,8 +509,8 @@ export default function List() {
 }
 
 const ListItem = ({ item }: { item: ListItem }) => {
-  const { tasks, setModalTask, updateTask } = useTasks();
-  const { notes, setSelectedNote } = useNotes();
+  const { tasks, setModalTask, updateTask, addTagToTask, removeTagFromTask } = useTasks();
+  const { notes, setSelectedNote, addTagToNote, removeTagFromNote } = useNotes();
   const [isHovered, setIsHovered] = useState(false);
 
   const handleTaskStatusChange = async (taskId: string, newStatus: boolean) => {
@@ -535,6 +536,25 @@ const ListItem = ({ item }: { item: ListItem }) => {
       const note = notes.find((t) => t.id === item.id);
       if (note) {
         setSelectedNote(note);
+      }
+    }
+  };
+
+  // Handle tag toggle for both tasks and notes
+  const handleTagToggle = (tagId: string) => {
+    if (item.isTask) {
+      const isSelected = item.tags.includes(tagId);
+      if (isSelected) {
+        removeTagFromTask(item.id, tagId);
+      } else {
+        addTagToTask(item.id, tagId);
+      }
+    } else {
+      const isSelected = item.tags.includes(tagId);
+      if (isSelected) {
+        removeTagFromNote(item.id, tagId);
+      } else {
+        addTagToNote(item.id, tagId);
       }
     }
   };
@@ -574,11 +594,29 @@ const ListItem = ({ item }: { item: ListItem }) => {
             mr={2}
             _hover={{ textDecoration: "underline", cursor: "pointer" }}
           />
-          {item.tags.length > 0 && (
-            <Box mt={1}>
+
+          <Flex alignItems="center" gap={2} h={5} mt={1}>
+            {item.tags.length > 0 && (
               <TagBadges tagIds={item.tags} size="sm" />
-            </Box>
-          )}
+            )}
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Box color={isHovered ? "gray.500" : "gray.400"} _hover={{ cursor: "pointer" }}>
+                  <FaPlus size={10} />
+                </Box>
+              </Menu.Trigger>
+              <Menu.Positioner>
+                <Menu.Content>
+                  <TagListMenu
+                    selectedTagIds={item.tags}
+                    onTagToggle={handleTagToggle}
+                  />
+                </Menu.Content>
+              </Menu.Positioner>
+            </Menu.Root>
+          </Flex>
+
+
         </Flex>
         <Text color="gray.600" fontSize="xs">
           Created {formatDate(item.created)}
@@ -587,8 +625,8 @@ const ListItem = ({ item }: { item: ListItem }) => {
       <GridItem>
         {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
       </GridItem>
-      <GridItem color="gray.600">{}</GridItem>
-    </Grid>
+      <GridItem color="gray.600">{ }</GridItem>
+    </Grid >
   );
 };
 

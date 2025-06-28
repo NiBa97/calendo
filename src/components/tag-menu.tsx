@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, Flex, Text, useDisclosure, Portal, HStack, Menu } from "@chakra-ui/react";
-import { FaTags, FaCheck, FaChevronRight, FaPlusCircle } from "react-icons/fa";
-import { useTags } from "../contexts/tag-context";
+import { Flex, useDisclosure, Portal, HStack, Menu } from "@chakra-ui/react";
+import { FaTags, FaChevronRight } from "react-icons/fa";
 import { TagManagerDialog } from "./tag-manager-dialog";
+import { TagListMenu } from "./tag-list-menu";
 
 interface TagMenuProps {
   selectedTagIds: string[];
@@ -15,10 +15,8 @@ export const TagMenu: React.FC<TagMenuProps> = ({
   onTagToggle,
   contentDialogRef = null,
 }) => {
-  const { tags } = useTags();
   const { open: isManagerOpen, onOpen: onManagerOpen, onClose: onManagerClose } = useDisclosure();
 
-  const sortedTags = [...tags].sort((a, b) => a.name.localeCompare(b.name));
   const handleManagerOpenChange = (open: boolean) => {
     console.log("handleManagerOpenChange", open);
     if (open) {
@@ -29,7 +27,7 @@ export const TagMenu: React.FC<TagMenuProps> = ({
   };
   const handleMenuOpenChange = (open: boolean) => {
     console.log("handleMenuOpenChange", open);
-    
+
   };
   return (
     <>
@@ -46,32 +44,10 @@ export const TagMenu: React.FC<TagMenuProps> = ({
         <Portal container={contentDialogRef ?? undefined}>
           <Menu.Positioner>
             <Menu.Content>
-              {sortedTags.length === 0 && (
-                <Menu.Item value="no-tags" disabled>
-                  <Text p={2} color="gray.500">No tags available</Text>
-                </Menu.Item>
-              )}
-              {sortedTags.map((tag) => {
-                const isSelected = selectedTagIds.includes(tag.id);
-                return (
-                  <Menu.Item key={tag.id} value={tag.id} onClick={() => onTagToggle(tag.id)}>
-                    <Flex align="center" justify="space-between" >
-                      <Flex align="center">
-                        <Box bg={tag.color} width="12px" height="12px" borderRadius="full" mr={2} />
-                        <Text fontSize="sm">{tag.name}</Text>
-                      </Flex>
-                      {isSelected && <FaCheck color="green" />}
-                    </Flex>
-                  </Menu.Item>
-                );
-              })}
-              <Menu.Separator />
-              <Menu.Item value="manage-tags" onClick={onManagerOpen} closeOnSelect={false}>
-                <Flex align="center" >
-                  <FaPlusCircle style={{ marginRight: "8px" }} />
-                  <Text fontSize="sm">Manage Tags</Text>
-                </Flex>
-              </Menu.Item>
+              <TagListMenu
+                selectedTagIds={selectedTagIds}
+                onTagToggle={onTagToggle}
+              />
             </Menu.Content>
           </Menu.Positioner>
         </Portal>
