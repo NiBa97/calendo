@@ -16,7 +16,7 @@ export const TagBadges: React.FC<{
   const selectedTags = tags.filter((tag) => tagIds.includes(tag.id));
 
   return (
-    <Flex wrap="wrap" gap={2}>
+    <Flex gap={2} direction="row" alignItems="flex-start">
       {selectedTags.map((tag) => (
         <Badge
           key={tag.id}
@@ -35,7 +35,7 @@ export const TagBadges: React.FC<{
             <Box
               as={FaTimes}
               ml={1}
-              display="inline-block"
+              display="inline"
               cursor="pointer"
               onClick={(e) => {
                 e.stopPropagation();

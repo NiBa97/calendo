@@ -585,7 +585,7 @@ const ListItem = ({ item, onTagClick }: { item: ListItem; onTagClick: (tagId: st
         )}
       </GridItem>
       <GridItem>
-        <Flex>
+        <Flex alignItems="flex-start">
           <TitlePreview
             title={item.title}
             onClick={() => handleItemClick(item)}
@@ -595,7 +595,7 @@ const ListItem = ({ item, onTagClick }: { item: ListItem; onTagClick: (tagId: st
             _hover={{ textDecoration: "underline", cursor: "pointer" }}
           />
 
-          <Flex alignItems="center" gap={2} h={5} mt={1}>
+          <Flex justifyContent="left" alignItems="center" gap={2} minH={5} mt={1} inline>
             {item.tags.length > 0 && (
               <TagBadges tagIds={item.tags} size="sm" onClick={onTagClick} />
             )}
