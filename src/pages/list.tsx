@@ -497,7 +497,7 @@ export default function List() {
           ) : (
             sortedItems
               .filter((item) => item.status == (statusFilter == "open" ? false : true))
-              .map((item) => <ListItem item={item} key={item.id}></ListItem>)
+              .map((item) => <ListItem item={item} key={item.id} onTagClick={handleTagClick}></ListItem>)
           )}
         </Box>
       </Container>
@@ -508,7 +508,7 @@ export default function List() {
   );
 }
 
-const ListItem = ({ item }: { item: ListItem }) => {
+const ListItem = ({ item, onTagClick }: { item: ListItem; onTagClick: (tagId: string) => void }) => {
   const { tasks, setModalTask, updateTask, addTagToTask, removeTagFromTask } = useTasks();
   const { notes, setSelectedNote, addTagToNote, removeTagFromNote } = useNotes();
   const [isHovered, setIsHovered] = useState(false);
@@ -597,7 +597,7 @@ const ListItem = ({ item }: { item: ListItem }) => {
 
           <Flex alignItems="center" gap={2} h={5} mt={1}>
             {item.tags.length > 0 && (
-              <TagBadges tagIds={item.tags} size="sm" />
+              <TagBadges tagIds={item.tags} size="sm" onClick={onTagClick} />
             )}
             <Menu.Root>
               <Menu.Trigger asChild>
