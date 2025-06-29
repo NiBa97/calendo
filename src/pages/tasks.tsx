@@ -1,12 +1,53 @@
-import { Box, Flex, Separator, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Separator, useDisclosure, Text, IconButton, Icon } from "@chakra-ui/react";
+import { FiX } from "react-icons/fi";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import ListTasks from "../components/task-list";
 import CreateTask from "../components/create-task";
 import MainCalendar from "../components/calendar/main-calendar";
 import TaskContextMenu from "../components/task-contextmenu";
+import { useIsMobile } from "../utils/responsive";
 
 export default function Tasks() {
   const { open: isTaskListOpen, onToggle: toggleTasklist } = useDisclosure({ defaultOpen: false });
+  const isMobile = useIsMobile();
+
+  // Mobile gets day view only, desktop gets all views
+  const availableViews = isMobile 
+    ? { day: "Day" }
+    : undefined; // undefined uses default views (month, week, day, 3-day)
+
+  if (isMobile) {
+    return (
+      <Flex direction="column" flex={1}>
+        {isTaskListOpen && (
+          <Box className="mobile-task-panel">
+            <Flex p={4} justify="space-between" align="center" borderBottom="1px solid" borderColor="gray.200">
+              <Text fontSize="lg" fontWeight="bold">Tasks</Text>
+              <IconButton
+                aria-label="Close task panel"
+                variant="ghost"
+                onClick={toggleTasklist}
+              >
+                <Icon as={FiX} />
+              </IconButton>
+            </Flex>
+            <Box p={4} flex={1} overflow="auto">
+              <CreateTask />
+              <Separator my={2} />
+              <ListTasks />
+            </Box>
+          </Box>
+        )}
+        
+        <MainCalendar 
+          isTaskListOpen={isTaskListOpen} 
+          toggleTasklist={toggleTasklist}
+          availableViews={availableViews}
+        />
+        <TaskContextMenu />
+      </Flex>
+    );
+  }
 
   return (
     <Flex direction="column" flex={1}>
@@ -50,7 +91,11 @@ export default function Tasks() {
         )}
 
         <Panel>
-          <MainCalendar isTaskListOpen={isTaskListOpen} toggleTasklist={toggleTasklist}></MainCalendar>
+          <MainCalendar 
+            isTaskListOpen={isTaskListOpen} 
+            toggleTasklist={toggleTasklist}
+            availableViews={availableViews}
+          />
         </Panel>
       </PanelGroup>
       <TaskContextMenu />

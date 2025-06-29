@@ -13,10 +13,12 @@ import { usePinnedQueries } from "../hooks/usePinnedQueries";
 import { PinnedQueriesSection } from "../components/pinned-queries-section";
 import { FilterControls } from "../components/filter-controls";
 import { ListItem } from "../components/list-item";
+import { useIsMobile } from "../utils/responsive";
 
 export default function List() {
   const { notes, createNote, setSelectedNote } = useNotes();
   const { tasks, setModalTask } = useTasks();
+  const isMobile = useIsMobile();
 
   // Custom hooks for state management
   const filterHook = useListFilters(notes, tasks);
@@ -89,8 +91,13 @@ export default function List() {
 
   return (
     <>
-      <Container p={4} maxW="3xl" mx="auto" w="3xl">
-        <Heading size="lg" mb={4}>All Items</Heading>
+      <Container 
+        p={isMobile ? 2 : 4} 
+        maxW={isMobile ? "100vw" : "3xl"} 
+        mx={isMobile ? 0 : "auto"} 
+        w={isMobile ? "100vw" : "3xl"}
+      >
+        <Heading size={isMobile ? "md" : "lg"} mb={4}>All Items</Heading>
 
         <PinnedQueriesSection
           pinnedQueries={pinnedQueries}
