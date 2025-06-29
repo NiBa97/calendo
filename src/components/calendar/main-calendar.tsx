@@ -25,6 +25,7 @@ import EditTask from "../task-edit";
 import { FaUsers } from "react-icons/fa6";
 import { useTags } from "../../contexts/tag-context";
 import { Badge } from "@chakra-ui/react";
+import { useIsMobile } from "../../utils/responsive";
 
 // Set moment locale to start week on Monday
 moment.locale('en', {
@@ -213,6 +214,7 @@ export default function MainCalendar({
     setModalTask,
     loadTasksForRange,
   } = useTasks();
+  const isMobile = useIsMobile();
 
   const effectiveViewOptions = useMemo(() => availableViews || defaultViewOptions, [availableViews]);
   const viewKeys = useMemo(() => Object.keys(effectiveViewOptions), [effectiveViewOptions]);
@@ -297,11 +299,19 @@ export default function MainCalendar({
       setTemporaryTask(null);
       return setSelectedEvent(null);
     }
-        const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
-      const { top, left, width } = parentElement.getBoundingClientRect();
-      handlePopupPlacement(top, left, width);
-      setSelectedEvent(event as Task);
-        };
+    
+    if (isMobile) {
+      // On mobile, use modal instead of popup
+      setModalTask(event as Task);
+      setSelectedEvent(null);
+      return;
+    }
+    
+    const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
+    const { top, left, width } = parentElement.getBoundingClientRect();
+    handlePopupPlacement(top, left, width);
+    setSelectedEvent(event as Task);
+  };
 
   type EventChangeArgs = {
     event: Task;
@@ -340,7 +350,7 @@ export default function MainCalendar({
   };
   const handleSelectSlot = (slotInfo: SlotInfo) => {
     const { start, end, bounds } = slotInfo;
-      setTemporaryTask(null);
+    setTemporaryTask(null);
 
     if (!bounds) return; // exit if bounds are not available
 
@@ -352,6 +362,15 @@ export default function MainCalendar({
       isAllDay: false,
       status: false,
     };
+    
+    if (isMobile) {
+      // On mobile, use modal instead of popup
+      setTemporaryTask(event as Task);
+      setModalTask(event as Task);
+      setSelectedEvent(null);
+      return;
+    }
+    
     const el = document.getElementsByClassName(start.toISOString());
     if (el.length == 0 || el[0] == undefined) {
       return;
@@ -360,8 +379,6 @@ export default function MainCalendar({
     setTemporaryTask(event as Task);
 
     handlePopupPlacement(top, left, width);
-    // Set selected event position and
-
     setSelectedEvent(event as Task);
   };
   const handleDoubleClickEvent = (event: object) => {
@@ -383,7 +400,7 @@ export default function MainCalendar({
   }, [viewKeys]);
 
   return (
-    <Box h="full" pl={2}>
+    <Box h="full" pl={isMobile ? 0 : 2} w="full" overflow="hidden">
       <style>{`
           .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
           .rbc-timeslot-group { min-height:20px!important; }
@@ -435,7 +452,7 @@ export default function MainCalendar({
         min={timeRange.start.toDate()}
         max={timeRange.end.toDate()}
       />
-      {selectedEvent && (
+      {selectedEvent && !isMobile && (
         <CalendarPopup
           onClose={() => setSelectedEvent(null)}
           position={{

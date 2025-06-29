@@ -15,6 +15,7 @@ import TitleInput from "./ui/title-input";
 import TaskCheckbox from "./ui/task-checkbox";
 import { TagBadges } from "./ui/tag-badges";
 import { TagMenu } from "./tag-menu";
+import { useIsMobile } from "../utils/responsive";
 
 interface TaskState {
   title: string;
@@ -46,6 +47,7 @@ const EditTask = ({
   const contentRef = useRef<HTMLDivElement | null>(null);
   const { updateTask, createTask, setTemporaryTask, addTagToTask, removeTagFromTask } = useTasks();
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMobile = useIsMobile();
   const [taskState, setTaskState] = useState<TaskState>({
     title: task?.title ?? "",
     description: task?.description ?? "",
@@ -160,13 +162,13 @@ const EditTask = ({
     <>
       <Flex
         direction="column"
-        width={width ?? "100%"}
-        height={height ?? "100%"}
+        width={isMobile ? "100vw" : (width ?? "100%")}
+        height={isMobile ? "100vh" : (height ?? "100%")}
         bg={"brand.1"}
-        maxHeight={"100%"}
+        maxHeight={isMobile ? "100vh" : "100%"}
         overflow={"hidden"}
-        borderRadius="md"
-        boxShadow="md"
+        borderRadius={isMobile ? "none" : "md"}
+        boxShadow={isMobile ? "none" : "md"}
       >
         <Box
           as="form"
@@ -174,7 +176,8 @@ const EditTask = ({
           width={"100%"}
           borderBottom={showCloseButton ? "none" : "2px solid"}
           borderColor={"brand.2"}
-          px={4}
+          px={isMobile ? 2 : 4}
+          py={isMobile ? 2 : 0}
         >
           <HStack gap={0}>
             <TaskCheckbox checked={taskState.status} onChange={(checked) => handleStatusChange(checked)} />

@@ -10,6 +10,7 @@ import TitlePreview from "./ui/title-preview";
 import { TagListMenu } from "./tag-list-menu";
 import { Menu } from "@chakra-ui/react";
 import { ListItem as ListItemType } from "../hooks/useListFilters";
+import { useIsMobile } from "../utils/responsive";
 
 interface ListItemProps {
   item: ListItemType;
@@ -35,6 +36,7 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
   const { tasks, setModalTask, updateTask, addTagToTask, removeTagFromTask } = useTasks();
   const { notes, setSelectedNote, addTagToNote, removeTagFromNote } = useNotes();
   const [isHovered, setIsHovered] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleTaskStatusChange = async (taskId: string, newStatus: boolean) => {
     const task = tasks.find((t) => t.id === taskId);
@@ -92,8 +94,8 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
       p={2}
     >
       <Grid
-        templateColumns="20px 1fr 80px 150px"
-        gap={4}
+        templateColumns={isMobile ? "20px 1fr" : "20px 1fr 80px 150px"}
+        gap={isMobile ? 2 : 4}
         alignItems="center"
       >
         <GridItem>
@@ -109,15 +111,16 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
           )}
         </GridItem>
         <GridItem>
-          <Flex>
+          <Flex direction="column" gap={1}>
             <TitlePreview
               title={item.title}
               lineThrough={item.status}
               contrast={isHovered ? "dark" : "bright"}
-              mr={2}
+              wordBreak="break-word"
+              overflow="hidden"
             />
 
-            <Flex alignItems="center" gap={2} h={5} mt={1}>
+            <Flex alignItems="center" gap={2} h={5} flexWrap="wrap">
               {item.tags.length > 0 && (
                 <TagBadges tagIds={item.tags} size="sm" onClick={onTagClick} />
               )}
@@ -140,16 +143,24 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
                   </Menu.Content>
                 </Menu.Positioner>
               </Menu.Root>
+              {isMobile && item.shared && (
+                <Icon as={FaUserFriends} color="green.500" boxSize={4} aria-label="Shared with others" />
+              )}
             </Flex>
+            
+            <Text color="gray.600" fontSize="xs">
+              Created {formatDate(item.created)}
+            </Text>
           </Flex>
-          <Text color="gray.600" fontSize="xs">
-            Created {formatDate(item.created)}
-          </Text>
         </GridItem>
-        <GridItem>
-          {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
-        </GridItem>
-        <GridItem color="gray.600">{ }</GridItem>
+        {!isMobile && (
+          <>
+            <GridItem>
+              {item.shared && <Icon as={FaUserFriends} color="green.500" boxSize={5} aria-label="Shared with others" />}
+            </GridItem>
+            <GridItem color="gray.600">{ }</GridItem>
+          </>
+        )}
       </Grid>
     </Card>
   );
