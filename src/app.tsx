@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import DashboardLayout from "./layouts/dashboardLayout";
 import Notes from "./pages/notes";
 import Tasks from "./pages/tasks";
 import List from "./pages/list";
 import Login from "./pages/login";
-import { checkIfLoggedIn } from "./pocketbaseUtils";
+import { checkIfLoggedIn, getPb } from "./pocketbaseUtils";
 import { TaskProvider } from "./contexts/task-context";
 import TaskEditModal from "./components/task-modal";
 import { NoteProvider } from "./contexts/note-context";
@@ -43,11 +44,22 @@ const ProtectedApp = () => {
 };
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(checkIfLoggedIn());
+
+  useEffect(() => {
+    const pb = getPb();
+    const unsubscribe = pb.authStore.onChange(() => {
+      setIsLoggedIn(pb.authStore.isValid);
+    });
+
+    return unsubscribe;
+  }, []);
+
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/*" element={checkIfLoggedIn() ? <ProtectedApp /> : <Navigate to="/login" />} />
+        <Route path="/*" element={isLoggedIn ? <ProtectedApp /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
   );
