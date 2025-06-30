@@ -14,22 +14,22 @@ export default function CalendarPopup({ onClose, position, children }: CalendarP
 
   if (isMobile) {
     return (
-      <Box 
+      <Box
         position="fixed"
         top={0}
         left={0}
         right={0}
         bottom={0}
-        width="100vw"
-        height="100vh"
+        width="100dvw"
+        height="100dvh"
         zIndex={10000}
         bg="gray.900"
         overflow="hidden"
       >
-        <Box 
-          position="relative" 
-          height="100vh" 
-          width="100vw" 
+        <Box
+          position="relative"
+          height="100dvh"
+          width="100dvw"
           p={4}
           display="flex"
           flexDirection="column"
