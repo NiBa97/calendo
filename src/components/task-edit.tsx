@@ -162,8 +162,8 @@ const EditTask = ({
     <>
       <Flex
         direction="column"
-        width={isMobile ? "100vw" : (width ?? "100%")}
-        height={isMobile ? "100vh" : (height ?? "100%")}
+        width={isMobile ? "100dvw" : (width ?? "100%")}
+        height={isMobile ? "100dvh" : (height ?? "100%")}
         bg={"brand.1"}
         maxHeight={isMobile ? "100vh" : "100%"}
         overflow={"hidden"}

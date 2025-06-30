@@ -49,7 +49,7 @@ const CustomToolbar = ({
           <Button onClick={() => onNavigate("PREV")}>
             <FaChevronLeft />
           </Button>
-          <Text fontSize={isMobile ? "md" : "lg"} fontWeight="bold" noOfLines={1}>
+          <Text fontSize={isMobile ? "md" : "lg"} fontWeight="bold">
             {label}
           </Text>
           <Button onClick={() => onNavigate("NEXT")}>
@@ -62,7 +62,7 @@ const CustomToolbar = ({
           <MenuRoot>
             <MenuTrigger>
               <Button size={isMobile ? "xs" : "sm"}>
-              <FaCalendarAlt />
+                <FaCalendarAlt />
                 {isMobile ? "" : (viewOptions[view as string] || view)}
               </Button>
             </MenuTrigger>

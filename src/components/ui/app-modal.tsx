@@ -1,5 +1,6 @@
 import { Dialog } from "@chakra-ui/react"
 import { ReactNode, RefObject } from "react"
+import { useIsMobile } from "../../utils/responsive"
 
 interface AppModalProps {
   isOpen: boolean
@@ -9,13 +10,15 @@ interface AppModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
-export function AppModal({ 
-  isOpen, 
-  onClose, 
-  children, 
+export function AppModal({
+  isOpen,
+  onClose,
+  children,
   contentRef,
   size = 'lg'
 }: AppModalProps) {
+  const isMobile = useIsMobile();
+  if (isMobile) size = "full"
   const getSizeStyles = () => {
     switch (size) {
       case 'sm':
@@ -25,7 +28,7 @@ export function AppModal({
       case 'xl':
         return { height: "95vh", width: "95vw", maxH: "95vh", maxW: "95vw" }
       case 'full':
-        return { height: "100vh", width: "100vw", maxH: "100vh", maxW: "100vw" }
+        return { height: "100dvh", width: "100vw", maxH: "100dvh", maxW: "100vw", mt: 0, mb: 0 }
       case 'lg':
       default:
         return { height: "90vh", width: "90vw", maxH: "90vh", maxW: "90vw" }
@@ -48,6 +51,7 @@ export function AppModal({
           color="brand.4"
           {...sizeStyles}
           ref={contentRef}
+
         >
           <Dialog.Body {...sizeStyles} p={0}>
             {children}

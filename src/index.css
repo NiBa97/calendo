@@ -30,7 +30,7 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 h1 {
@@ -491,7 +491,7 @@ button[aria-label="Diff mode"] {
     top: 0 !important;
     left: 0 !important;
     width: 280px !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     z-index: 9999 !important;
     background: var(--chakra-colors-brand-2) !important;
     transform: translateX(-100%);
@@ -507,7 +507,7 @@ button[aria-label="Diff mode"] {
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     background: rgba(0, 0, 0, 0.5) !important;
     z-index: 9998 !important;
   }
@@ -537,7 +537,7 @@ button[aria-label="Diff mode"] {
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+  height: 100dvh !important;
     z-index: 9999 !important;
     background: var(--chakra-colors-gray-900) !important;
   }
