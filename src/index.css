@@ -416,23 +416,75 @@ button[aria-label="Diff mode"] {
     height: calc(100vh - 60px) !important;
     width: 100vw !important;
     max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
   
   .rbc-time-view {
     width: 100% !important;
     max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
   
   .rbc-month-view {
     width: 100% !important;
     max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
+
+  /* Calendar time gutter mobile optimization */
+  .rbc-time-gutter {
+    min-width: 50px !important;
+    max-width: 50px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Calendar content mobile optimization */
+  .rbc-time-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Event resize handles mobile optimization */
+  .rbc-addons-dnd .rbc-addons-dnd-resize-ew-icon {
+    display: none !important;
+  }
+
+  /* Toolbar mobile optimization */
+  .rbc-toolbar {
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Force calendar to fit viewport width */
+  .rbc-time-header {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* Events mobile optimization */
+  .rbc-event {
+    font-size: 12px !important;
+    padding: 2px !important;
+  }
+
+  /* Day header mobile optimization */
+  .rbc-header {
+    font-size: 14px !important;
+    padding: 4px 2px !important;
+  }
+
 
   /* Hide sidebar resize handles on mobile */
   .react-resizable-handle {
     display: none !important;
   }
+}
 
+
+/* Additional mobile styles */
+@media (max-width: 768px) {
   /* Mobile navigation styles */
   .mobile-nav-sidebar {
     position: fixed !important;
@@ -472,6 +524,7 @@ button[aria-label="Diff mode"] {
     flex-wrap: wrap !important;
     padding: 8px !important;
   }
+}
 
   /* Hide panel resize handles */
   .react-resizable-panels [data-panel-resize-handle-enabled] {

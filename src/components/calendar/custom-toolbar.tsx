@@ -6,6 +6,7 @@ import moment, { Moment } from "moment";
 import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu";
 import { SimpleTimePicker } from "../ui/simple-time-picker";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useIsMobile } from "../../utils/responsive";
 
 interface EnhancedToolbarProps extends ToolbarProps {
   setTimeRange: Dispatch<
@@ -34,20 +35,21 @@ const CustomToolbar = ({
   toggleTasklist,
   viewOptions,
 }: EnhancedToolbarProps) => {
+  const isMobile = useIsMobile();
   return (
-    <Box m={4}>
-      <HStack justifyContent="space-between" alignItems="center">
+    <Box m={isMobile ? 2 : 4} px={isMobile ? 1 : 0}>
+      <HStack justifyContent="space-between" alignItems="center" gap={isMobile ? 1 : 2} wrap={isMobile ? "wrap" : "nowrap"}>
         <IconButton aria-label="Toggle Sidebar" onClick={() => toggleTasklist()}>
           {isTaskListOpen ? <FiChevronLeft /> : <FiChevronRight />}
         </IconButton>
 
-        <Button onClick={() => onNavigate("TODAY")}>Today</Button>
+        <Button onClick={() => onNavigate("TODAY")} size={isMobile ? "xs" : "md"}>Today</Button>
         {/* Main Controls */}
-        <ButtonGroup size="sm" gap={5}>
+        <ButtonGroup size={isMobile ? "xs" : "sm"} gap={isMobile ? 2 : 5}>
           <Button onClick={() => onNavigate("PREV")}>
             <FaChevronLeft />
           </Button>
-          <Text fontSize="lg" fontWeight="bold">
+          <Text fontSize={isMobile ? "md" : "lg"} fontWeight="bold" noOfLines={1}>
             {label}
           </Text>
           <Button onClick={() => onNavigate("NEXT")}>
@@ -59,9 +61,9 @@ const CustomToolbar = ({
         {Object.keys(viewOptions).length > 1 && (
           <MenuRoot>
             <MenuTrigger>
-              <Button  size="sm" >
+              <Button size={isMobile ? "xs" : "sm"}>
               <FaCalendarAlt />
-                {viewOptions[view as string] || view}
+                {isMobile ? "" : (viewOptions[view as string] || view)}
               </Button>
             </MenuTrigger>
             <MenuContent minWidth="120px">
@@ -81,16 +83,18 @@ const CustomToolbar = ({
           </MenuRoot>
         )}
 
-        {/* Time Range - Subtle Menu */}
-        <MenuRoot closeOnSelect={false}>
-          <MenuTrigger display={"flex"} gap={2} alignItems={"center"}>
-            <FaClock />
-            {moment(timeRange.start, "HH:mm").format("HH:mm")} - {moment(timeRange.end, "HH:mm").format("HH:mm")}
-          </MenuTrigger>
-          <MenuContent p={0}>
-            <SimpleTimePicker timeRange={timeRange} setTimeRange={setTimeRange} />
-          </MenuContent>
-        </MenuRoot>
+        {/* Time Range - Subtle Menu - Hidden on Mobile */}
+        {!isMobile && (
+          <MenuRoot closeOnSelect={false}>
+            <MenuTrigger display={"flex"} gap={2} alignItems={"center"}>
+              <FaClock />
+              {moment(timeRange.start, "HH:mm").format("HH:mm")} - {moment(timeRange.end, "HH:mm").format("HH:mm")}
+            </MenuTrigger>
+            <MenuContent p={0}>
+              <SimpleTimePicker timeRange={timeRange} setTimeRange={setTimeRange} />
+            </MenuContent>
+          </MenuRoot>
+        )}
       </HStack>
     </Box>
   );
