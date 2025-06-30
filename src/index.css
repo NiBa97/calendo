@@ -523,6 +523,13 @@ button[aria-label="Diff mode"] {
   .mdxeditor-toolbar {
     flex-wrap: wrap !important;
     padding: 8px !important;
+    transition: min-height 0.3s ease !important;
+    min-height: 44px !important;
+  }
+  
+  /* Mobile expanded toolbar height adjustment */
+  .mobile-expanded-toolbar .mdxeditor-toolbar {
+    min-height: 80px !important;
   }
 }
 

@@ -27,11 +27,13 @@ import {
   DiffSourceToggleWrapper,
   CodeMirrorEditor,
 } from "@mdxeditor/editor";
-import { Box } from "@chakra-ui/react";
+import { Box, IconButton } from "@chakra-ui/react";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import React from "react";
 import { type FC } from "react";
 import { CreateTaskButton, InsertTaskButton, taskRefComponentDescriptor } from "./task-editor-plugin";
 import { drawIORefComponentDescriptor, InsertDrawIOButton } from "./draw-io-plugin";
+import { useIsMobile } from "../../utils/responsive";
 // import { useAttachments } from "~/contexts/attachment-context";
 interface EditorProps {
   markdown: string;
@@ -47,6 +49,8 @@ const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/
 const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = true, readOnly = false }) => {
   //   const presignedUrlMutation = api.upload.getPresignedUrl.useMutation();
   //   const { addAttachment } = useAttachments();
+  const isMobile = useIsMobile();
+  const [isToolbarExpanded, setIsToolbarExpanded] = useState(false);
 
   const plugins = [
     jsxPlugin({ jsxComponentDescriptors: [taskRefComponentDescriptor, drawIORefComponentDescriptor] }),
@@ -81,18 +85,40 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
       toolbarPlugin({
         toolbarContents: () => (
           <>
-            {" "}
-            <InsertTaskButton />
-            <CreateTaskButton />
-            <InsertDrawIOButton />
+            {/* Essential items - always shown */}
             <BoldItalicUnderlineToggles />
             <CreateLink />
             <Separator />
             <ListsToggle />
-            <Separator />
-            <BlockTypeSelect />
-            <InsertImage />
-            <DiffSourceToggleWrapper>-</DiffSourceToggleWrapper>
+            
+            {/* Mobile expand/collapse button */}
+            {isMobile && (
+              <>
+                <Separator />
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  aria-label={isToolbarExpanded ? "Collapse toolbar" : "Expand toolbar"}
+                  onClick={() => setIsToolbarExpanded(!isToolbarExpanded)}
+                >
+                  {isToolbarExpanded ? <FiChevronUp /> : <FiChevronDown />}
+                </IconButton>
+              </>
+            )}
+            
+            {/* Advanced items - hidden on mobile unless expanded, always shown on desktop */}
+            {(!isMobile || isToolbarExpanded) && (
+              <>
+                <Separator />
+                <InsertTaskButton />
+                <CreateTaskButton />
+                <InsertDrawIOButton />
+                <Separator />
+                <BlockTypeSelect />
+                <InsertImage />
+                <DiffSourceToggleWrapper>-</DiffSourceToggleWrapper>
+              </>
+            )}
           </>
         ),
       })
@@ -211,7 +237,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange, showToolbar = 
         markdown={markdown}
         ref={editorRef}
         onChange={onChange}
-        className="dark-theme dark-editor"
+        className={`dark-theme dark-editor ${isMobile && isToolbarExpanded ? 'mobile-expanded-toolbar' : ''}`}
         readOnly={readOnly}
       />
     </Box>
