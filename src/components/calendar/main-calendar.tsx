@@ -13,7 +13,7 @@ import moment from "moment";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { type SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useTasks } from "../../contexts/task-context";
 import CustomMultiDayView from "./custom-view";
 import CalendarPopup from "./popup";
@@ -215,6 +215,7 @@ export default function MainCalendar({
     loadTasksForRange,
   } = useTasks();
   const isMobile = useIsMobile();
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   const effectiveViewOptions = useMemo(() => availableViews || defaultViewOptions, [availableViews]);
   const viewKeys = useMemo(() => Object.keys(effectiveViewOptions), [effectiveViewOptions]);
@@ -231,8 +232,13 @@ export default function MainCalendar({
   const [selectedEvent, setSelectedEvent] = useState<Task | null>(null);
   const [selectedEventPos, setSelectedEventPos] = useState({ inverted: false, top: 0, left: 0, width: 0 });
   const [view, setView] = useState<View>(initialViewKey as View);
-  const [slotHeight, setSlotHeight] = useState<number>(100);
+  const [slotHeight, setSlotHeight] = useState<number>(isMobile ? 300 : 100);
   const [date, setDate] = useState(new Date());
+
+  useEffect(() => {
+    if (isMobile) setSlotHeight(300)
+    else setSlotHeight(100)
+  }, [isMobile])
 
   const handleOnChangeView = (selectedViewKey: string) => {
     setView(selectedViewKey as View);
@@ -294,19 +300,42 @@ export default function MainCalendar({
     setLocalStorage("calendar-time-range-end", timeRange.end.format("HH:mm"));
   }, [timeRange]);
 
+  // Auto-scroll to current hour on mobile
+  useEffect(() => {
+    if (isMobile && calendarRef.current) {
+      const scrollToCurrentHour = () => {
+        const currentHour = moment().hour();
+        const calendarContainer = calendarRef.current?.querySelector('.rbc-time-content');
+
+        if (calendarContainer) {
+          // Each hour slot is approximately 60px high in react-big-calendar
+          const hourHeight = 60;
+          const scrollPosition = currentHour * hourHeight;
+
+          // Scroll to current hour with some offset to center it better
+          calendarContainer.scrollTop = Math.max(0, scrollPosition - 120);
+        }
+      };
+
+      // Delay the scroll to ensure the calendar is fully rendered
+      const timeoutId = setTimeout(scrollToCurrentHour, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isMobile, view, date]);
+
   const handleEventSelect = (event: object, e: SyntheticEvent<HTMLElement, Event>) => {
     if (selectedEvent?.id === (event as Task).id) {
       setTemporaryTask(null);
       return setSelectedEvent(null);
     }
-    
+
     if (isMobile) {
       // On mobile, use modal instead of popup
       setModalTask(event as Task);
       setSelectedEvent(null);
       return;
     }
-    
+
     const parentElement = (e.target as HTMLElement).parentNode as HTMLElement;
     const { top, left, width } = parentElement.getBoundingClientRect();
     handlePopupPlacement(top, left, width);
@@ -326,7 +355,7 @@ export default function MainCalendar({
   };
 
   const numberOfDays = 3;
-  
+
 
   const messages = {
     customDayView: numberOfDays + " Days",
@@ -362,7 +391,7 @@ export default function MainCalendar({
       isAllDay: false,
       status: false,
     };
-    
+
     if (isMobile) {
       // On mobile, use modal instead of popup
       setTemporaryTask(event as Task);
@@ -370,7 +399,7 @@ export default function MainCalendar({
       setSelectedEvent(null);
       return;
     }
-    
+
     const el = document.getElementsByClassName(start.toISOString());
     if (el.length == 0 || el[0] == undefined) {
       return;
@@ -400,12 +429,11 @@ export default function MainCalendar({
   }, [viewKeys]);
 
   return (
-    <Box h="full" pl={isMobile ? 0 : 2} w="full" overflow="hidden">
+    <Box h="full" pl={isMobile ? 0 : 2} w="full" overflow={isMobile ? "auto" : "hidden"} ref={calendarRef}>
       <style>{`
           .rbc-day-slot, .rbc-time-gutter { max-height: ${slotHeight}%!important; min-height: ${slotHeight}%!important; }
-          .rbc-timeslot-group { min-height:20px!important; }
+          .rbc-timeslot-group { min-height: 20px!important; }
         `}</style>
-
       <DnDCalendar
         view={view}
         date={date}
@@ -449,8 +477,8 @@ export default function MainCalendar({
         eventPropGetter={eventPropGetter as EventPropGetter<object>}
         slotPropGetter={(date) => ({ className: date.toISOString() })}
         formats={{ timeGutterFormat: "HH:mm" }}
-        min={timeRange.start.toDate()}
-        max={timeRange.end.toDate()}
+        min={isMobile ? moment("00:00", "HH:mm").toDate() : timeRange.start.toDate()}
+        max={isMobile ? moment("23:59", "HH:mm").toDate() : timeRange.end.toDate()}
       />
       {selectedEvent && !isMobile && (
         <CalendarPopup
