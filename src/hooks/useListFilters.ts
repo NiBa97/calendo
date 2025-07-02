@@ -27,6 +27,21 @@ export const useListFilters = (notes: Note[], tasks: Task[]) => {
     searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
 
+  // Sync local state with URL parameter changes
+  useEffect(() => {
+    const titleParam = searchParams.get("title") || "";
+    const typeParam = searchParams.get("type") || "all";
+    const statusParam = searchParams.get("status") || "open";
+    const tagsParam = searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [];
+
+    if (titleParam !== titleFilter) setTitleFilter(titleParam);
+    if (typeParam !== typeFilter) setTypeFilter(typeParam);
+    if (statusParam !== statusFilter) setStatusFilter(statusParam);
+    if (JSON.stringify(tagsParam) !== JSON.stringify(selectedTagIds)) {
+      setSelectedTagIds(tagsParam);
+    }
+  }, [searchParams]);
+
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
