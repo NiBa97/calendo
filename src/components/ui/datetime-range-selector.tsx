@@ -4,7 +4,7 @@ import { Switch } from "./switch";
 import { FaCalendar } from "react-icons/fa";
 import moment from "moment";
 import { FaClock } from "react-icons/fa";
-import { Task } from "../../types";
+import { Task } from "../../features/tasks/types/task.types";
 import { PopoverBody, PopoverContent, PopoverTrigger } from "./popover";
 
 interface DateTimeRangeSelectorProps {

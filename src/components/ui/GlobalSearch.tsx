@@ -9,7 +9,7 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { getPb } from '../../pocketbaseUtils';
-import { useTasks } from '../../contexts/task-context';
+import { useTasks } from '../../features/tasks/contexts/task-context';
 import { useNotes } from '../../contexts/note-context';
 
 
@@ -29,8 +29,8 @@ const GlobalSearch = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const {tasks} = useTasks();
-  const {notes} = useNotes();
+  const { tasks } = useTasks();
+  const { notes } = useNotes();
   const pb = getPb();
 
   const { setModalTask } = useTasks();
@@ -52,7 +52,7 @@ const GlobalSearch = () => {
     }
   };
 
-  
+
   useEffect(() => {
     console.log("useEffect", isDialogOpen);
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -163,8 +163,8 @@ const GlobalSearch = () => {
                         _hover={{ bg: 'gray.100', cursor: 'pointer' }}
                         borderRadius="md"
                       >
-                        <Text fontWeight="bold">{result.title} [{result.type}]</Text> 
-                       
+                        <Text fontWeight="bold">{result.title} [{result.type}]</Text>
+
                       </List.Item>
                     ))}
                   </List.Root>

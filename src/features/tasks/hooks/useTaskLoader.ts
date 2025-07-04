@@ -1,11 +1,13 @@
 import { useRef } from "react";
-import { getPb } from "../pocketbaseUtils";
-import { convertTaskRecordToTask, Task } from "../types";
-import { TaskRecord } from "../pocketbase-types";
+import { getPb } from "../../../pocketbaseUtils";
+import { convertTaskRecordToTask, Task } from "../types/task.types";
+import { TaskRecord } from "../../../pocketbase-types";
+
 export const useTaskLoader = () => {
     // Use ref for tracking loaded months
     const loadedMonths = useRef<Set<string>>(new Set());
     const pb = getPb();
+    
     // Convert date to YYYY-MM format
     const getMonthKey = (date: Date): string => {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -32,6 +34,7 @@ export const useTaskLoader = () => {
       
       return months;
     };
+    
     // Function to merge tasks, preferring newer tasks
     const mergeTasks = (existingTasks: Task[], newTasks: Task[]): Task[] => {
       const taskMap = new Map<string, Task>();

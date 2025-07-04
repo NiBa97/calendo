@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Grid, GridItem, Flex, Text, Icon, Box } from "@chakra-ui/react";
 import { Card } from "./ui/card";
 import { FaBook, FaUserFriends, FaPlus } from "react-icons/fa";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 import { useNotes } from "../contexts/note-context";
 import { TagBadges } from "./ui/tag-badges";
 import TaskCheckbox from "./ui/task-checkbox";
@@ -126,8 +126,8 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
               )}
               <Menu.Root>
                 <Menu.Trigger asChild>
-                  <Box 
-                    color={isHovered ? "gray.500" : "gray.400"} 
+                  <Box
+                    color={isHovered ? "gray.500" : "gray.400"}
                     _hover={{ cursor: "pointer" }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -147,7 +147,7 @@ export const ListItem: React.FC<ListItemProps> = ({ item, onTagClick }) => {
                 <Icon as={FaUserFriends} color="green.500" boxSize={4} aria-label="Shared with others" />
               )}
             </Flex>
-            
+
             <Text color="gray.600" fontSize="xs">
               Created {formatDate(item.created)}
             </Text>

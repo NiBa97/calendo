@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaHistory, FaEllipsisV } from "react-icons/fa";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 import { Flex, Box, HStack, Portal, Menu } from "@chakra-ui/react";
 import { IconActionButton } from "./ui/icon-action-button";
 import { type MDXEditorMethods } from "@mdxeditor/editor";
-import { Task } from "../types";
+import { Task } from "../features/tasks/types/task.types";
 import DateTimeRangeSelector from "./ui/datetime-range-selector";
 import Editor from "./editor/editor";
 import TaskChangelog from "./task-changelog";

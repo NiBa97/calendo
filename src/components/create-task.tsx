@@ -5,7 +5,7 @@ import { BrandButton } from "./ui/brand-button";
 // import { useToast } from "@chakra-ui/toast";
 import { FaPlus } from "react-icons/fa6";
 
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 import { toaster } from "./ui/toaster";
 
 const CreateTask = () => {

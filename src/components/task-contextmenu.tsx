@@ -1,7 +1,7 @@
 import { Menu, HStack } from "@chakra-ui/react";
 import CalendarPopup from "./calendar/popup";
 import { FaCopy, FaStop, FaTrash } from "react-icons/fa6";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 import { ShareMenu } from "./share-menu";
 import { TagMenu } from "./tag-menu";
 

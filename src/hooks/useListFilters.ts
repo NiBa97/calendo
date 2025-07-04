@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Note } from "../types";
-import { Task } from "../types";
+import { Task } from "../features/tasks/types/task.types";
 
 // Combined type for list items (notes and tasks)
 export type ListItem = {

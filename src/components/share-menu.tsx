@@ -3,7 +3,7 @@ import { getPb } from "../pocketbaseUtils";
 import { FaShareAlt, FaSearch, FaChevronRight } from "react-icons/fa";
 import { Box, Input, Text, Flex, Portal, Menu, HStack } from "@chakra-ui/react";
 import { useNotes } from "../contexts/note-context";
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 
 interface ShareMenuProps {
   objectId: string;

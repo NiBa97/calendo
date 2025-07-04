@@ -6,7 +6,7 @@ import Tasks from "./pages/tasks";
 import List from "./pages/list";
 import Login from "./pages/login";
 import { checkIfLoggedIn, getPb } from "./pocketbaseUtils";
-import { TaskProvider } from "./contexts/task-context";
+import { TaskProvider } from "./features/tasks/contexts/task-context";
 import TaskEditModal from "./components/task-modal";
 import { NoteProvider } from "./contexts/note-context";
 import { OperationStatusProvider } from "./contexts/operation-status-context";

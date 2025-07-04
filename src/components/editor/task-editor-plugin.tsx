@@ -7,9 +7,9 @@ import { $getSelection, $isRangeSelection } from "lexical";
 import { DialogBody, DialogContent, DialogRoot } from "../ui/dialog";
 import { Box, Text } from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
-import { useTasks } from "../../contexts/task-context";
+import { useTasks } from "../../features/tasks/contexts/task-context";
 import EditTask from "../task-edit";
-import { Task } from "../../types";
+import { Task } from "../../features/tasks/types/task.types";
 import TaskCheckbox from "../ui/task-checkbox";
 import TitlePreview from "../ui/title-preview";
 

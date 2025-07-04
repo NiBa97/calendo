@@ -1,4 +1,4 @@
-import { useTasks } from "../contexts/task-context";
+import { useTasks } from "../features/tasks/contexts/task-context";
 import EditTask from "./task-edit";
 import { useRef } from "react";
 import { AppModal } from "./ui/app-modal";

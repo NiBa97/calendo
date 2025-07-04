@@ -6,7 +6,6 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useNotes } from "../contexts/note-context";
-import { useTasks } from "../contexts/task-context";
 import { TagManagerDialog } from "../components/tag-manager-dialog";
 import { useListFilters } from "../hooks/useListFilters";
 import { usePinnedQueries } from "../hooks/usePinnedQueries";
@@ -14,6 +13,7 @@ import { PinnedQueriesSection } from "../components/pinned-queries-section";
 import { FilterControls } from "../components/filter-controls";
 import { ListItem } from "../components/list-item";
 import { useIsMobile } from "../utils/responsive";
+import { useTasks } from "../features/tasks/contexts/task-context";
 
 export default function List() {
   const { notes, createNote, setSelectedNote } = useNotes();
@@ -91,10 +91,10 @@ export default function List() {
 
   return (
     <>
-      <Container 
-        p={isMobile ? 2 : 4} 
-        maxW={isMobile ? "100vw" : "3xl"} 
-        mx={isMobile ? 0 : "auto"} 
+      <Container
+        p={isMobile ? 2 : 4}
+        maxW={isMobile ? "100vw" : "3xl"}
+        mx={isMobile ? 0 : "auto"}
         w={isMobile ? "100vw" : "3xl"}
       >
         <Heading size={isMobile ? "md" : "lg"} mb={4}>All Items</Heading>
