@@ -1,5 +1,6 @@
-import { TaskRecord } from "../../../pocketbase-types";
 import { RecordModel } from "pocketbase";
+import { TaskRecord } from "../../pocketbase-types";
+import { Tag } from "../tags/type";
 
 // Type that encompasses both specific record types and generic RecordModel
 type TaskRecordOrModel = TaskRecord | RecordModel;
@@ -14,7 +15,7 @@ export interface Task {
   title: string;
   description: string;
   user: string[];
-  tags: string[];
+  tags: Tag[];
 }
 
 export function convertTaskRecordToTask(record: TaskRecord): Task;
@@ -40,7 +41,11 @@ export function convertTaskRecordToTask(record: TaskRecordOrModel): Task {
     title: record.title,
     description: record.description ? record.description : "",
     user: record.user ?? [],
-    tags: record.tags ?? [],
+    tags: record.expand?.tags ?? [],
     created: record.created ? new Date(record.created) : new Date(),
   };
 }
+
+export type TaskSortField = 'startDate' | 'endDate' | 'created' | 'title' | 'status';
+
+export type SortDirection = 'asc' | 'desc';

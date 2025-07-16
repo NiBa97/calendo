@@ -160,9 +160,6 @@ export type TaskRecord = {
 	status?: boolean
 	tags?: RecordIdString[]
 	user?: RecordIdString[]
-	expand?: {
-        [key: string]: string;
-    };
 }
 
 export type TaskHistoryRecord = {

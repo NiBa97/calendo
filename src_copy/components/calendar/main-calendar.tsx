@@ -15,7 +15,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useTasks } from "../../features/tasks/contexts/task-context";
-import CustomMultiDayView from "./custom-view";
+import CustomMultiDayView from "../../../src/features/calendar/custom-view";
 import CalendarPopup from "./popup";
 import { Task } from "../../features/tasks/types/task.types";
 import { getLocalStorage, setLocalStorage } from "../../utils/storage";
